@@ -407,12 +407,14 @@ button.tag:hover{border-color:var(--ink)}
 @media (max-width:880px){.jlayout{grid-template-columns:1fr;gap:24px}}
 .jlist{display:flex;flex-direction:column;align-self:start;position:sticky;top:84px}
 @media (max-width:880px){.jlist{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px}}
-.jbtn{text-align:start;padding:10px 12px;border-radius:9px;font-size:13.5px;color:var(--muted);line-height:1.35;transition:color .15s,background .15s}
+.jbtn{position:relative;text-align:start;padding:10px 36px 10px 12px;border-radius:9px;font-size:13.5px;color:var(--muted);line-height:1.35;transition:color .15s,background .15s}
+.jbtn .jn{position:absolute;inset-inline-end:12px;top:11px;font-size:11px;color:var(--faint)}
 .jbtn small{display:block;font-size:10.5px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;margin-bottom:2px}
 .jbtn:hover{color:var(--ink);background:var(--fill)}
 .jbtn.active{background:var(--fill);color:var(--ink);font-weight:600}
 .jbtn.active small{color:var(--muted)}
 @media (max-width:880px){.jbtn{white-space:nowrap;padding:8px 12px}
+.jbtn .jn{display:none}
 .jbtn.active{background:var(--fill)}}
 .jhead .jid{font-size:12px;color:var(--muted);font-weight:600;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
 .jhead h2{margin-top:6px;font-size:28px}
@@ -422,7 +424,12 @@ button.tag:hover{border-color:var(--ink)}
 .jbar{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin-top:22px;padding:12px 0;border-block:1px solid var(--line)}
 .jbar .jmeta,.jbar .jstats{margin-top:0}
 .jbar .jboard{margin-top:0;margin-inline-start:auto}
-.steps{margin-top:20px;display:flex;flex-direction:column}
+.jwrap{animation:jIn .28s cubic-bezier(.16,1,.3,1)}
+@keyframes jIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stepshead{display:flex;justify-content:flex-end;margin-top:16px}
+.stepsall{font-size:12.5px;font-weight:500;color:var(--blue);padding:4px 9px;border-radius:var(--r-pill);transition:background .15s}
+.stepsall:hover{background:var(--fill)}
+.steps{margin-top:4px;display:flex;flex-direction:column}
 .step{position:relative;padding:0 0 6px}
 .step::before{content:"";position:absolute;inset-inline-start:13px;top:34px;bottom:-2px;width:2px;background:var(--line)}
 .step:last-child::before{display:none}
@@ -435,12 +442,16 @@ button.tag:hover{border-color:var(--ink)}
 .step .who{font-size:11.5px;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
 .step p{font-size:13.5px;color:var(--ink-2);margin-top:6px;max-width:64ch}
 .step .apis{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-.jfoot{margin-top:30px;border-top:1px solid var(--line-2);padding-top:4px}
-.jfoot .row{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px}
-.jfoot .row:last-child{border-bottom:none}
-.jfoot .k{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:2px}
-.jfoot .row div:last-child{color:var(--ink-2);max-width:66ch}
-@media (max-width:600px){.jfoot .row{grid-template-columns:1fr;gap:4px}}
+.jfoot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px}
+@media (max-width:600px){.jfoot{grid-template-columns:1fr}}
+.jf{background:var(--tile);border-radius:12px;padding:14px 16px}
+.jf b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.jf p{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.55;max-width:60ch}
+.jnav{display:flex;justify-content:space-between;gap:10px;margin-top:26px}
+.jnavb{max-width:48%;text-align:start;padding:12px 16px;border-radius:12px;background:var(--tile);font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em;transition:background .15s,transform .12s}
+.jnavb:hover{background:var(--fill-2);transform:translateY(-1px)}
+.jnavb small{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-bottom:2px}
+.jnavb.next{text-align:end;margin-inline-start:auto}
 
 /* ── api catalog ────────────────────────── */
 .apigroup{margin-top:34px}
@@ -1247,7 +1258,7 @@ $("#personas").innerHTML=PERSONAS.map(p=>`<div class="persona"><div class="pid">
 /* journeys */
 let curJ="J1";
 function renderJList(){
-  $("#jlist").innerHTML=J.map(j=>`<button class="jbtn${j.id===curJ?" active":""}" role="tab" aria-selected="${j.id===curJ}" data-j="${j.id}"><small>${j.id}</small>${esc(j.t)}</button>`).join("");
+  $("#jlist").innerHTML=J.map(j=>`<button class="jbtn${j.id===curJ?" active":""}" role="tab" aria-selected="${j.id===curJ}" data-j="${j.id}"><small>${j.id}</small>${esc(j.t)}<span class="jn num">${j.steps.length}</span></button>`).join("");
 }
 function actorCls(a){
   const s=a.toLowerCase();
@@ -1261,7 +1272,7 @@ function renderJ(){
   const seen=new Set(),gaps=new Set();let live=0,build=0;
   j.steps.forEach(s=>s.apis.forEach(a=>{const k=a.s+"|"+a.l;if(seen.has(k))return;seen.add(k);
     if(a.s==="live")live++;else if(a.s==="gap")gaps.add(a.g||a.l);else if(a.s==="build")build++;}));
-  $("#jdetail").innerHTML=`
+  $("#jdetail").innerHTML=`<div class="jwrap">
     <div class="jhead">
       <span class="jid">${j.id} · ${esc(j.ph)}</span>
       <h2>${esc(j.t)}</h2>
@@ -1272,6 +1283,7 @@ function renderJ(){
         <button class="jboard" data-jboard="${j.id}">View on the flow board</button>
       </div>
     </div>
+    <div class="stepshead"><button class="stepsall">Expand all steps</button></div>
     <div class="steps">${j.steps.map((s,i)=>`
       <details class="step ${actorCls(s.a)}" id="st-${i}"${i===0?" open":""}>
         <summary><span class="sn num">${i+1}</span><h4>${esc(s.t)}<span class="actor">${esc(s.a)}</span></h4><span class="chev" aria-hidden="true">›</span></summary>
@@ -1283,12 +1295,21 @@ function renderJ(){
       </details>`).join("")}
     </div>
     <div class="jfoot">
-      <div class="row"><div class="k">Acceptance</div><div>${esc(j.kpi)}</div></div>
-      <div class="row"><div class="k">Edge cases</div><div>${esc(j.edge)}</div></div>
-    </div>`;
+      <div class="jf"><b>Acceptance</b><p>${esc(j.kpi)}</p></div>
+      <div class="jf"><b>Edge cases</b><p>${esc(j.edge)}</p></div>
+    </div>
+    <div class="jnav">${(()=>{const i=J.findIndex(x=>x.id===curJ);const pv=J[i-1],nx=J[i+1];
+      return `${pv?`<button class="jnavb" data-jnav="${pv.id}"><small>Previous, ${pv.id}</small>${esc(pv.t)}</button>`:"<span></span>"}${nx?`<button class="jnavb next" data-jnav="${nx.id}"><small>Next, ${nx.id}</small>${esc(nx.t)}</button>`:""}`})()}</div>
+  </div>`;
   renderJList();
 }
 $("#jlist").addEventListener("click",e=>{const b=e.target.closest(".jbtn");if(!b)return;curJ=b.dataset.j;renderJ();});
+$("#jdetail").addEventListener("click",e=>{
+  const ex=e.target.closest(".stepsall");
+  if(ex){const det=[...document.querySelectorAll("#jdetail .step")];const anyClosed=det.some(d=>!d.open);det.forEach(d=>d.open=anyClosed);ex.textContent=anyClosed?"Collapse all steps":"Expand all steps";return;}
+  const pn=e.target.closest("[data-jnav]");
+  if(pn){curJ=pn.dataset.jnav;renderJ();$("#jdetail").scrollIntoView({block:"start"});}
+});
 renderJ();
 
 /* apis */
@@ -1436,6 +1457,11 @@ document.addEventListener("keydown",e=>{
     if(e.key==="ArrowRight"){e.preventDefault();$("#tournext").click();return;}
     if(e.key==="ArrowLeft"){e.preventDefault();$("#tourback").click();return;}
     if(e.key==="Escape"){tourEnd(false);return;}
+  }
+  if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&tourI<0&&$("#view-journeys").classList.contains("active")){
+    const i=J.findIndex(x=>x.id===curJ),n=e.key==="ArrowRight"?i+1:i-1;
+    if(n>=0&&n<J.length){e.preventDefault();curJ=J[n].id;renderJ();}
+    return;
   }
   if(e.key==="/"){e.preventDefault();palOpen();return;}
   if(e.key>="1"&&e.key<="6")show(["plan","arch","flow","journeys","apis","gaps"][+e.key-1]);
