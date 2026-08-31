@@ -1,3 +1,4 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ADEED Freight — Integration Playbook</title>
 <style>
 :root{
@@ -782,7 +783,7 @@ button.tag:hover{border-color:var(--ink)}
 <!-- ══════════ GAPS ══════════ -->
 <section class="view" id="view-gaps">
   <div class="vhead">
-    <h1>For the TruKKer team</h1>
+    <div class="exrow"><h1>For the TruKKer team</h1><button class="jboard" id="sharetk" style="margin-top:0">Share this tab</button></div>
     <p>What the integration needs from your side, ready to table. All of it already runs inside the TruKKer platform; the missing piece is the <em>API contracts</em>, and thirteen of them block the pilot.</p>
   </div>
 
@@ -1371,6 +1372,17 @@ function gapItem(g){
     <details class="ggroup"><summary><h3>For the federal MVP</h3><span class="cnt num">${p1.length}</span><span class="chev" aria-hidden="true">›</span></summary><div class="glist">${p1.map(gapItem).join("")}</div></details>
     <details class="ggroup"><summary><h3>For the mandate and scale phase</h3><span class="cnt num">${p2.length}</span><span class="chev" aria-hidden="true">›</span></summary><div class="glist">${p2.map(gapItem).join("")}</div></details>`;
 })();
+
+$("#sharetk").addEventListener("click",async()=>{
+  const base=location.href.replace(/[#?].*$/,"").replace(/index\.html$/,"");
+  const url=(base.endsWith("/")?base:base+"/")+"trukker/";
+  let ok=true;
+  try{await navigator.clipboard.writeText(url);}
+  catch(e){const t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();
+    try{ok=document.execCommand("copy");}catch(_){ok=false;}t.remove();}
+  const b=$("#sharetk");b.textContent=ok?"Link copied":url;
+  setTimeout(()=>{b.textContent="Share this tab";},2200);
+});
 
 /* cross-navigation helpers */
 function jumpGap(id){
