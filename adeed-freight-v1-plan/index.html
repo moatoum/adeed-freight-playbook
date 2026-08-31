@@ -1,0 +1,1485 @@
+<title>ADEED Freight — Integration Playbook</title>
+<style>
+:root{
+  color-scheme: light;
+  --canvas:#FFFFFF; --surface:#FFFFFF; --tile:#F5F5F7; --panel:#161618;
+  --ink:#1D1D1F; --ink-2:#3A3A3C; --muted:#6E6E73; --faint:#AEAEB2;
+  --line:#E8E8ED; --line-2:#D2D2D7;
+  --blue:#0020F5; --blue-hover:#001ACC; --blue-wash:#F0F3FF;
+  --on-panel:#F5F5F7; --panel-muted:#98989D; --panel-line:#2C2C2E; --panel-blue:#8FA2FF;
+  --fill:rgba(120,120,128,.12); --fill-2:rgba(120,120,128,.2);
+  --live:#008663; --contract:#A36000; --gapc:#C81E3C; --build:#0020F5;
+  --r-ctl:8px; --r-pill:980px; --r-panel:18px; --r-tag:6px;
+  --shadow-lift:0 2px 12px rgba(0,0,0,.04),0 16px 40px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;letter-spacing:-.012em;-webkit-font-smoothing:antialiased}
+code,.mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;letter-spacing:0}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.985)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+::selection{background:var(--blue);color:#fff}
+.num{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ── workspace shell ────────────────────── */
+.ws{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh;max-width:1600px;margin:0 auto}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 16px 18px;border-inline-end:1px solid var(--line-2);overflow-y:auto;background:rgba(255,255,255,.78);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%)}
+@media (prefers-reduced-transparency: reduce){.side{background:var(--canvas);backdrop-filter:none;-webkit-backdrop-filter:none}}
+.s-brand{display:flex;align-items:baseline;gap:9px;padding:0 8px}
+.s-brand img{height:16px;width:auto;display:block;transform:translateY(1px)}
+.s-brand .fx{font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+.s-doc{padding:16px 8px 14px}
+.s-doc b{display:block;font-size:13.5px;letter-spacing:-.01em}
+.s-sub{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.s-search{display:flex;align-items:center;gap:8px;margin:2px 0 14px;padding:8px 11px;border:none;border-radius:var(--r-ctl);background:var(--fill);font-size:13px;color:var(--muted);width:100%;transition:background .15s,color .15s}
+.s-search:hover{background:var(--fill-2);color:var(--ink)}
+.s-search kbd{margin-inline-start:auto;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:1px 5px;background:var(--surface)}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.navbtn{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--ink);text-align:start;transition:background .15s,color .15s}
+.navbtn i{display:none}
+.navbtn .badge{margin-inline-start:auto;font-variant-numeric:tabular-nums;font-weight:400;font-size:12.5px;color:var(--faint)}
+.navbtn .badge.red{color:var(--muted)}
+.navbtn:hover{background:var(--fill)}
+.navbtn.active{background:var(--fill-2);color:var(--ink);font-weight:600}
+.navbtn.active .badge{color:var(--muted)}
+.navbtn.active .badge.red{color:var(--muted)}
+.marea{min-width:0;padding:14px 22px 48px;display:flex;flex-direction:column}
+.topbar{height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 6px;font-size:12.5px}
+.crumb{color:var(--faint)}
+.crumb.cur{color:var(--ink);font-weight:600}
+.crumb-sep{color:var(--line-2)}
+.sheet{--shx:52px;background:var(--surface);border:none;border-radius:0;padding:40px 54px 58px;box-shadow:none;flex:1}
+@media (max-width:1100px){.sheet{--shx:30px;padding:32px 30px 44px}}
+@media (max-width:900px){
+  .ws{display:block}
+  .side{position:sticky;z-index:40;height:auto;flex-direction:row;align-items:center;gap:10px;padding:10px 14px;background:var(--canvas);border-inline-end:none;border-bottom:1px solid var(--line-2);overflow-x:auto;overflow-y:hidden}
+  .s-doc{display:none}
+  .s-search{width:auto;margin:0;flex:none}
+  .s-search .lbl{display:none}
+  .side nav{flex-direction:row}
+  .navbtn{white-space:nowrap;padding:7px 10px}
+  .navbtn i,.navbtn .badge{display:none}
+  .marea{padding:12px 12px 32px}
+  .topbar{display:none}
+  .sheet{--shx:16px;padding:22px 16px 36px;border-radius:0}
+}
+.view{display:none}
+.view.active{display:block;animation:rise .3s cubic-bezier(.16,1,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── command palette ────────────────────── */
+#pal{position:fixed;inset:0;z-index:80}
+#pal[hidden]{display:none}
+.pal-back{position:absolute;inset:0;background:rgba(0,0,0,.22)}
+.pal-panel{position:relative;max-width:600px;margin:11vh auto 0;background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:.5px solid rgba(0,0,0,.1);border-radius:var(--r-panel);box-shadow:0 30px 90px -20px rgba(0,0,0,.35);overflow:hidden}
+.pal-panel input{width:100%;border:none;outline:none;background:transparent;padding:17px 22px;font:inherit;font-size:18px;color:var(--ink);border-bottom:1px solid rgba(0,0,0,.08)}
+.pal-panel input::placeholder{color:var(--faint)}
+.pal-list{max-height:46vh;overflow-y:auto;padding:8px}
+.pal-g{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 12px 4px}
+.pal-i{display:flex;align-items:baseline;gap:10px;width:100%;text-align:start;padding:8px 12px;border-radius:8px;font-size:13.5px;color:var(--ink-2)}
+.pal-i .k{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);flex:none;min-width:52px}
+.pal-i small{color:var(--faint);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-i.sel,.pal-i:hover{background:var(--fill);color:var(--ink)}
+.pal-none{padding:18px;font-size:13.5px;color:var(--muted)}
+@media (prefers-reduced-motion: no-preference){.pal-panel{animation:palIn .18s cubic-bezier(.16,1,.3,1)}@keyframes palIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}}
+@media (prefers-reduced-transparency: reduce){.pal-panel{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}}
+
+h1{font-size:32px;line-height:1.12;letter-spacing:-.022em;font-weight:600;text-wrap:balance}
+h2{font-size:24px;letter-spacing:-.018em;font-weight:600;text-wrap:balance}
+.sub{color:var(--ink-2);font-size:16px;max-width:52ch;margin-top:16px}
+.sub em{font-style:normal;color:var(--ink);font-weight:600}
+/* report document header + figures */
+.doch h1{font-size:26px;letter-spacing:-.02em;max-width:none}
+.doch .meta{display:flex;flex-wrap:wrap;gap:0;margin-top:12px;font-size:12px;color:var(--muted)}
+.doch .meta span{padding:0 14px;border-inline-start:1px solid var(--line-2)}
+.doch .meta span:first-child{padding-inline-start:0;border-inline-start:none}
+.doch .meta b{font-weight:600;color:var(--ink-2)}
+.doch .meta .st{color:var(--contract);font-weight:600}
+.brief-sum{font-size:15px;color:var(--ink-2);max-width:72ch;margin-top:22px;line-height:1.65}
+.brief-sum b{color:var(--ink)}
+.exhibit{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
+.exhibit b{color:var(--ink);font-weight:600}
+.brieffig{margin-top:14px;max-width:840px}
+.mile.done .d{color:var(--faint)}
+.mile.done .t{color:var(--muted)}
+.mile .st{display:inline-block;font-size:11px;font-weight:600;letter-spacing:0;padding:1px 7px;border-radius:var(--r-tag);margin-inline-start:10px;vertical-align:1px}
+.mile .st.ok{background:rgba(0,134,99,.12);color:var(--live)}
+.mile .st.nx{background:var(--ink);color:#fff}
+/* elevated interactive surfaces */
+
+
+button.tag{transition:background .15s,transform .12s}
+button.tag:hover{transform:translateY(-1px)}
+.station{transition:background .15s,color .15s,transform .15s}
+.station:hover{transform:translateY(-1px)}
+/* ledger: numbers are buttons into their views */
+.ledger > div{transition:background .2s}
+.ledger > div:hover{background:var(--tile)}
+/* estate strip is navigable */
+.strip .seg{border:none;cursor:pointer;transition:filter .15s,flex-grow .25s cubic-bezier(.16,1,.3,1)}
+.strip .seg:hover{filter:brightness(1.12)}
+/* premium panel material: interior corner light + top edge highlight */
+.panel-m{position:relative}
+.panel-m::after{content:none}
+/* load choreography (storytelling: brand, message, instrument, then the ledger) */
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(16px);animation:riseIn .8s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d,0s)}
+  @keyframes riseIn{to{opacity:1;transform:none}}
+  .cor.base,.cor.minor{stroke-dasharray:1;stroke-dashoffset:1;animation:corDraw 1.5s cubic-bezier(.4,0,.2,1) forwards}
+  .cor.minor{animation-delay:.55s}
+  @keyframes corDraw{to{stroke-dashoffset:0}}
+  .mnode{opacity:0;animation:nodeIn .5s ease forwards;animation-delay:1.15s}
+  @keyframes nodeIn{to{opacity:1}}
+}
+/* corridor map panel */
+.mappanel{background:var(--panel);border-radius:var(--r-panel);padding:20px 20px 14px;color:var(--on-panel)}
+.mnode[data-loc]{cursor:pointer;pointer-events:bounding-box}
+.mnode[data-loc]:hover .mp-lbl,.mnode[data-loc]:focus-visible .mp-lbl{fill:#E8ECF8}
+.mnode.on rect{stroke:#E8ECF8;stroke-width:1.8}
+.mnode.on .mp-lbl{fill:#E8ECF8}
+.mp-cap b{color:#C6CDE0;font-weight:600}
+.mappanel .mp-head{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--panel-blue);margin-bottom:4px;padding-inline-start:4px}
+.mappanel svg{width:100%;height:auto;display:block}
+.mappanel .mp-cap{font-size:11.5px;color:var(--panel-muted);line-height:1.5;padding:8px 4px 2px;max-width:52ch}
+.cor{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cor.base{stroke:#33417F;stroke-width:2.5}
+.cor.minor{stroke:#2A3350;stroke-width:1.8}
+.cor.flow{stroke:#8FA2FF;stroke-width:2.5;opacity:0}
+@media (prefers-reduced-motion: no-preference){
+  .cor.flow{stroke-dasharray:3 14;animation:corFade .5s 1.5s forwards,corflow 30s linear infinite}
+  @keyframes corFade{to{opacity:.95}}
+  @keyframes corflow{to{stroke-dashoffset:-680}}
+}
+@media (prefers-reduced-motion: reduce){.cor.flow{opacity:.5;stroke-dasharray:3 14}}
+.mp-city{fill:#B8C0D4}
+.mp-port{fill:#E8ECF8;stroke:#8FA2FF;stroke-width:1.4}
+.mp-gate{fill:#2AA189}
+.mp-lbl{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:9.5px;fill:#8E97AE}
+.mp-lbl.big{fill:#C6CDE0;font-size:10px}
+.mp-out{fill:#5A648A;font-size:9.5px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+/* architecture board */
+.archboard{background:var(--tile);border-radius:var(--r-panel);padding:26px 28px;display:grid;grid-template-columns:1.08fr 34px 1fr 34px 1.08fr;gap:14px;margin-top:28px}
+.az{display:flex;flex-direction:column;gap:10px;min-width:0}
+.az-h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.az-adeed .az-h{color:var(--muted)}
+.az-gw .az-h{color:var(--muted)}
+.az-tk .az-h{color:var(--muted)}
+.ac{background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:11px 14px}
+.ac b{display:block;font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.ac span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.ac.gw{background:var(--blue-wash);border-color:#D5DCFF}
+.aconn{display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:20px}
+@media (max-width:900px){.archboard{grid-template-columns:1fr;gap:12px}.aconn{transform:rotate(90deg);font-size:18px}}
+.factgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+@media (max-width:820px){.factgrid{grid-template-columns:1fr}}
+.factgrid > div{background:var(--tile);border-radius:12px;padding:13px 16px}
+.factgrid b{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.factgrid span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+/* disclosure system: focus first, reveal on demand */
+details summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.chev{margin-inline-start:auto;color:var(--faint);font-size:13px;flex:none;transition:transform .2s}
+details[open] > summary .chev{transform:rotate(90deg)}
+/* featured gap cards */
+.p0grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+@media (max-width:820px){.p0grid{grid-template-columns:1fr}}
+.gitem{background:var(--tile);border-radius:12px;align-self:start;transition:background .3s}
+.gitem > summary{display:flex;align-items:baseline;gap:10px;padding:13px 16px}
+.gitem .gid{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:600;color:var(--muted);flex:none}
+.gitem h4{font-size:14px;font-weight:600;letter-spacing:-.01em;flex:1;min-width:0}
+.gitem .prio{flex:none}
+.gitem .g-b{padding:0 16px 15px;max-width:64ch}
+.gitem .g-b p{font-size:13px;color:var(--ink-2);margin-bottom:7px}
+.gitem .g-b .shape{font-size:12px;color:var(--muted)}
+.gitem .g-b .shape code{font-size:11.5px;color:var(--ink-2)}
+.gitem .g-b .jrow{display:flex;gap:10px;margin-top:9px}
+.ggroup{margin-top:14px;border-top:1px solid var(--line)}
+.ggroup > summary{display:flex;align-items:center;gap:10px;padding:16px 2px}
+.ggroup > summary h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ggroup > summary .cnt{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted);background:var(--fill);border-radius:var(--r-pill);padding:1.5px 9px}
+.ggroup .glist{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 0 20px}
+@media (max-width:820px){.ggroup .glist{grid-template-columns:1fr}}
+/* collapsible api groups */
+.agroup{margin-top:12px;border-top:1px solid var(--line)}
+.agroup > summary{display:flex;align-items:center;gap:10px;padding:15px 2px}
+.agroup > summary h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.agroup > summary .cnt{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted);background:var(--fill);border-radius:var(--r-pill);padding:1.5px 9px}
+.agroup-b{padding-bottom:8px}
+/* guided tour + cross-links */
+.exrow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tourbtn,.jboard{padding:7px 16px;border:none;border-radius:var(--r-pill);background:var(--fill);font-size:13px;font-weight:500;color:var(--blue);transition:background .15s,transform .12s}
+.tourbtn:hover,.jboard:hover{background:var(--fill-2);transform:translateY(-1px)}
+.tourctl{display:flex;align-items:center;gap:8px}
+.tourctl[hidden]{display:none}
+.tourctl button{padding:6px 15px;border:none;border-radius:var(--r-pill);font-size:13px;font-weight:500;color:var(--ink);background:var(--fill)}
+.tourctl button:hover{background:var(--fill-2)}
+.tourctl button.go{background:var(--blue);color:#fff}
+.tourctl button.go:hover{background:var(--blue-hover)}
+.tourctl button[disabled]{opacity:.35;pointer-events:none}
+.tourctl #tourpos{font-size:11.5px;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;white-space:nowrap}
+.jboard{margin-top:14px}
+/* compact view headers */
+.vhead h1{font-size:32px;letter-spacing:-.022em;max-width:none}
+.vhead p{color:var(--muted);font-size:15px;max-width:64ch;margin-top:9px}
+.vhead p em{font-style:normal;color:var(--ink);font-weight:600}
+/* print as a report */
+@media print{
+  .side,.topbar,.s-search{display:none}
+  .ws{display:block}
+  .marea{padding:0}
+  .sheet{border:none;box-shadow:none;padding:0}
+  .view{display:block!important;page-break-after:always;animation:none}
+  .matrix-wrap{overflow:visible}
+}
+.section{margin-top:56px}
+.section > h2{margin-bottom:6px}
+.section > .note,.agroup-b > .note{color:var(--muted);font-size:14.5px;max-width:62ch;margin-bottom:24px}
+.rule{border:none;border-top:1px solid var(--line);margin:0}
+
+/* ledger strip */
+.ledger{display:flex;flex-wrap:wrap;border-block:1px solid var(--line);margin-top:44px}
+.ledger > div{flex:1 1 150px;padding:18px 22px 16px;border-inline-end:1px solid var(--line)}
+.ledger > div:last-child{border-inline-end:none}
+.ledger .v{font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.ledger .v.blue{color:var(--blue)}
+.ledger .v.red{color:var(--gapc)}
+.ledger .l{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+/* who does what */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.split > div{padding:26px 32px 28px;border-inline-start:2px solid var(--blue)}
+.split > div + div{border-inline-start-color:var(--ink)}
+.split .who{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+.split > div + div .who{color:var(--ink)}
+.split h3{font-size:16.5px;margin:8px 0 8px;letter-spacing:-.01em}
+.split p{font-size:14px;color:var(--ink-2);max-width:44ch}
+@media (max-width:760px){.split{grid-template-columns:1fr}.split > div{padding:22px 24px}}
+.seam{margin-top:26px;padding:16px 22px;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);font-size:13.5px;color:var(--ink-2);display:flex;gap:12px;align-items:baseline}
+.seam b{color:var(--ink);white-space:nowrap}
+
+/* coverage strip */
+.strip{display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden;margin:22px 0 12px}
+.strip .seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;min-width:30px}
+.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+/* milestones */
+.miles{margin-top:8px}
+.mile{display:grid;grid-template-columns:128px 1fr;gap:22px;padding:15px 0;border-bottom:1px solid var(--line)}
+.mile:last-child{border-bottom:none}
+.mile .d{font-size:12.5px;color:var(--muted);font-weight:500;padding-top:2px}
+.mile .t{font-size:15px;color:var(--ink-2);max-width:66ch}
+.mile .t b{color:var(--ink)}
+
+/* ── flow matrix ────────────────────────── */
+.matrix-wrap{overflow-x:auto;margin:24px calc(var(--shx,52px)*-1) 0;padding:0 var(--shx,52px)}
+.matrix{min-width:1060px;background:var(--tile);border-radius:var(--r-panel);padding:20px 20px 22px}
+.mrow{display:grid;grid-template-columns:148px repeat(7,1fr);gap:0;align-items:stretch}
+.mhead .mcell{border-bottom:1px solid var(--line-2);padding:2px 14px 10px;font-size:11.5px;color:var(--muted)}
+.mhead .mcell b{display:block;color:var(--ink);font-size:12.5px;letter-spacing:-.01em}
+.mhead .mcell .n{color:var(--muted);font-weight:600;margin-inline-end:6px}
+.mlane .lanehead{padding:18px 14px 18px 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.mlane .lanehead small{display:block;font-weight:500;letter-spacing:0;text-transform:none;color:var(--muted);font-size:11px;margin-top:3px}
+.mlane.adeed .lanehead{color:var(--blue)}
+.mlane.fed .lanehead{color:var(--live)}
+.mlane.tk .lanehead{color:var(--ink-2)}
+.mlane.adeed{background:rgba(0,32,245,.05);border-radius:12px}
+.mcell{padding:12px 12px 12px 0;display:flex;flex-direction:column;gap:8px;align-items:flex-start;border-inline-start:1px solid var(--line)}
+.mlane .mcell{min-height:64px}
+.station{display:inline-flex;align-items:flex-start;gap:8px;text-align:start;font-size:12px;font-weight:500;line-height:1.35;color:var(--ink-2);padding:7px 11px;border-radius:8px;background:var(--surface);border:1px solid var(--line-2);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s,transform .15s,background .15s,opacity .2s}
+.station .dot{width:7px;height:7px;border-radius:50%;flex:none;margin-top:4px}
+.mlane.adeed .dot{background:var(--blue)}
+.mlane.fed .dot{background:transparent;border:1.5px dashed var(--live)}
+.mlane.tk .dot{background:var(--ink)}
+.station:hover{border-color:var(--faint);transform:translateY(-1px)}
+.station.sel{background:var(--blue);border-color:#4A62FF;color:#fff}
+.station.sel .dot{background:#fff;border:none}
+.gateway{grid-column:1 / -1;display:flex;align-items:center;gap:14px;background:var(--blue-wash);border-block:1px solid #D5DCFF;border-radius:6px;padding:9px 16px;margin:12px 0;font-size:12px}
+.gateway b{color:var(--blue);letter-spacing:.08em;text-transform:uppercase;font-size:11px;white-space:nowrap}
+.gateway span{color:var(--muted)}
+.flowdetail{margin-top:26px;border-top:2px solid var(--ink);padding-top:20px;max-width:820px}
+.flowdetail .fd-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.flowdetail h3{font-size:17px;letter-spacing:-.01em}
+.flowdetail .owner{font-size:12px;color:var(--muted)}
+.flowdetail p{font-size:14px;color:var(--ink-2);margin-top:8px;max-width:66ch}
+.flowdetail .fd-refs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.flowdetail .pm{flex:none}
+.fd-flow{display:grid;grid-template-columns:1fr 1fr;gap:20px 32px;margin-top:16px;max-width:660px}
+@media (max-width:600px){.fd-flow{grid-template-columns:1fr}}
+.fd-flow h5{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fd-flow .chips{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.fd-flow .via{font-size:11px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;padding-inline-start:2px;margin-bottom:2px}
+/* wires */
+.matrix{position:relative}
+.wires{position:absolute;inset:0;pointer-events:none;z-index:0}
+.mrow{position:relative;z-index:1}
+.wire{fill:none;transition:opacity .2s,stroke-width .2s}
+.wire.seq{stroke-width:1.25;opacity:.3}
+.wire.seq.adeed{stroke:#4053E0}
+.wire.seq.tk{stroke:#98989D}
+.wire.hand{stroke-width:1.7;opacity:.75}
+.wire.hand.adeed{stroke:#0020F5}
+.wire.hand.fed{stroke:#008663}
+.wire.hand.tk{stroke:#3A3A3C}
+.elabel{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10px;fill:#6E6E73;paint-order:stroke;stroke:#F5F5F7;stroke-width:3.5px;stroke-linejoin:round;opacity:.9;transition:opacity .2s}
+.matrix.has-sel .wire{opacity:.05}
+.matrix.has-sel .elabel{opacity:.08}
+.matrix.has-sel .wire.hot{opacity:1;stroke-width:2.2}
+.matrix.has-sel .wire.hot.seq{opacity:.55;stroke-width:1.5}
+.matrix.has-sel .elabel.hot{opacity:1;fill:#1D1D1F}
+.matrix.has-sel .station{opacity:.28}
+.matrix.has-sel .station.sel,.matrix.has-sel .station.adj{opacity:1}
+.station.adj{border-color:var(--blue)}
+@media (prefers-reduced-motion: no-preference){
+  .matrix.has-sel .wire.hot.hand{stroke-dasharray:7 6;animation:wireflow 1.1s linear infinite}
+  @keyframes wireflow{to{stroke-dashoffset:-26}}
+}
+/* journey blueprint: actor colors carry the story */
+.ac-client{--acc:#0020F5;--acf:#0020F5;--act:#fff}
+.ac-carrier{--acc:#0A0F1E;--acf:#0A0F1E;--act:#fff}
+.ac-system{--acc:#008663;--acf:#008663;--act:#fff}
+.ac-ops{--acc:#0020F5;--acf:#fff;--act:#0020F5}
+.step{scroll-margin-top:90px}
+.jstats{display:flex;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--muted)}
+.jstats span{padding:0 14px;border-inline-start:1px solid var(--line-2)}
+.jstats span:first-child{padding-inline-start:0;border-inline-start:none}
+.jstats b{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-weight:600;color:var(--ink)}
+.jstats .g b{color:var(--gapc)}
+.jstats .l b{color:var(--live)}
+
+/* custody table */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;color:var(--muted);text-align:start;font-weight:600;padding:0 14px 10px 0;border-bottom:1px solid var(--line-2);white-space:nowrap}
+td{padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+td b{color:var(--ink)}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+
+/* ── tags & shared ──────────────────────── */
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3.5px 9px;border:none;border-radius:var(--r-tag);background:var(--fill);font-size:11.5px;font-weight:500;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;color:var(--ink-2);white-space:nowrap;transition:background .15s}
+.tag .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.tag.live .dot{background:var(--live)}
+.tag.contract .dot{background:var(--contract)}
+.tag.gap .dot{background:var(--gapc)}
+.tag.build .dot{background:var(--build)}
+button.tag:hover{border-color:var(--ink)}
+.jref{color:var(--blue);font-weight:600;font-size:12.5px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;background:none;border:none;padding:0}
+.jref:hover{text-decoration:underline}
+.prio{display:inline-flex;align-items:center;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:var(--r-tag);letter-spacing:.04em}
+.prio.P0{background:var(--gapc);color:#fff}
+.prio.P1{background:rgba(163,96,0,.12);color:var(--contract)}
+.prio.P2{background:var(--fill);color:var(--muted)}
+.method{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.06em;padding:2px 6px;border-radius:var(--r-tag);background:var(--fill);color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+
+/* segmented control + search */
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:24px 0 8px}
+.segs{display:inline-flex;border:none;border-radius:9px;padding:2px;background:var(--fill)}
+.seg{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--ink-2);white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s}
+.seg:hover{color:var(--ink)}
+.seg.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.controls input[type=search]{background:var(--fill);border:none;border-radius:var(--r-ctl);padding:8px 14px;font:inherit;font-size:13.5px;color:var(--ink);min-width:230px}
+.controls input[type=search]::placeholder{color:var(--faint)}
+.controls input[type=search]:focus{outline:none;box-shadow:0 0 0 3px rgba(0,32,245,.25)}
+@media (max-width:720px){.segs{overflow-x:auto;max-width:100%}}
+
+/* ── personas ───────────────────────────── */
+.personas{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line-2);margin:26px 0 0}
+.persona{padding:18px 20px 18px 0;border-inline-end:1px solid var(--line)}
+.persona:nth-child(4n){border-inline-end:none}
+.persona:nth-child(n+5){border-top:1px solid var(--line)}
+.persona:nth-child(n+2){padding-inline-start:20px}
+.persona:nth-child(4n+1){padding-inline-start:0}
+.persona .pid{font-size:11px;font-weight:600;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;display:flex;align-items:baseline;gap:8px}
+.persona .pw{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,sans-serif;font-weight:400;font-size:11px;color:var(--faint);letter-spacing:0}
+.persona h3{font-size:13.5px;margin:3px 0 4px;letter-spacing:-.01em}
+.persona p{font-size:12px;color:var(--muted);line-height:1.5}
+@media (max-width:900px){.personas{grid-template-columns:repeat(2,1fr)}
+.persona{border-inline-end:none;padding-inline-start:0!important}
+.persona:nth-child(odd){border-inline-end:1px solid var(--line)}
+.persona:nth-child(even){padding-inline-start:20px!important}
+.persona:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* ── journeys ───────────────────────────── */
+.jlayout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:44px;margin-top:34px}
+@media (max-width:880px){.jlayout{grid-template-columns:1fr;gap:24px}}
+.jlist{display:flex;flex-direction:column;align-self:start;position:sticky;top:84px}
+@media (max-width:880px){.jlist{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px}}
+.jbtn{text-align:start;padding:10px 12px;border-radius:9px;font-size:13.5px;color:var(--muted);line-height:1.35;transition:color .15s,background .15s}
+.jbtn small{display:block;font-size:10.5px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;margin-bottom:2px}
+.jbtn:hover{color:var(--ink);background:var(--fill)}
+.jbtn.active{background:var(--fill);color:var(--ink);font-weight:600}
+.jbtn.active small{color:var(--muted)}
+@media (max-width:880px){.jbtn{white-space:nowrap;padding:8px 12px}
+.jbtn.active{background:var(--fill)}}
+.jhead .jid{font-size:12px;color:var(--muted);font-weight:600;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.jhead h2{margin-top:6px;font-size:28px}
+.jmeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.jmeta .pill{font-size:11.5px;padding:3px 10px;border-radius:999px;background:var(--fill);color:var(--ink-2);font-weight:500}
+.jnarr{font-size:15px;color:var(--ink-2);max-width:64ch;margin-top:14px}
+.jbar{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin-top:22px;padding:12px 0;border-block:1px solid var(--line)}
+.jbar .jmeta,.jbar .jstats{margin-top:0}
+.jbar .jboard{margin-top:0;margin-inline-start:auto}
+.steps{margin-top:20px;display:flex;flex-direction:column}
+.step{position:relative;padding:0 0 6px}
+.step::before{content:"";position:absolute;inset-inline-start:13px;top:34px;bottom:-2px;width:2px;background:var(--line)}
+.step:last-child::before{display:none}
+.step summary{display:flex;align-items:center;gap:13px;padding:7px 8px 7px 0;border-radius:10px;transition:background .15s}
+.step summary:hover{background:var(--fill)}
+.step .sn{position:relative;z-index:1;width:26px;height:26px;flex:none;border-radius:50%;background:var(--acf);border:1.5px solid var(--acc);color:var(--act);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:14px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0}
+.step h4 .actor{font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:2px 9px;border-radius:var(--r-pill);background:var(--acf);border:1px solid var(--acc);color:var(--act)}
+.step .s-b{margin:4px 0 10px 39px;background:var(--tile);border-radius:12px;padding:13px 16px 14px;max-width:70ch}
+.step .who{font-size:11.5px;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.step p{font-size:13.5px;color:var(--ink-2);margin-top:6px;max-width:64ch}
+.step .apis{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.jfoot{margin-top:30px;border-top:1px solid var(--line-2);padding-top:4px}
+.jfoot .row{display:grid;grid-template-columns:110px 1fr;gap:18px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.jfoot .row:last-child{border-bottom:none}
+.jfoot .k{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.jfoot .row div:last-child{color:var(--ink-2);max-width:66ch}
+@media (max-width:600px){.jfoot .row{grid-template-columns:1fr;gap:4px}}
+
+/* ── api catalog ────────────────────────── */
+.apigroup{margin-top:34px}
+.apigroup > h3{font-size:14px;font-weight:600;letter-spacing:-.01em;padding-bottom:10px;border-bottom:1px solid var(--line-2);display:flex;align-items:baseline;gap:10px}
+.apigroup > h3 .cnt{font-size:12px;color:var(--faint);font-weight:500;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.apirow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.55fr) auto;gap:6px 24px;align-items:start;padding:15px 0;border-bottom:1px solid var(--line)}
+.apirow:last-child{border-bottom:none}
+.apirow .nm{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.apirow .p{font-size:11.5px;word-break:break-all;color:var(--muted);margin-top:3px}
+.apirow .d{font-size:13.5px;color:var(--ink-2)}
+.apirow .d small{display:block;color:var(--contract);font-size:12px;margin-top:4px}
+.apirow .d .ask{display:block;font-size:12px;margin-top:4px;color:var(--muted)}
+.apirow .aend{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.apirow .jj{display:flex;gap:8px}
+@media (max-width:720px){.apirow{grid-template-columns:1fr}.apirow .aend{flex-direction:row;align-items:center}}
+
+/* ── gaps ───────────────────────────────── */
+.p0board{background:var(--panel);color:var(--on-panel);border-radius:var(--r-panel);padding:26px 30px;margin-top:30px}
+.p0board h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--panel-blue)}
+.p0board ol{margin-top:14px;columns:2;column-gap:40px;padding-inline-start:18px;font-size:13.5px;color:var(--on-panel)}
+.p0board li{margin-bottom:8px;padding-inline-start:4px}
+.p0board li::marker{color:var(--panel-blue);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:12px}
+.p0board li .g{color:var(--panel-muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11.5px;margin-inline-start:6px}
+@media (max-width:720px){.p0board ol{columns:1}}
+.gaprow{padding:16px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.gaprow:last-child{border-bottom:none}
+.gaprow .g-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.gaprow .gid{font-size:12px;font-weight:600;color:var(--muted);min-width:62px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.gaprow h4{font-size:14.5px;font-weight:600;flex:1;min-width:200px;letter-spacing:-.01em}
+.gaprow .caret{color:var(--faint);transition:transform .15s;font-size:13px}
+.gaprow.open .caret{transform:rotate(90deg)}
+.gaprow .g-body{display:none;margin-top:10px;padding-inline-start:76px;max-width:72ch}
+.gaprow.open .g-body{display:block}
+.gaprow .g-body p{font-size:13.5px;color:var(--ink-2);margin-bottom:6px}
+.gaprow .g-body .shape{font-size:12.5px;color:var(--muted)}
+.gaprow .g-body .shape code{font-size:11.5px;color:var(--ink-2)}
+@media (max-width:720px){.gaprow .g-body{padding-inline-start:0}}
+.nfr{margin-top:34px;border-top:1px solid var(--line-2);padding-top:18px;font-size:13.5px;color:var(--ink-2);max-width:74ch}
+.nfr b{color:var(--ink)}
+
+/* ── phasing ────────────────────────────── */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border-block:1px solid var(--line-2)}
+.phase{padding:24px 28px 28px 0;border-inline-end:1px solid var(--line)}
+.phase + .phase{padding-inline-start:28px}
+.phase:last-child{border-inline-end:none}
+.phase .ph{font-size:12px;color:var(--muted);font-weight:600;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.phase h3{margin:6px 0 2px;font-size:17px;letter-spacing:-.01em}
+.phase .win{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.phase ul{list-style:none}
+.phase li{font-size:13.5px;color:var(--ink-2);padding:7px 0 7px 16px;position:relative;border-top:1px solid var(--line)}
+.phase li:first-child{border-top:none}
+.phase li::before{content:"";position:absolute;inset-inline-start:0;top:14px;width:6px;height:6px;border-radius:2px;background:var(--line-2)}
+.phase.p1 li::before{background:var(--line-2)}
+.phase.p2 li::before{background:var(--line-2)}
+@media (max-width:860px){.phases{grid-template-columns:1fr}
+.phase{border-inline-end:none;border-bottom:1px solid var(--line);padding-inline-start:0!important}
+.phase:last-child{border-bottom:none}}
+.sprints{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+@media (max-width:900px){.sprints{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.sprints{grid-template-columns:1fr}}
+.sprint{background:var(--tile);border-radius:12px;padding:14px 16px}
+.sprint .sd{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted)}
+.sprint b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em;margin-top:5px}
+.sprint p{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.pm{display:inline-block;padding:2px 9px;border-radius:var(--r-tag);font-size:12px;font-weight:600}
+.pm.now{background:var(--fill);color:var(--ink-2)}
+.pm.next{background:var(--fill);color:var(--ink-2)}
+.pm.later{color:var(--muted)}
+.pm.none{color:var(--faint)}
+.phasemap td:first-child{font-weight:600;white-space:nowrap;color:var(--ink)}
+
+</style>
+
+<div class="ws">
+<aside class="side">
+  <div class="s-brand"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeEAAABoCAMAAADxXLiYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAsdQTFRFAAAAenp6ZmZmaGhod3d3q6urzc3NqqqqtLS0u7u7xMTEzMzM09PT3d3d4+Pj7+/v6+vrs7Oz4eHh19fXxsbG29vb5ubmx8fHAAAAFBQUaWlpDQ0NFhYWIiIiODg4V1dXm5ubzs7OpaWlAgICGBgYOjo6Y2Nji4uLwMDAXV1dmpqaBgYGfX19AwMDMjIydnZ2urq6KysrFRUVbGxsyMjIDg4OWlparKysf39/v7+/mZmZEhISycnJGRkZT09PhoaGMzMznZ2doaGhGhoaICAgn5+fNzc3dHR0NDQ00NDQMTExy8vLEBAQBAQEeXl5WFhYkpKS3t7eJiYmKCgotbW1BwcHlZWVfHx8uLi4k5OTZWVlFxcXR0dHcnJyTk5OAQEBZGRk6OjoPT09bW1tDAwMeHh4RkZGVlZWlpaWW1tbJCQkBQUFw8PDioqKsLCwiIiIfn5+VVVVUFBQREREGxsb6urq1dXVSEhIcHBwgICAj4+Ph4eHdXV1QEBAubm5Q0NDPDw8jIyMERER3NzcjY2NlJSUvLy8Z2dnUVFRLS0tCQkJISEhoqKiYmJiCgoKNTU1kZGRsrKyExMTPz8/bm5unp6eHh4eLCwscXFxqampOzs7l5eXU1NTmJiY2NjY7+/vXl5e2trapKSkz8/PHBwcgYGBVFRU5ubmg4ODwsLCUlJSQkJC39/fCAgIvr6+rq6ujo6OTU1Nvb29JSUlKSkpMDAw6enpWVlZo6Oj0dHRysrKsbGx6urq4ODgSUlJNjY2QUFBoKCg0tLSX19fxcXF2dnZLi4upqamDw8PPj4+1NTUhISE4+Pja2trKioqhYWFS0tLgoKCnJyct7e3XFxc4uLi5+fnr6+vYGBgCwsLb29vYWFhtra2SkpKra2tIyMjc3NzwcHBampqkJCQLy8ve3t7iYmJp6enOTk5Hx8fTExM1tbWHR0dALhbgQAAAO10Uk5TAP/////////////////AEED/4P///5D//////////////////////////////////////////////////////////////////////////////////////////////////3D/////////////////////////YP//////////////////////////////////////////////////////IP////////+g//////////////////9Q//////8w8P//////////////////sP//////////0ID/////////////////////////////rJ6i4gAAEvRJREFUeJzlnQl8Ddcex880RLhIJGJfi4ogtly1RRFEkyhiLWqpLbxYYol9jXqerXSxNPZSXqkqEuTZgtKHql1pa6e2ltK+1tJ69965N5mZ8z9nzpk5ScP8Pp/Knf+cmTmd770z53/O//yPhDgkSfJ/auMTnlM45C2ln4Py4RfOs2rl94ihkM//GArZflZuBbAcwqTfVVu59evhOSCPdJvjMlpeNBUGC0s/cpzCqWJ/cRT2cnwdpOslpIucF0E+frxHkJTngnKLq/ZU3VRtFeE51Oa8K9K3TGV5CFe6B5r9z3CcAxm8RwEP89+8y3PAC01YVqCD8jHdUhyECwX+BNqLfsN+DqcM36NiknSEubAFCDtVUpL+Sy/BQbjOJcKOsgfZT4LM3aOiuQ8wlrQIYYfKHay3n7Kbg3DYd4Qdr+zlqZDJe5SjXBpTOesQdihI2k3cx064CfF1a3twh6c6Zu9R5R8uMZSyFGGEqkj/IexhJ9z8BHFXte08lTF/j6pLW3XLWIwwQjWlZNDOTBh2lWSFbuGpioB7ZJc26RWxHGFk3/oUMjMTbkVrstXZyFETIfcoxPY5vYD1CCNU7xHwM2YlTHKVZNX/jKMeYu5RqM966n4rEkZh0qeYjZVwR3oLttFa9moIukeBVdbQdluSsKM9/InWwkq4y07q7qar2Csh7B41+5iy06KEUfOVGgMjYbKrJCtiC+0hrpa4e9RiOXnfc0a4p753wKjIpeptRsIheqMZUUuYqyDuHtEQP2eE/b1FnRaFpKo22QjTXCVZ0YuZayCQMGqZRNpjXcLojY+UW2yE+32hW8T3HGsFRBJGrRcSdliYMGqzQLHBRLjQq4d1y8TMZ72+UMJtpQ/gHVYmjNq/n/GZibCOqySrw3uMlwfukXcbZ1VkVs+eOf8tH+WqnXT25g362bpKM0E7QLhKZcYaqpVrhnILqH33Pwydd55yAyLcY5bz3xHOoJLLcjuo0W95pWt/HbvzTOfUgV4Z48ZMhIvq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" alt="ADEED"><span class="fx">Freight</span></div>
+  <div class="s-doc"><b>Integration Playbook</b><span class="s-sub">Working draft</span></div>
+  <button class="s-search" id="palbtn"><span class="lbl">Search the playbook</span><kbd>⌘K</kbd></button>
+  <nav id="nav" aria-label="Playbook sections">
+    <button class="navbtn active" data-view="plan">Plan</button>
+    <button class="navbtn" data-view="arch">Architecture</button>
+    <button class="navbtn" data-view="flow">System flows</button>
+    <button class="navbtn" data-view="journeys">Journey map</button>
+    <button class="navbtn" data-view="apis">API readiness<b class="badge num">29</b></button>
+    <button class="navbtn" data-view="gaps">For TruKKer<b class="badge red num">24</b></button>
+  </nav>
+</aside>
+<div class="marea">
+  <div class="topbar">
+    <span class="crumb">Playbook</span><span class="crumb-sep">/</span><span class="crumb cur" id="crumb">Plan</span>
+  </div>
+<main class="sheet">
+<!-- ══════════ PLAN ══════════ -->
+<section class="view active" id="view-plan">
+  <div class="vhead">
+    <h1>Integration plan</h1>
+    <p>The run-up to the 17 September pilot, the sprint plan for the two months after it, and the federal arc beyond. Go-live is configuration more than construction: the engine already runs.</p>
+  </div>
+
+  <div class="section">
+    <h2>Where the programme stands</h2>
+    <div class="miles">
+      <div class="mile done"><div class="d num">21 Aug 2026</div><div class="t">Technical working session: integration architecture, joint account provisioning, shared client identifier.<span class="st ok">Done</span></div></div>
+      <div class="mile"><div class="d num">1 Sep 2026</div><div class="t"><b>Scope lock.</b> Pilot scope and the P0 contract list freeze. Sandbox access and seeded test data are due the same week.<span class="st nx">Next</span></div></div>
+      <div class="mile"><div class="d num">17 Sep 2026</div><div class="t"><b>Pilot go-live, target.</b> ADEED Freight live for the anchor clients on the TruKKer engine, a waybill under every movement.</div></div>
+      <div class="mile"><div class="d num">21 Sep to 13 Nov</div><div class="t">Four two-week enhancement sprints: hardening, money flows, supply side, scale groundwork.</div></div>
+      <div class="mile"><div class="d num">Jan 2027</div><div class="t">Phase 1 target, the federal MVP: registry at scale, e-Bayan issuance engine, first regulator views.</div></div>
+    </div>
+  </div>
+
+
+  <div class="phases">
+    <div class="phase">
+      <div class="ph">Phase 0</div>
+      <h3>Pilot</h3>
+      <div class="win">Live 17 Sep, sprints to mid-November</div>
+      <ul>
+        <li>The ADEED portal on the live TruKKer engine</li>
+        <li>Accounts and data in the UAE-resident tenancy</li>
+        <li>2-3 public-sector anchor clients, their current carriers invited</li>
+        <li>Waybill v0: an ADEED-issued ID under every movement</li>
+        <li>Transparent bidding, live tracking, PODs, invoice views</li>
+      </ul>
+    </div>
+    <div class="phase p1">
+      <div class="ph">Phase 1</div>
+      <h3>Federal MVP</h3>
+      <div class="win">12-16 weeks, overlapping. Target Jan 2027</div>
+      <ul>
+        <li>National Carrier &amp; Driver Registry at scale</li>
+        <li>e-Bayan issuance engine and the operating-card pathway</li>
+        <li>Migration of the existing carrier base into the registry</li>
+        <li>First regulator views, webhook channel, ERP self-serve</li>
+        <li>Invoicing and collections writes, once commercial terms settle</li>
+      </ul>
+    </div>
+    <div class="phase p2">
+      <div class="ph">Phase 2</div>
+      <h3>Mandate readiness and scale</h3>
+      <div class="win">Sequenced with the federal stakeholder plan</div>
+      <ul>
+        <li>Regulator and inspection console</li>
+        <li>Smart gates: 24 gates, trusted-operator fast lanes</li>
+        <li>Emirate interop with Asateel, RTA and SRTA</li>
+        <li>UAE e-invoicing regime, mandatory Jan 2027</li>
+        <li>GCC interoperability: Saudi Bayan and Fasah, Hafeet corridor</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The two months after go-live</h2>
+    <p class="note">Four two-week sprints. Scope is drawn from the P1 asks and from what the live pilot surfaces.</p>
+    <div class="sprints">
+      <div class="sprint"><span class="sd num">Sprint 1 · 21 Sep to 2 Oct</span><b>Pilot hardening</b><p>Fix what the first live loads surface. Tracking and exception handling tightened, cancel and amend (GAP-09), daily reconciliation running clean, joint standup with TruKKer through week one.</p></div>
+      <div class="sprint"><span class="sd num">Sprint 2 · 5 to 16 Oct</span><b>Money flows</b><p>Invoice acceptance and disputes (GAP-12), payment and settlement read-back (GAP-13), carrier settlement visibility including MoXey status.</p></div>
+      <div class="sprint"><span class="sd num">Sprint 3 · 19 to 30 Oct</span><b>Supply side</b><p>Carrier self-serve onboarding beyond the anchor group, user provisioning (GAP-17), carrier bidding inside ADEED (GAP-21), rate-card reads (GAP-22).</p></div>
+      <div class="sprint"><span class="sd num">Sprint 4 · 2 to 13 Nov</span><b>Scale groundwork</b><p>Webhook channel to replace polling (GAP-05), full document taxonomy (GAP-10), bulk carrier-migration prep (GAP-18), first regulator preview for Phase 1.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Journey by phase</h2>
+    <div class="tablewrap"><table class="phasemap">
+      <thead><tr><th>Journey</th><th>Phase 0, pilot</th><th>Phase 1, federal MVP</th><th>Phase 2, mandate</th></tr></thead>
+      <tbody>
+        <tr><td>J1 Shipper onboarding</td><td><span class="pm now">Anchor clients</span></td><td><span class="pm next">UAE Pass, self-serve</span></td><td><span class="pm none">-</span></td></tr>
+        <tr><td>J2 Registry onboarding</td><td><span class="pm now">Current carriers in 72h</span></td><td><span class="pm next">70k base migration</span></td><td><span class="pm later">AEO and Emiratisation tiers</span></td></tr>
+        <tr><td>J3 Demand capture</td><td><span class="pm now">Portal, Copilot, assisted</span></td><td><span class="pm next">ERP self-serve</span></td><td><span class="pm later">Third-party platforms</span></td></tr>
+        <tr><td>J4 Pricing and bidding</td><td><span class="pm now">Transparent board</span></td><td><span class="pm next">Award API automation</span></td><td><span class="pm later">Published service levels</span></td></tr>
+        <tr><td>J5 Booking and e-Bayan</td><td><span class="pm now">Waybill v0</span></td><td><span class="pm next">e-Bayan engine</span></td><td><span class="pm later">Smart-gate enforcement</span></td></tr>
+        <tr><td>J6 Tracking and exceptions</td><td><span class="pm now">Milestone-grade, polled</span></td><td><span class="pm next">Event-grade, webhooks</span></td><td><span class="pm later">Border and gov events</span></td></tr>
+        <tr><td>J7 Delivery and POD</td><td><span class="pm now">POD in 6h, vault</span></td><td><span class="pm next">Full doc taxonomy</span></td><td><span class="pm none">-</span></td></tr>
+        <tr><td>J8 Invoicing and collections</td><td><span class="pm now">Reads, acceptance UX</span></td><td><span class="pm next">Write activation</span></td><td><span class="pm later">UAE e-invoicing</span></td></tr>
+        <tr><td>J9 Regulator and gates</td><td><span class="pm none">-</span></td><td><span class="pm next">First regulator views</span></td><td><span class="pm later">Inspection console, GCC</span></td></tr>
+        <tr><td>J10 Control tower</td><td><span class="pm now">Full pilot KPI board</span></td><td><span class="pm next">Radar-integrated</span></td><td><span class="pm later">National scale-out</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ══════════ ARCHITECTURE ══════════ -->
+<section class="view" id="view-arch">
+  <div class="vhead">
+    <h1>Architecture</h1>
+    <p>Every call between the platforms passes through the ADEED Integration Gateway, one seam to secure, log and monitor. Clients never touch TruKKer directly. ADEED holds the governance data, TruKKer runs execution.</p>
+  </div>
+
+  <div class="archboard">
+    <div class="az az-adeed">
+      <div class="az-h">ADEED, UAE-resident cloud</div>
+      <div class="ac"><b>Freight portal</b><span>Shipper, carrier and ops portals, in English and Arabic</span></div>
+      <div class="ac"><b>Platform core</b><span>Accounts, National Registry, e-Bayan engine, procurement audit</span></div>
+      <div class="ac"><b>Data plane</b><span>Postgres system of record plus the document vault, copy on receipt</span></div>
+    </div>
+    <div class="aconn" aria-hidden="true">&#8646;</div>
+    <div class="az az-gw">
+      <div class="az-h">Integration Gateway</div>
+      <div class="ac gw"><b>Token custody</b><span>Per environment, never in client code</span></div>
+      <div class="ac gw"><b>Payload mapping</b><span>ADEED entities to the 90-field TruKKer contracts</span></div>
+      <div class="ac gw"><b>Polling and retries</b><span>Idempotency keys on every write</span></div>
+      <div class="ac gw"><b>Audit log</b><span>Immutable, both directions</span></div>
+    </div>
+    <div class="aconn" aria-hidden="true">&#8646;</div>
+    <div class="az az-tk">
+      <div class="az-h">TruKKer platform</div>
+      <div class="ac"><b>Shipment lifecycle</b><span>InquiryMaster, LoadboardDashBoard, OrderMaster</span></div>
+      <div class="ac"><b>Finance</b><span>invoiceService, Collection, statements of account</span></div>
+      <div class="ac"><b>Onboarding stack</b><span>Carriers, drivers, assets and their KYC</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>How the sync runs</h2>
+    <div class="factgrid">
+      <div><b>Open RFQs</b><span>Polled every 1 to 2 minutes while bidding is live.</span></div>
+      <div><b>In-transit shipments</b><span>Every 5 minutes, until the webhook channel lands (GAP-05).</span></div>
+      <div><b>Finance</b><span>Nightly, plus a daily reconciliation of order and invoice counts on both sides.</span></div>
+      <div><b>One identifier</b><span>The ADEED org ID rides every request in both directions as externalShipperMasterId.</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Data custody</h2>
+    <p class="note">Copy on receipt: documents generated in TruKKer are copied into ADEED's UAE-resident storage the moment they are retrieved.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Artifact</th><th>Master</th><th>Mirror</th></tr></thead>
+      <tbody>
+        <tr><td>Account, organisation, roles</td><td><b>ADEED</b></td><td>TruKKer client record</td></tr>
+        <tr><td>Registry entry and quality score</td><td><b>ADEED</b></td><td>TruKKer onboarding stack</td></tr>
+        <tr><td>RFQ, price and bid audit trail</td><td><b>ADEED</b></td><td>TruKKer inquiry and loadboard</td></tr>
+        <tr><td>Bid (execution)</td><td>TruKKer</td><td>ADEED audit mirror</td></tr>
+        <tr><td>Order, trip, telemetry</td><td>TruKKer</td><td>ADEED shipment and milestones</td></tr>
+        <tr><td>Waybill (e-Bayan)</td><td><b>ADEED</b>, the issuing authority</td><td>Waybill ID on the TruKKer order</td></tr>
+        <tr><td>POD and movement documents</td><td>TruKKer originates</td><td><b>Binary copy on receipt</b> to UAE storage</td></tr>
+        <tr><td>Invoice and payment allocation</td><td>TruKKer finance, pending the agreements</td><td>ADEED finance mirror for SOA</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+
+
+<!-- ══════════ FLOW ══════════ -->
+<section class="view" id="view-flow">
+  <div class="vhead">
+    <h1>System flows</h1>
+    <p>How one load moves through the platform, left to right. The top lane is what the customer experiences on ADEED. The bottom lane is TruKKer running the freight. Every arrow crossing the gateway band is data moving between the two.</p>
+  </div>
+  <div class="exrow" style="margin:26px 0 0">
+    <div class="exhibit" style="margin:0">Target-state flow, stage by lane</div>
+    <div class="tourwrap">
+      <button class="tourbtn" id="tourbtn">Follow one shipment</button>
+      <div class="tourctl" id="tourctl" hidden>
+        <button id="tourback">Back</button>
+        <span class="num" id="tourpos"></span>
+        <button id="tournext" class="go">Next</button>
+        <button id="tourdone">Done</button>
+      </div>
+    </div>
+  </div>
+  <div class="legend" style="margin-top:12px">
+    <span><i style="background:var(--blue)"></i>ADEED lane</span>
+    <span><i style="background:transparent;border:1.5px dashed var(--live)"></i>Federal layer, net-new</span>
+    <span><i style="background:var(--ink)"></i>TruKKer engine</span>
+    <span><i style="width:18px;height:2px;border-radius:1px;background:var(--ink)"></i>Handoff, crossing the gateway</span>
+  </div>
+  <div class="matrix-wrap"><div class="matrix" id="matrix"></div></div>
+  <div class="flowdetail" id="flowdetail" hidden></div>
+
+
+</section>
+
+<!-- ══════════ JOURNEYS ══════════ -->
+<section class="view" id="view-journeys">
+  <div class="vhead">
+    <h1>Journey map</h1>
+    <p>Ten journeys, step by step. Follow the colours: blue steps happen on the client side, dark steps belong to the carrier and TruKKer, green is the system working in the background. Tags under each step are the APIs that power it.</p>
+  </div>
+
+  <details class="agroup" style="margin-top:34px">
+    <summary><h3>Who the portal serves</h3><span class="cnt num">8</span><span class="chev" aria-hidden="true">&#8250;</span></summary>
+    <div class="agroup-b">
+      <p class="note" style="margin-bottom:0">Eight roles across the whole arc, but only four designed surfaces at go-live: the shipper portal with role-gated tabs, the carrier onboarding wizard, the ops console and the programme KPI page. The tag on each card says when that role gets its screens.</p>
+      <div class="personas" id="personas"></div>
+    </div>
+  </details>
+
+  <div class="jlayout">
+    <div class="jlist" id="jlist" role="tablist" aria-label="Journeys"></div>
+    <div id="jdetail"></div>
+  </div>
+</section>
+
+<!-- ══════════ APIS ══════════ -->
+<section class="view" id="view-apis">
+  <div class="vhead">
+    <h1>API readiness</h1>
+    <p>What is live today, what is waiting on field-level contracts, and what ADEED builds. The red segment is what is missing: those asks sit in the For TruKKer tab.</p>
+  </div>
+  <div class="section" style="margin-top:26px">
+    <div class="strip" id="estatestrip">
+      <button class="seg num" data-strip="live" style="flex:19;background:var(--live)" aria-label="19 live endpoints, open the catalog">19</button>
+      <button class="seg num" data-strip="contract" style="flex:4;background:var(--contract)" aria-label="4 contract-pending areas, open the catalog">4</button>
+      <button class="seg num" data-strip="build" style="flex:6;background:var(--build)" aria-label="6 ADEED builds, open the catalog">6</button>
+      <button class="seg num" data-strip="gaps" style="flex:24;background:var(--gapc)" aria-label="24 formal asks, open the gap register">24</button>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--live)"></i>Live and documented</span>
+      <span><i style="background:var(--contract)"></i>Live, contracts pending</span>
+      <span><i style="background:var(--build)"></i>ADEED net-new builds</span>
+      <span><i style="background:var(--gapc)"></i>Missing, asks for TruKKer</span>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="segs">
+      <button class="seg on" data-f="all">All</button>
+      <button class="seg" data-f="live">Live<span class="num"> 19</span></button>
+      <button class="seg" data-f="contract">Contracts pending<span class="num"> 4</span></button>
+      <button class="seg" data-f="build">ADEED builds<span class="num"> 6</span></button>
+    </div>
+    <input type="search" id="apisearch" placeholder="Search name, path or journey" aria-label="Search APIs">
+  </div>
+  <div id="apilist"></div>
+</section>
+
+<!-- ══════════ GAPS ══════════ -->
+<section class="view" id="view-gaps">
+  <div class="vhead">
+    <h1>For the TruKKer team</h1>
+    <p>What the integration needs from your side, ready to table. All of it already runs inside the TruKKer platform; the missing piece is the <em>API contracts</em>, and thirteen of them block the pilot.</p>
+  </div>
+
+  <div class="section" style="margin-top:34px">
+    <h2>The thirteen pilot blockers</h2>
+    <p class="note">The pilot cannot go live without these. To hold 17 September, the contracts need agreement at scope lock and a live sandbox in the first week of September. Select a card for the detail and the suggested contract shape.</p>
+    <div class="p0grid" id="p0grid"></div>
+  </div>
+  <div id="gapgroups" style="margin-top:30px"></div>
+  <p class="nfr"><b>Also to table, non-functional:</b> a sandbox before scope lock; sign-off on the shared identifier (ADEED org ID as the externalShipperMasterId join key); rate limits and SLOs compatible with polling cadences; idempotency keys on all writes; the data-processing agreement with UAE residency attestations; webhook HMAC signing; and versioning with agreed deprecation windows.</p>
+</section>
+
+
+</main>
+</div>
+</div>
+
+<div id="pal" hidden>
+  <div class="pal-back" data-pal-close></div>
+  <div class="pal-panel" role="dialog" aria-label="Search the playbook">
+    <input id="palinput" type="text" placeholder="Search gaps, APIs, journeys, stations" autocomplete="off">
+    <div class="pal-list" id="pallist"></div>
+  </div>
+</div>
+
+<script>
+/* ════════ DATA ════════ */
+const APIS=[
+ {n:"Booking RFQ",m:"POST",p:"InquiryMaster/SaveInquiry",st:"Booking & RFQ",d:"Creates a freight inquiry: shipper, pickup and drop-off plan, cargo schedule, asset and pricing mode, roughly 90 fields. The entry point of the lifecycle.",note:"Gateway owns defaults such as inquirySource “7X” and platformSource “AdminAPI”.",j:["J3"]},
+ {n:"List RFQs",m:"POST",p:"Reports/DemandTrackerReport",st:"Booking & RFQ",d:"Paginated, filterable list of inquiries per client and date range, used for demand tracking and monitoring.",j:["J3","J10"]},
+ {n:"RFQ details",m:"GET",p:"InquiryMaster/GetInquiryById",st:"Booking & RFQ",d:"Full detail of a single RFQ by inquiry ID.",j:["J3"]},
+ {n:"Bid dashboard",m:"GET",p:"LoadboardDashBoard/GetDashboardDetails",st:"Booking & RFQ",d:"The live bidding dashboard for an RFQ: the current view of bids received.",j:["J4"]},
+ {n:"Bid history",m:"POST",p:"LoadboardDashBoard/GetBidHistory",st:"Booking & RFQ",d:"Full paginated history of all bids placed against an RFQ. Feeds the transparency audit mirror.",j:["J4"]},
+ {n:"Confirmed shipments for RFQ",m:"POST",p:"Reports/GetDemandOrdersByInquiryId",st:"Booking & RFQ",d:"Confirmed orders generated from a specific RFQ.",j:["J4","J5"]},
+ {n:"List shipments",m:"POST",p:"OrderMaster/GetOrdersList",st:"Shipments",d:"Paginated shipment list with filters on status, dates, countries, truck number and type, loading type, commodity and project.",j:["J5","J6","J10"]},
+ {n:"Shipment details",m:"GET",p:"OrderMaster/GetOrderDetailsById",st:"Shipments",d:"Complete details of a single shipment order.",j:["J6"]},
+ {n:"Trip and truck info",m:"GET",p:"OrderMaster/GetTripInfoById",st:"Shipments",d:"Trip and truck assignment for a shipment order.",j:["J5"]},
+ {n:"Upload POD documents",m:"POST",p:"OrderMaster/SaveTripDocs",st:"Documents",d:"Uploads proof of delivery per truck on an order: SPOD docType with cloud-storage URLs.",j:["J7"]},
+ {n:"Get POD documents",m:"GET",p:"OrderMaster/GetTripDocs",st:"Documents",d:"Retrieves POD documents for a specific truck on a shipment.",j:["J7"]},
+ {n:"Revenue line items",m:"GET",p:"lineitemService/v1/findRevenueLineItems",st:"Documents",d:"Billable charges on a shipment order: freight, waiting, detention, tolls.",j:["J7","J8"]},
+ {n:"Bayan documents",m:"GET",p:"tripDetailsService/v1/sourceDestination",st:"Documents",d:"Customs and regulatory movement documents, keyed by order and shipper.",note:"The printed call is truncated in the source PDF; the full parameter set needs a re-issue.",j:["J7"]},
+ {n:"Uninvoiced orders",m:"POST",p:"invoiceService/v1/unBilledAgeingReport",st:"Invoicing",d:"Delivered orders not yet invoiced, filterable by region, station and POD status.",j:["J8"]},
+ {n:"Generate invoice",m:"POST",p:"invoiceService/v1/saveInvoiceGenerationData",st:"Invoicing",d:"Generates an invoice across selected orders with line-item inclusion and exclusion.",note:"Write endpoint. Switches on once the commercial terms settle, LOI §6.",j:["J8"]},
+ {n:"Invoice acknowledgement",m:"POST",p:"invoiceService/v1/getInvoiceACKTemplate",st:"Invoicing",d:"Produces the acknowledgement document for a generated invoice.",j:["J8"]},
+ {n:"Unpaid invoices",m:"POST",p:"Collection/GetInvoiceList",st:"Collections",d:"Outstanding invoices for a client in a given currency.",j:["J8"]},
+ {n:"Statement of account",m:"POST",p:"Communication/PrevStatementOfAccAsync",st:"Collections",d:"Statement of account summarising invoices and balances per client.",j:["J8"]},
+ {n:"Allocate payment",m:"POST",p:"Collection/AllocatePayment",st:"Collections",d:"Records a received payment and allocates it across outstanding invoices.",note:"Write endpoint. Switches on once the commercial terms settle.",j:["J8"]}
+];
+const AREAS=[
+ {n:"Client accounts & KYB",d:"Create and update client accounts, profile, billing-entity mapping and verification status. The basis of joint account provisioning.",g:"GAP-14",j:["J1"]},
+ {n:"Carrier & vendor onboarding",d:"Register carriers and vendors, document submission, KYC verification status tracking. Feeds the National Registry.",g:"GAP-15",j:["J2"]},
+ {n:"Drivers & assets",d:"Driver KYC and licensing records, truck registration and compliance status with expiry data.",g:"GAP-16",j:["J2","J5"]},
+ {n:"Users & access",d:"User provisioning and role-based access, mirroring client teams during transition.",g:"GAP-17",j:["J1"]}
+];
+const BUILDS=[
+ {n:"Integration Gateway",d:"Typed outbound client, polling workers (RFQ every 1-2 min, transit every 5 min, finance nightly), idempotency, retry and backoff, an immutable IntegrationLog, and the webhook receiver once events land.",j:["J1","J3","J4","J5","J6","J7","J8","J10"]},
+ {n:"Freight portal",d:"Shipper portal, carrier portal and ops console on /freight routes, in English and Arabic with role-based access.",j:["J1","J2","J3","J4","J5","J6","J7","J8","J10"]},
+ {n:"National Registry service",d:"Carrier, driver and asset models, verification workflow, quality-score engine, expiry radar, regulator read views.",j:["J2","J9"]},
+ {n:"e-Bayan engine",d:"Waybill issuance with ID and QR hash, amendment log, verification lookup. Phase 1 attaches the operating card, Phase 2 pushes to smart gates.",j:["J5","J9"]},
+ {n:"Docs-mirror pipeline",d:"Copy on receipt of POD, Bayan and invoice binaries into UAE-resident storage, retained per federal record policy.",j:["J7","J8"]},
+ {n:"Partner API freight scopes",d:"freight:requests, freight:shipments, freight:documents and freight:invoices scopes with PII-free DTOs for client ERPs.",j:["J1","J3"]}
+];
+const GAPS=[
+ {id:"GAP-01",t:"Auth & environment specification",pr:"P0",w:"Everything depends on it: token issuance and refresh, expiry, base URLs per environment, sandbox credentials, IP allowlisting. The v1.0 doc names no auth scheme and prints no base URLs.",s:"OAuth2 client credentials or a documented token endpoint; a sandbox seeded with demo data",j:["J1"]},
+ {id:"GAP-02",t:"Price and quote read contract",pr:"P0",w:"The board shows the price matrix sharing prices with the client for confirmation, but no API exposes the computed price, validity window or quote reference.",s:"GET quote by inquiryId returning price, currency, validity and breakdown",j:["J4"]},
+ {id:"GAP-03",t:"Award and price-confirmation write",pr:"P0",w:"The client's confirmation must convert inquiry to confirmed order from the ADEED surface. Today that happens only inside TruKKer ops tooling.",s:"POST confirm/award { inquiryId, quoteRef or bidId, confirmedBy }, idempotent",j:["J4"]},
+ {id:"GAP-04",t:"RFQ amend and cancel",pr:"P0",w:"Clients change quantities and dates, or withdraw: the lead-closure loop on the board. No update or cancel endpoint is documented.",s:"POST inquiry amend for a pre-award field subset, plus POST inquiry cancel { reason }",j:["J3"]},
+ {id:"GAP-05",t:"Webhook and event-push channel",pr:"P1",w:"The documented surface is pull-only, so ADEED must poll. Acceptable for the pilot, not for scale.",s:"Event subscriptions (bid_placed, price_ready, order_created, assigned, milestone, pod_uploaded, invoice_generated, payment_allocated) with HMAC signing and replay",j:["J6"]},
+ {id:"GAP-06",t:"Live tracking, ETA and telemetry",pr:"P0",w:"The pilot KPI is live track and trace at 100%. The board shows GPS deployment and geofencing, but no positions, ETA or milestone API exists, and the board routes status updates only to TruKKer's own loadboard and admin surfaces: no client-facing tracking view exists anywhere today. The single largest functional gap.",s:"GET positions by orderId (lat, lon, ts, speed); GET milestones with geofence events, planned vs actual; an ETA field",j:["J5","J6"]},
+ {id:"GAP-07",t:"Status and milestone dictionary",pr:"P0",w:"orderStatus values, trip states, event codes and timestamp semantics are undocumented, and the canonical ADEED status map depends on them.",s:"A data dictionary annex to the API reference",j:["J6","J10"]},
+ {id:"GAP-08",t:"Exception and incident feed",pr:"P0",w:"Pilot KPI: incident reporting within the hour. The board shows rejection and driver-replacement loops with FATIMA status chasing, and none of it is exposed.",s:"An incidents feed { orderId, type, severity, ts, resolution } including assignment replacements",j:["J6"]},
+ {id:"GAP-09",t:"Order cancel and change",pr:"P1",w:"Cancel a confirmed shipment, or change pickup, drop-off and time windows before pickup.",s:"POST order cancel/amend with cutoff rules",j:["J6"]},
+ {id:"GAP-10",t:"Document taxonomy and generic doc API",pr:"P1",w:"Beyond SPOD: delivery note, packing list, gate pass, customs set. Upload custody too: SaveTripDocs takes a pre-uploaded cloud URL and no endpoint issues one, so either TruKKer provides an upload contract or accepts ADEED-hosted URLs.",s:"An enumerated docType list; generic GET and POST documents by orderId; an upload or pre-signed URL contract",j:["J7"]},
+ {id:"GAP-11",t:"Invoice detail and PDF retrieval",pr:"P0",w:"The board shares the invoice with the client for viewing over API, but no endpoint returns the invoice document or per-invoice line detail.",s:"GET invoice { invoiceNo } returning header, lines, tax and a PDF URL",j:["J8"]},
+ {id:"GAP-12",t:"Invoice acceptance and dispute write",pr:"P1",w:"Invoice acceptance is a client action, and credit and debit notes exist internally. ADEED needs the write plus CN and DN retrieval.",s:"POST invoice accept/dispute { invoiceNo, reason }; GET credit-debit-notes",j:["J8"]},
+ {id:"GAP-13",t:"Payment and settlement read-back",pr:"P1",w:"AllocatePayment is write-only. There is no receipts or payment-history read, and carrier-side vendor-payment status, including MoXey advances, is invisible.",s:"GET payments by client or invoice; GET vendor settlement by orderId",j:["J2","J8"]},
+ {id:"GAP-14",t:"Client accounts and KYB contracts",pr:"P0",w:"Joint provisioning is a stated workshop objective. It needs create, update and status payloads, billing-entity mapping and the shared client identifier convention. The doc spells the shipper key four ways (externalShipperMasterId, shipperMasterId, extShipperId, shipperId); the convention must unify them.",s:"The full contract set, with the ADEED org ID as the externalShipperMasterId join key on every request in both directions",j:["J1"]},
+ {id:"GAP-15",t:"Carrier and vendor onboarding contracts",pr:"P0",w:"Registry intake and two-way verification status sync.",s:"Register and update carrier, document submission, KYC status read plus change events",j:["J2"]},
+ {id:"GAP-16",t:"Driver and asset contracts",pr:"P0",w:"Driver KYC and licensing with expiry data, truck registration and compliance, and assignment visibility beyond GetTripInfoById.",s:"Driver and asset read with compliance status and expiry fields; an assignment event",j:["J2","J5"]},
+ {id:"GAP-17",t:"User provisioning and RBAC contracts",pr:"P1",w:"Mirror client users and roles during the transition period.",s:"User create and disable, plus a role mapping table",j:["J1"]},
+ {id:"GAP-18",t:"Bulk carrier-base export and migration",pr:"P1",w:"The LOI's Phase 1 migrates the existing carrier base, 70k+ registered on TruKKer's FY2025 figures, into the registry. That needs bulk read plus a consent and data-sharing framework, not row-by-row calls.",s:"Batched export, either a paginated bulk API or a file drop, with an agreed schema and legal basis",j:["J2"]},
+ {id:"GAP-19",t:"e-Bayan integration hooks",pr:"P0",w:"ADEED issues the waybill. TruKKer must supply the full movement payload at confirmation, accept the waybill ID on the order, and emit trip start and complete to open and close validity. isMultiTruckBayan on SaveInquiry suggests the plumbing exists.",s:"v0 for the pilot: an attach field plus the movement payload. The engine lands in the joint SoW.",j:["J5","J9"]},
+ {id:"GAP-20",t:"API conventions annex",pr:"P0",w:"Error model and response schemas (none are documented for any of the 19 endpoints), pagination norms (three sorting conventions, three unpaginated list endpoints), rate limits, idempotency keys on writes, retry guidance, timestamp rules (five datetime formats visible), and versioning: 13 of 19 endpoints are unversioned.",s:"A conventions annex plus per-endpoint mandatory and optional field tables",j:["J10"]},
+ {id:"GAP-21",t:"Carrier-side bid submission API",pr:"P1",w:"If carriers bid inside the ADEED carrier portal, bid placement needs an API. The pilot can proceed with TruKKer-side bidding plus the ADEED mirror.",s:"POST bid { inquiryId, price, trucks, validity } plus an own-bid read",j:["J4"]},
+ {id:"GAP-22",t:"Contract rate-card read",pr:"P1",w:"inquiryRateType Contract/Spot implies rate cards per client and lane, but there is no read API. Needed for instant contract-lane pricing and the savings report.",s:"GET rate cards by client and lane",j:["J4"]},
+ {id:"GAP-23",t:"Assisted-channel draft lifecycle",pr:"P2",w:"EVA-created WhatsApp and email drafts must surface as governed ADEED drafts. draftInquiryNumber already exists in SaveInquiry.",s:"A draft list, read and promote contract",j:["J3"]},
+ {id:"GAP-24",t:"SLA and OTIF source data",pr:"P1",w:"The pilot reports on-time delivery at 95% or better, which needs planned vs actual timestamps per milestone. Derivable once GAP-06 and GAP-07 deliver complete fields.",s:"Covered by GAP-06 and GAP-07 field completeness, kept as an explicit acceptance criterion",j:["J10"]}
+];
+const PERSONAS=[
+ {id:"P1",w:"Pilot",n:"Shipper: Transport Planner",d:"Creates demand, confirms prices, tracks movements, receives PODs. Government or enterprise demand org."},
+ {id:"P2",w:"Pilot, same portal",n:"Shipper: Procurement Lead",d:"Owns the road-freight wallet and lane contracts. Approves rates, audits bidding transparency, tracks savings."},
+ {id:"P3",w:"Pilot, same portal",n:"Shipper: Finance (AP)",d:"Reviews line items, accepts invoices, tracks SOA, raises disputes, pays on FINTX and FAB rails."},
+ {id:"P4",w:"Onboarding at pilot, portal in Sprint 3",n:"Carrier: Fleet Operations",d:"Registers company and fleet, bids on the loadboard, assigns trucks and drivers, uploads PODs, gets paid with the MoXey instant-pay incentive."},
+ {id:"P5",w:"Phase 1, TruKKer app until then",n:"Driver",d:"KYC once, then a portable credential and quality score. Executes trips and earns fast-lane treatment at smart gates."},
+ {id:"P6",w:"Pilot",n:"ADEED Freight Ops",d:"Control tower: network health, SLAs, the registry verification queue, exceptions, integration health."},
+ {id:"P7",w:"Phase 1",n:"Regulator / Inspector",d:"Phase 1 onward: registry search, waybill verification, compliance statistics, enforcement views."},
+ {id:"P8",w:"Pilot, one KPI page",n:"Programme / GCEO Office",d:"Pilot KPI dashboard, savings and formalisation metrics, ADEED Radar feeds."}
+];
+const J=[
+ {id:"J1",t:"Shipper onboarding and joint provisioning",ph:"Phase 0",pp:["P1","P2"],
+  n:"A demand organisation joins ADEED Freight once and exists on both platforms from that moment. The verified ADEED business account is the master record, provisioning to TruKKer happens behind the gateway, and the shipper never sees TruKKer.",
+  steps:[
+   {t:"Invite and sign-up",a:"Shipper admin",su:"/freight/login",b:"Magic link. A freight participant record is created pending verification.",apis:[{l:"ADEED auth",s:"build"}]},
+   {t:"Organisation KYB",a:"Shipper admin",su:"/freight/portal/profile",b:"Trade licence, TRN, billing entities and signatories. UAE Pass verification arrives in Phase 1.",apis:[{l:"ADEED profile",s:"build"}]},
+   {t:"Verification",a:"ADEED Ops",su:"/admin/freight",b:"Ops approves and the organisation becomes verified.",apis:[{l:"ADEED ops",s:"build"}]},
+   {t:"Joint provisioning",a:"System",su:"Gateway, invisible",b:"Creates the TruKKer client and billing entity, then stores the account link with the shared identifier carried on every subsequent call.",apis:[{l:"Client accounts & KYB",s:"contract"},{l:"GAP-14 identifier convention",s:"gap",g:"GAP-14"}]},
+   {t:"Team and roles",a:"Shipper admin",su:"/freight/portal/profile",b:"Invite planners and finance users. Roles are mirrored to TruKKer during transition.",apis:[{l:"Users & access",s:"contract"},{l:"GAP-17",s:"gap",g:"GAP-17"}]},
+   {t:"Lanes and wallet definition",a:"Procurement + Ops",su:"/freight/portal/lanes",b:"Defined lanes or the full freight wallet registered. The client\u2019s current carriers are listed for the J2 invitation.",apis:[{l:"ADEED lanes",s:"build"}]},
+   {t:"ERP connection, optional",a:"Shipper IT",su:"Developers portal",b:"A freight-scoped Partner API key is issued so SAP or Oracle posts demand directly.",apis:[{l:"Partner API scopes",s:"build"}]}
+  ],
+  kpi:"An anchor client usable end to end without any TruKKer-side credential.",
+  edge:"Duplicate org detection by TRN. Billing entity may differ from the operating entity. Suspension propagates to TruKKer."},
+ {id:"J2",t:"Carrier, driver and asset onboarding: the Registry",ph:"Phase 0 to 1",pp:["P4","P5"],
+  n:"The layer that makes ADEED Freight governed rather than brokered: every carrier KYB-verified, every driver KYC-verified with a portable credential and a quality score from the first movement. The National Registry is mastered in ADEED and seeds the future federal registry.",
+  steps:[
+   {t:"Invitation",a:"ADEED Ops, current-carrier lists",su:"Tokenised link to the onboarding wizard",b:"Arabic, Urdu and English, reusing the ADEED partner intake flow.",apis:[{l:"ADEED onboarding",s:"build"}]},
+   {t:"Company KYB",a:"Carrier",su:"Wizard steps 1-2",b:"Trade licence, operating card under Law 9/2011, TRN, insurance, with automatic expiry extraction.",apis:[{l:"Carrier onboarding",s:"contract"},{l:"GAP-15",s:"gap",g:"GAP-15"}]},
+   {t:"Fleet registration",a:"Carrier",su:"Wizard step 3",b:"Trucks by plate and chassis: type, axle, capacity, registration expiry, Asateel unit where applicable.",apis:[{l:"Drivers & assets",s:"contract"},{l:"GAP-16",s:"gap",g:"GAP-16"}]},
+   {t:"Driver KYC",a:"Carrier or driver",su:"Wizard step 4",b:"Emirates ID, passport and visa, licence class and expiry. A portable credential is issued on verification.",apis:[{l:"Drivers & assets",s:"contract"},{l:"GAP-16",s:"gap",g:"GAP-16"}]},
+   {t:"Payment setup",a:"Carrier",su:"Wizard step 5",b:"Bank details and the MoXey wallet opt-in. Instant pay is the registration incentive.",apis:[{l:"GAP-13 settlement visibility",s:"gap",g:"GAP-13"}]},
+   {t:"Verification queue",a:"ADEED Ops",su:"/admin/freight/registry",b:"Document verification, expiry checks, passport and visa checks, sanctions screening. Approve or reject with reasons.",apis:[{l:"ADEED registry",s:"build"}]},
+   {t:"Registry credential",a:"System",su:"/freight/carrier/registry",b:"Registry ID plus a quality score built from OTIF, POD timeliness, incidents and document hygiene. The AEO track is visible.",apis:[{l:"ADEED registry",s:"build"}]},
+   {t:"Sync to execution",a:"System",su:"Gateway",b:"Verified carriers, drivers and assets are pushed to TruKKer so loadboard eligibility reflects registry status. Suspensions propagate both ways.",apis:[{l:"GAP-15/16 write-back",s:"gap",g:"GAP-15"}]},
+   {t:"Base migration, Phase 1",a:"System",su:"Bulk pipeline",b:"The existing TruKKer UAE carrier base migrates into the registry, matched against ADEED commercial-registration and asset datasets.",apis:[{l:"GAP-18 bulk export",s:"gap",g:"GAP-18"}]}
+  ],
+  kpi:"Digital onboarding within 72 hours per carrier. No existing carrier displaced. Verification before first movement.",
+  edge:"Expiry alerts at T-30 and T-7 with auto-suspend. The credential moves between carriers without re-KYC. An owner-operator is carrier and driver in one collapsed flow."},
+ {id:"J3",t:"Demand capture to RFQ, all channels",ph:"Phase 0",pp:["P1"],
+  n:"Demand lands through four doors and always becomes the same governed RFQ record: the portal wizard, the ADEED Copilot, the client's ERP through the Partner API, and assisted WhatsApp and email for clients who prefer their current channels.",
+  steps:[
+   {t:"Portal wizard",a:"Planner",su:"/freight/portal/requests/new",b:"Lane with map pins, cargo, asset type, schedule and customs mode, mirroring the SaveInquiry field groups. Templates come from previous RFQs.",apis:[{l:"ADEED wizard",s:"build"}]},
+   {t:"Copilot",a:"Planner",su:"Portal Copilot pane",b:"Conversational capture: quote, book and track as AI-callable tools.",apis:[{l:"ADEED Copilot",s:"build"}]},
+   {t:"ERP channel",a:"Client system",su:"Partner API",b:"POST freight request with an idempotency key. SAP and Oracle field mapping is owned by the gateway.",apis:[{l:"Partner API",s:"build"}]},
+   {t:"Assisted channel",a:"TruKKer demand automation (EVA)",su:"WhatsApp and email",b:"A draft inquiry from text, voice or Excel and PDF. It must surface in ADEED as a governed draft.",apis:[{l:"DemandTrackerReport",s:"live"},{l:"GAP-23 draft lifecycle",s:"gap",g:"GAP-23"}]},
+   {t:"Completeness checks",a:"System",su:"Draft state",b:"Required-field validation per move type, with missing-info prompts to the client.",apis:[{l:"ADEED validation",s:"build"}]},
+   {t:"Submission",a:"Planner",su:"Wizard confirm",b:"The freight request persists, the gateway maps the 90-field payload and creates the TruKKer inquiry, and the inquiry number is stored on the request.",apis:[{l:"SaveInquiry",s:"live"}]},
+   {t:"Registry pre-check",a:"System",su:"Background",b:"The RFQ is flagged if the lane or cargo needs capabilities no verified carrier holds. An early supply-gap signal.",apis:[{l:"ADEED registry",s:"build"}]},
+   {t:"Track and amend",a:"Planner",su:"/freight/portal/requests",b:"The open-RFQ list with status, amendments and cancellation before award.",apis:[{l:"DemandTrackerReport",s:"live"},{l:"GetInquiryById",s:"live"},{l:"GAP-04 amend/cancel",s:"gap",g:"GAP-04"}]}
+  ],
+  kpi:"Every channel lands in one governed RFQ pipeline. No off-system demand.",
+  edge:"Project moves carry multi-period schedules. LTL requests use the package block. Contract lanes skip pricing and book at card rate, and Confirmed-type demand (inquiryType Confirmed) skips price discovery entirely, the board's demand-type fork."},
+ {id:"J4",t:"Price discovery, transparent bidding and award",ph:"Phase 0",pp:["P1","P2","P4"],
+  n:"Contract lanes price instantly from the rate card; spot demand goes to the loadboard where verified carriers bid. The shipper sees a transparent bid board with every bid mirrored for procurement audit, and award needs explicit client confirmation, the step that converts inquiry to order.",
+  steps:[
+   {t:"Instant price on contract lanes",a:"System",su:"Request detail",b:"Rate-card lookup with price and validity shown at submission.",apis:[{l:"GAP-02 quote read",s:"gap",g:"GAP-02"},{l:"GAP-22 rate cards",s:"gap",g:"GAP-22"}]},
+   {t:"Loadboard publication for spot",a:"System",su:"Background",b:"The inquiry is visible to eligible verified carriers. Eligibility is registry status plus capability match.",apis:[{l:"TruKKer loadboard",s:"live"},{l:"Registry filter",s:"build"}]},
+   {t:"Carrier bids",a:"Carrier",su:"/freight/carrier/loadboard",b:"Bid price, truck count and validity, with own-bid rank state.",apis:[{l:"GAP-21 bid submission",s:"gap",g:"GAP-21"}]},
+   {t:"Transparent bid board",a:"Shipper and Ops",su:"Request detail, bids tab",b:"The live dashboard plus full history, mirrored for audit. Carrier identity stays anonymised until award under a policy toggle.",apis:[{l:"GetDashboardDetails",s:"live"},{l:"GetBidHistory",s:"live"}]},
+   {t:"Price to client",a:"System",su:"Request detail and notification",b:"The final offer on spot or the card price on contract, with expiry. Savings against baseline show for procurement.",apis:[{l:"GAP-02 quote read",s:"gap",g:"GAP-02"}]},
+   {t:"Confirm or decline",a:"Shipper",su:"Request detail",b:"Confirm awards the load. Decline with reason closes the lead. A counter goes to ops-assisted renegotiation.",apis:[{l:"GAP-03 award write",s:"gap",g:"GAP-03"}]},
+   {t:"Award propagation",a:"System",su:"Background",b:"The winner is selected, losing bidders are notified, and confirmed shipments are generated.",apis:[{l:"GetDemandOrdersByInquiryId",s:"live"}]}
+  ],
+  kpi:"Every bid, every price shown and the confirming identity written to the procurement audit trail.",
+  edge:"No bids within the SLA routes to ops manual sourcing on the same audit trail. Partial awards cover part of the truck count. Price expiry triggers a re-price loop."},
+ {id:"J5",t:"Booking, assignment and e-Bayan issuance",ph:"Phase 0 v0, then 1",pp:["P4","P1"],
+  n:"Award converts to orders, one per truck movement where applicable. The carrier assigns truck and driver, and TruKKer's DRT compliance checks become registry-enforced gates. At confirmation the e-Bayan engine issues a waybill per movement, the federal instrument Phase 1 attaches to the operating-card regime.",
+  steps:[
+   {t:"Order creation",a:"System",su:"/freight/portal/shipments",b:"Confirmed orders are mirrored as shipments with ADEED references.",apis:[{l:"GetDemandOrdersByInquiryId",s:"live"},{l:"GetOrdersList",s:"live"}]},
+   {t:"Truck and driver assignment",a:"Carrier",su:"/freight/carrier/trips",b:"Pick from the verified fleet only. The registry blocks expired or suspended assets and drivers, and replacement re-runs the checks.",apis:[{l:"GetTripInfoById",s:"live"},{l:"GAP-16 assignment contract",s:"gap",g:"GAP-16"}]},
+   {t:"ETA and reporting times",a:"Carrier",su:"Trip detail",b:"Pickup reporting time and ETA are declared.",apis:[{l:"GAP-06 ETA",s:"gap",g:"GAP-06"}]},
+   {t:"e-Bayan issuance",a:"System, ADEED authority",su:"Waybill on the shipment",b:"The waybill issues from movement data: shipper, consignee, cargo, route, carrier, driver, truck. QR-verifiable, attached to the TruKKer order, queryable by the regulator.",apis:[{l:"e-Bayan engine",s:"build"},{l:"GAP-19 waybill hooks",s:"gap",g:"GAP-19"}]},
+   {t:"GPS activation",a:"Carrier and TruKKer ops",su:"Background",b:"GPS deployment or tagging plus geofencing, with managed devices where phone GPS is not enough.",apis:[{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"}]},
+   {t:"Gate readiness, Phase 2",a:"Driver",su:"Driver credential",b:"Waybill plus registry credential earns trusted-operator fast lanes at the 24 smart gates.",apis:[{l:"Smart-gate integration",s:"build"}]}
+  ],
+  kpi:"A digital waybill under 100% of pilot movements, with a live dashboard for the GCEO office.",
+  edge:"Mid-assignment replacement re-issues or amends the waybill with an amendment log. Multi-truck orders issue one waybill per truck."},
+ {id:"J6",t:"In-transit tracking and exceptions",ph:"Phase 0",pp:["P1","P4","P6"],
+  n:"A live timeline for the shipper and an exception queue for ops. Until webhooks and telemetry land the gateway polls and the timeline is milestone-grade, which is exactly why the tracking ask is P0: the pilot KPI is 100% track and trace.",
+  steps:[
+   {t:"Live timeline",a:"Shipper",su:"/freight/portal/shipments/[ref]",b:"Milestones from geofence events: at pickup, loaded, departed, border, arrived, delivered, planned against actual.",apis:[{l:"GetOrderDetailsById, 5 min poll",s:"live"},{l:"GAP-06 milestones",s:"gap",g:"GAP-06"},{l:"GAP-07 status dictionary",s:"gap",g:"GAP-07"}]},
+   {t:"Live map",a:"Shipper and Ops",su:"Shipment detail and the ops board",b:"The truck position stream on the corridor map, feeding ADEED Radar.",apis:[{l:"GAP-06 positions",s:"gap",g:"GAP-06"}]},
+   {t:"Status notifications",a:"System",su:"Email, WhatsApp, portal",b:"A notification per milestone, with a consignee link for the delivery window.",apis:[{l:"Notification engine",s:"build"},{l:"GAP-05 webhooks",s:"gap",g:"GAP-05"}]},
+   {t:"Exceptions",a:"Ops",su:"/admin/freight SLA board",b:"Delay, breakdown, rejection or route deviation opens an incident within the hour, informs the client and triggers replacement per J5.",apis:[{l:"GAP-08 incident feed",s:"gap",g:"GAP-08"}]},
+   {t:"Border events",a:"System",su:"Shipment timeline",b:"Customs and border milestones for cross-border lanes, with the Hafeet corridor later.",apis:[{l:"GAP-06",s:"gap",g:"GAP-06"},{l:"Gov integrations, Phase 2",s:"build"}]},
+   {t:"Cancel or change",a:"Shipper",su:"Shipment detail",b:"Cancel a confirmed shipment or change windows before pickup, under cutoff rules.",apis:[{l:"GAP-09 order amend",s:"gap",g:"GAP-09"}]}
+  ],
+  kpi:"Live track and trace at 100%. Incident reporting within the hour.",
+  edge:"Poll cadence until events land: RFQs every 1-2 minutes, in-transit every 5, finance nightly."},
+ {id:"J7",t:"Delivery, ePOD and the document vault",ph:"Phase 0",pp:["P4","P5","P1","P3"],
+  n:"Proof of delivery within six hours, and every movement document, from POD to waybill to customs set to line items, in one vault, with binaries copied into UAE-resident storage the moment they are retrieved.",
+  steps:[
+   {t:"Delivery confirmation",a:"Driver and carrier",su:"Driver app, trip detail",b:"Geofenced arrival at the drop-off sets delivered status.",apis:[{l:"GAP-06/07",s:"gap",g:"GAP-06"}]},
+   {t:"ePOD capture",a:"Driver and carrier",su:"Trip detail upload",b:"A signed POD photo per truck, with validated file types.",apis:[{l:"SaveTripDocs",s:"live"}]},
+   {t:"POD retrieval and mirror",a:"System",su:"Background",b:"The gateway pulls the POD and copies the binary to UAE-resident storage on receipt, keeping the UAE-resident audit trail complete.",apis:[{l:"GetTripDocs",s:"live"},{l:"Docs-mirror pipeline",s:"build"}]},
+   {t:"POD verification",a:"ADEED Ops",su:"/admin/freight",b:"Legibility and completeness checks, with hard-copy collection tracked through the calling team and courier module.",apis:[{l:"ADEED workflow",s:"build"}]},
+   {t:"Document vault",a:"Shipper",su:"/freight/portal/documents",b:"All movement documents by shipment: POD, waybill, Bayan and customs docs, line items.",apis:[{l:"GetTripDocs",s:"live"},{l:"sourceDestination",s:"live"},{l:"findRevenueLineItems",s:"live"},{l:"GAP-10 doc taxonomy",s:"gap",g:"GAP-10"}]},
+   {t:"Ready to invoice",a:"System",su:"Background",b:"POD verified moves the order into the invoicing queue.",apis:[{l:"unBilledAgeingReport",s:"live"}]}
+  ],
+  kpi:"Digital POD within 6 hours of delivery.",
+  edge:"A disputed POD opens an exception before invoicing. A missing POD past 6 hours triggers a carrier chase with quality-score impact. Consignee refusal starts a return-trip flow."},
+ {id:"J8",t:"Invoicing, acceptance, collections and settlement",ph:"Phase 0 reads, writes after the DAs",pp:["P3","P4","P6"],
+  n:"Read flows now, writes once the Definitive Agreements settle the invoicing entity and working-capital risk. Screens ship acceptance-ready, so turning writes on changes nothing for users, only gateway behaviour.",
+  steps:[
+   {t:"Uninvoiced queue",a:"System and Ops",su:"/admin/freight finance view",b:"Delivered, POD-verified orders awaiting billing, with ageing.",apis:[{l:"unBilledAgeingReport",s:"live"}]},
+   {t:"Line-item review",a:"Shipper finance",su:"/freight/portal/billing",b:"Charges per order: freight, waiting, detention, tolls. Approve or exclude per line.",apis:[{l:"findRevenueLineItems",s:"live"}]},
+   {t:"Invoice generation",a:"System",su:"Background",b:"One invoice across selected orders, honouring line inclusion and exclusion.",apis:[{l:"saveInvoiceGenerationData",s:"live"}]},
+   {t:"Invoice delivery",a:"System",su:"Billing and the vault",b:"PDF and line detail in the portal, with UAE e-invoicing artifacts once mandated in January 2027.",apis:[{l:"GAP-11 invoice retrieval",s:"gap",g:"GAP-11"}]},
+   {t:"Acceptance or dispute",a:"Shipper finance",su:"Billing",b:"Accept produces the acknowledgement document. Dispute opens the CN and DN flow with reasons.",apis:[{l:"getInvoiceACKTemplate",s:"live"},{l:"GAP-12 accept/dispute",s:"gap",g:"GAP-12"}]},
+   {t:"Payment",a:"Shipper finance",su:"FINTX and FAB rails",b:"Payment executes on 7X financial rails and the allocation is recorded against invoices.",apis:[{l:"AllocatePayment",s:"live"},{l:"GAP-13 receipts read",s:"gap",g:"GAP-13"}]},
+   {t:"SOA and ageing",a:"Both finance teams",su:"Billing and carrier payments",b:"Statement of account, DSO, AR ageing, credit analysis.",apis:[{l:"GetInvoiceList",s:"live"},{l:"PrevStatementOfAccAsync",s:"live"}]},
+   {t:"Carrier settlement",a:"Carrier",su:"/freight/carrier/payments",b:"Vendor payment status, with MoXey instant pay where opted in. The adoption incentive.",apis:[{l:"GAP-13 vendor settlement",s:"gap",g:"GAP-13"}]}
+  ],
+  kpi:"Write endpoints activate under the agreements with zero screen changes.",
+  edge:"The invoicing entity, credit bearer and settlement architecture are open LOI items. The UX ships acceptance-ready."},
+ {id:"J9",t:"Registry governance, regulator views and smart gates",ph:"Phase 1 to 2",pp:["P6","P7"],
+  n:"The payoff of governance: the state knows who is moving its cargo. Registry search, waybill verification and the modal statistics the UAE has never had, then enforcement at the gates.",
+  steps:[
+   {t:"Registry search",a:"Regulator",su:"/freight/regulator",b:"Any carrier, driver or asset: verification status, quality score, movement counts, PII-minimised per role.",apis:[{l:"ADEED registry views",s:"build"}]},
+   {t:"Waybill verification",a:"Inspector",su:"Console and gate integration",b:"Scan the QR for validity, cargo, carrier and driver. The enforcement primitive of the mandate pathway.",apis:[{l:"e-Bayan lookup",s:"build"}]},
+   {t:"Compliance statistics",a:"Regulator and MOEI",su:"Console dashboards",b:"Movements by corridor, compliance rates, incident trends. The first regulator views of Phase 1.",apis:[{l:"ADEED reporting",s:"build"}]},
+   {t:"Smart-gate integration",a:"System",su:"Background",b:"Waybill and registry status at the 24 smart gates, with trusted-operator fast lanes as the carrier incentive.",apis:[{l:"Federal integrations, Phase 2",s:"build"}]},
+   {t:"Emirate interop",a:"System",su:"Background",b:"Asateel, RTA and SRTA: one submission, shared visibility. Emirate systems are integrated, not replaced.",apis:[{l:"Interop, Phase 2",s:"build"}]}
+  ],
+  kpi:"Modal statistics exist for the first time, and compliant operators gain speed.",
+  edge:"The design mandates only the inter-emirate and cross-border seams where Federal Law 9/2011 already governs."},
+ {id:"J10",t:"Ops control tower and programme reporting",ph:"Phase 0",pp:["P6","P8"],
+  n:"Where the pilot is judged. One board for the network, one for the registry, one for integration health, and the KPI dashboard the GCEO office reads.",
+  steps:[
+   {t:"Network board",a:"ADEED Ops",su:"/admin/freight",b:"All active RFQs and shipments, SLA countdowns for pricing, the 6-hour POD and the 1-hour incident, and the exception queue.",apis:[{l:"All read endpoints",s:"live"},{l:"GAP-06/08",s:"gap",g:"GAP-06"}]},
+   {t:"Registry queue",a:"ADEED Ops",su:"/admin/freight/registry",b:"Verification workload, the 72-hour onboarding SLA, the expiry radar.",apis:[{l:"ADEED registry",s:"build"}]},
+   {t:"Integration health",a:"ADEED Ops",su:"/admin/freight/integration",b:"Sync-job status, API error rates, nightly reconciliation diffs, the immutable integration log.",apis:[{l:"Integration Gateway",s:"build"},{l:"GAP-20 conventions",s:"gap",g:"GAP-20"}]},
+   {t:"Pilot KPI dashboard",a:"Programme and GCEO",su:"Programme view and Radar",b:"OTIF, track and trace, POD, incidents, waybill coverage, onboarding SLA and savings against baseline. Fortnightly to the working group, a single page monthly to the Group CEO.",apis:[{l:"ADEED reporting",s:"build"},{l:"GAP-24 OTIF data",s:"gap",g:"GAP-24"}]},
+   {t:"Radar feed",a:"System",su:"ADEED Radar",b:"Freight aggregates join Radar corridor intelligence. Governed-flow data becomes a national sensing asset.",apis:[{l:"Radar integration",s:"build"}]}
+  ],
+  kpi:"A fortnightly working-group review and a single-page monthly brief to the Group CEO, all data UAE-resident.",
+  edge:"Order and invoice counts reconcile nightly on both sides, and diffs raise alarms."}
+];
+/* stages × lanes matrix */
+const STAGES=["Onboard","Demand","Price & bid","Book & waybill","Execute & track","Deliver & PoD","Settle"];
+const FLOWCELLS={
+ adeed:[
+  [{id:"a0",l:"Client onboarding",ph:"Phase 0",d:"Shipper KYB, billing entities and team roles. Joint provisioning creates the TruKKer client behind the gateway.",j:"J1",refs:[{l:"Client accounts & KYB",s:"contract"},{l:"GAP-14",s:"gap",g:"GAP-14"}]}],
+  [{id:"a1",l:"Demand posting",ph:"Phase 0",d:"Portal wizard, Copilot, ERP through the Partner API, assisted WhatsApp and email. Every channel lands as the same governed RFQ.",j:"J3",refs:[{l:"SaveInquiry",s:"live"},{l:"Partner API",s:"build"}]},
+   {id:"a1b",l:"Completeness checks",ph:"Phase 0",d:"Required-field validation per move type, with missing-info prompts back to the client.",j:"J3",refs:[{l:"ADEED validation",s:"build"}]}],
+  [{id:"a2",l:"Transparent bid board",ph:"Phase 0",d:"Every bid mirrored into the ADEED procurement audit trail, the transparency government clients require.",j:"J4",refs:[{l:"GetDashboardDetails",s:"live"},{l:"GetBidHistory",s:"live"}]},
+   {id:"a2b",l:"Price confirmation",ph:"Phase 0",d:"The client confirms or declines with reason. The step that converts inquiry to order.",j:"J4",refs:[{l:"GAP-03 award write",s:"gap",g:"GAP-03"},{l:"GAP-02 quote read",s:"gap",g:"GAP-02"}]}],
+  [{id:"a3",l:"Shipment mirror",ph:"Phase 0",d:"Confirmed orders land as ADEED shipments with their own references, ready for tracking and documents.",j:"J5",refs:[{l:"GetDemandOrdersByInquiryId",s:"live"},{l:"GetOrdersList",s:"live"}]}],
+  [{id:"a4",l:"Shipment timeline",ph:"Phase 0",d:"Milestones, the live map, truck and driver, waybill and documents. The shipper's single view of the movement.",j:"J6",refs:[{l:"GetOrderDetailsById",s:"live"},{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"}]}],
+  [{id:"a5",l:"Document vault",ph:"Phase 0",d:"POD, waybill, customs set and line items, with binaries copied on receipt into UAE-resident storage.",j:"J7",refs:[{l:"GetTripDocs",s:"live"},{l:"Docs mirror",s:"build"}]}],
+  [{id:"a6",l:"Billing & SOA",ph:"Phase 0 reads",d:"Line-item review, invoice acceptance, disputes and the statement of account. Payment on FINTX and FAB rails.",j:"J8",refs:[{l:"GetInvoiceList",s:"live"},{l:"GAP-11 invoice PDF",s:"gap",g:"GAP-11"}]},
+   {id:"a6b",l:"Control tower & Radar",ph:"Phase 0",d:"The SLA board, exceptions, integration health and the pilot KPIs read by the GCEO office.",j:"J10",refs:[{l:"ADEED reporting",s:"build"},{l:"GAP-24",s:"gap",g:"GAP-24"}]}]
+ ],
+ fed:[
+  [{id:"f0",l:"UAE Pass · KYC/KYB",ph:"Phase 1",d:"Verified digital identity for every carrier, driver and client, federated with commercial licensing and vehicle registers.",j:"J1",refs:[{l:"Identity lane, 7X scope",s:"build"}]},
+   {id:"f0b",l:"National Registry",ph:"Phase 0 pilot, Phase 1 scale",d:"KYB of every carrier and KYC of every driver, with a portable credential and a quality score that follows the operator.",j:"J2",refs:[{l:"Registry service",s:"build"},{l:"GAP-15/16 contracts",s:"gap",g:"GAP-15"}]}],
+  [],
+  [],
+  [{id:"f3",l:"e-Waybill engine",ph:"v0 in Phase 0, engine in Phase 1",d:"A federal e-Bayan per movement: shipper, consignee, cargo, route, carrier, driver, truck. QR-verifiable.",j:"J5",refs:[{l:"e-Bayan engine",s:"build"},{l:"GAP-19 hooks",s:"gap",g:"GAP-19"}]}],
+  [{id:"f4",l:"Smart gates & customs",ph:"Phase 2",d:"24 smart gates, 12 federal and 12 Abu Dhabi. Trusted-operator fast lanes are the carrier incentive to register.",j:"J9",refs:[{l:"Federal integrations, Phase 2",s:"build"}]}],
+  [],
+  []
+ ],
+ tk:[
+  [{id:"t0",l:"Carrier onboarding stack",ph:"Phase 0",d:"TruKKer's production onboarding: carrier and vendor registration, driver KYC, asset compliance. Evidence flows into the ADEED registry.",j:"J2",refs:[{l:"Carrier & vendor onboarding",s:"contract"},{l:"Drivers & assets",s:"contract"}]}],
+  [{id:"t1",l:"Inquiry creation",ph:"Phase 0",d:"The RFQ lands in the engine from ADEED through the gateway, or as drafts from EVA demand automation.",j:"J3",refs:[{l:"SaveInquiry",s:"live"},{l:"GAP-23 drafts",s:"gap",g:"GAP-23"}]}],
+  [{id:"t2",l:"Sourcing & bidding",ph:"Phase 0",d:"The price matrix, manual sourcing and the partner loadboard. FATIMA negotiates with carriers on WhatsApp.",j:"J4",refs:[{l:"Loadboard",s:"live"},{l:"GAP-21 bid API",s:"gap",g:"GAP-21"}]},
+   {id:"t2b",l:"Winner selection",ph:"Phase 0",d:"Best bid or buying-price target met, and losing bidders are released.",j:"J4",refs:[{l:"GetBidHistory",s:"live"}]}],
+  [{id:"t3",l:"Order booking",ph:"Phase 0",d:"The confirmed inquiry becomes orders, one per truck movement where applicable.",j:"J5",refs:[{l:"GetDemandOrdersByInquiryId",s:"live"}]},
+   {id:"t3b",l:"DRT approval",ph:"Phase 0",d:"Document verification, expiry checks, passport and visa checks before dispatch. Registry-enforced in ADEED Freight.",j:"J5",refs:[{l:"GAP-16 compliance data",s:"gap",g:"GAP-16"}]},
+   {id:"t3c",l:"Truck & driver assignment",ph:"Phase 0",d:"Assignment with replacement loops on rejection. ETA and reporting times are added.",j:"J5",refs:[{l:"GetTripInfoById",s:"live"},{l:"GAP-06 ETA",s:"gap",g:"GAP-06"}]}],
+  [{id:"t4",l:"GPS & geofencing",ph:"Phase 0",d:"GPS deployment, geofenced milestones and status updates through the trip.",j:"J6",refs:[{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"},{l:"GAP-07 statuses",s:"gap",g:"GAP-07"}]}],
+  [{id:"t5",l:"Delivery & PoD",ph:"Phase 0",d:"ePOD per truck. The calling team schedules collection; out-station hard copies route through the courier module.",j:"J7",refs:[{l:"SaveTripDocs",s:"live"},{l:"GetTripDocs",s:"live"}]}],
+  [{id:"t6",l:"Line items & invoicing",ph:"Phase 0 reads",d:"SARA runs the loop: line-item approval, invoice generation, PDF and acceptance.",j:"J8",refs:[{l:"unBilledAgeingReport",s:"live"},{l:"saveInvoiceGenerationData",s:"live"},{l:"GAP-11 PDF",s:"gap",g:"GAP-11"}]},
+   {id:"t6b",l:"Collections & NetSuite",ph:"Writes after the DAs",d:"DSO management, AR ageing, credit analysis, SOA and demand letters, audited in NetSuite.",j:"J8",refs:[{l:"GetInvoiceList",s:"live"},{l:"AllocatePayment",s:"live"}]}]
+ ]
+};
+const LANES=[
+ {key:"adeed",label:"ADEED",sub:"Demand & governance"},
+ {key:"fed",label:"Federal layer",sub:"Net-new, jointly scoped"},
+ {key:"tk",label:"TruKKer engine",sub:"Execution"}
+];
+/* connector edges: seq = progression inside a lane, hand = handoff (labelled, arrowed).
+   Handoffs between the ADEED/federal group and the TruKKer lane cross the gateway band. */
+const EDGES=[
+ {f:"a0",t:"a1",k:"seq"},{f:"a1",t:"a2",k:"seq"},{f:"a2b",t:"a3",k:"seq"},{f:"a3",t:"a4",k:"seq"},{f:"a4",t:"a5",k:"seq"},{f:"a5",t:"a6",k:"seq"},
+ {f:"t0",t:"t1",k:"seq"},{f:"t1",t:"t2",k:"seq"},{f:"t2b",t:"t3",k:"seq"},{f:"t3c",t:"t4",k:"seq"},{f:"t4",t:"t5",k:"seq"},{f:"t5",t:"t6",k:"seq"},
+ {f:"a1",t:"a1b",k:"seq",nd:1},{f:"a2",t:"a2b",k:"seq",nd:1},{f:"t2",t:"t2b",k:"seq",nd:1},{f:"t3",t:"t3b",k:"seq",nd:1},{f:"t3b",t:"t3c",k:"seq",nd:1},{f:"f0",t:"f0b",k:"seq",nd:1},
+ {f:"a1",t:"t1",k:"hand",lbl:"SaveInquiry",ldy:74},
+ {f:"t2",t:"a2",k:"hand",lbl:"bids mirrored"},
+ {f:"a2b",t:"t3",k:"hand",lbl:"award"},
+ {f:"t0",t:"f0b",k:"hand",lbl:"KYC evidence"},
+ {f:"f0b",t:"t3b",k:"hand",lbl:"eligibility"},
+ {f:"t3",t:"f3",k:"hand",lbl:"movement payload"},
+ {f:"f3",t:"f4",k:"hand",lbl:"enforcement"},
+ {f:"t4",t:"a4",k:"hand",lbl:"milestones"},
+ {f:"t5",t:"a5",k:"hand",lbl:"copy on receipt"},
+ {f:"t6",t:"a6",k:"hand",lbl:"invoices & SOA",ldy:-64}
+];
+const NODE_INDEX={};
+Object.keys(FLOWCELLS).forEach(lane=>FLOWCELLS[lane].forEach(cell=>cell.forEach(n=>{NODE_INDEX[n.id]={...n,lane};})));
+const laneOf=id=>NODE_INDEX[id].lane;
+
+/* ════════ RENDER ════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const tag=a=>{
+  const lab=esc(a.l);
+  if(a.s==="gap"&&a.g) return `<button class="tag gap" data-goto-gap="${a.g}"><span class="dot"></span>${lab}</button>`;
+  if(a.s==="live") return `<button class="tag live" data-goto-api="${esc(a.l)}"><span class="dot"></span>${lab}</button>`;
+  return `<span class="tag ${a.s}"><span class="dot"></span>${lab}</span>`;
+};
+
+/* nav */
+function show(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  history.replaceState(null,"","#"+view);
+  window.scrollTo({top:0,behavior:"instant"});
+  if(view==="flow"&&typeof drawWires==="function")requestAnimationFrame(drawWires);
+}
+$("#nav").addEventListener("click",e=>{const b=e.target.closest(".navbtn");if(b)show(b.dataset.view)});
+const CRUMBS={plan:"Plan",arch:"Architecture",flow:"System flows",journeys:"Journey map",apis:"API readiness",gaps:"For TruKKer"};
+if(location.hash){const h=location.hash.slice(1);if(document.getElementById("view-"+h))show(h)}
+
+/* flow matrix + wires */
+function renderMatrix(){
+  let html=`<svg id="wires" class="wires" aria-hidden="true"></svg>`;
+  html+=`<div class="mrow mhead"><div class="mcell" style="border:none"></div>${STAGES.map((s,i)=>`<div class="mcell"><span class="n num">${i+1}</span><b>${s}</b></div>`).join("")}</div>`;
+  LANES.forEach(lane=>{
+    html+=`<div class="mrow mlane ${lane.key}"><div class="lanehead">${lane.label}<small>${lane.sub}</small></div>`;
+    html+=FLOWCELLS[lane.key].map(cell=>`<div class="mcell">${cell.map(n=>`<button class="station" data-id="${n.id}"><span class="dot"></span><span>${esc(n.l)}</span></button>`).join("")}</div>`).join("");
+    html+=`</div>`;
+    if(lane.key==="fed") html+=`<div class="mrow"><div class="gateway"><b>Integration Gateway</b><span>the single seam between governance and execution: token custody, payload mapping, polling, idempotency, immutable audit log</span></div></div>`;
+  });
+  $("#matrix").innerHTML=html;
+  drawWires();
+}
+const WIRE_COLORS={adeed:"#0020F5",fed:"#008663",tk:"#3A3A3C"};
+const LANE_DOT={adeed:"#0020F5",fed:"#008663",tk:"#0A0F1E"};
+function drawWires(){
+  const m=$("#matrix"),svg=$("#wires");if(!m||!svg)return;
+  const W=m.scrollWidth,H=m.scrollHeight;
+  svg.setAttribute("width",W);svg.setAttribute("height",H);svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const mr=m.getBoundingClientRect();
+  let out=`<defs>${Object.entries(WIRE_COLORS).map(([k,c])=>`<marker id="ar-${k}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0.6 L7.4,4 L0,7.4 Z" fill="${c}"/></marker>`).join("")}</defs>`;
+  EDGES.forEach(e=>{
+    if(e.nd)return;
+    const A=m.querySelector(`.station[data-id="${e.f}"]`),B=m.querySelector(`.station[data-id="${e.t}"]`);
+    if(!A||!B)return;
+    const ra=A.getBoundingClientRect(),rb=B.getBoundingClientRect();
+    const ax=ra.left-mr.left,ay=ra.top-mr.top,bx=rb.left-mr.left,by=rb.top-mr.top;
+    const grp=laneOf(e.f);
+    let d,lbl="";
+    if(e.k==="seq"||Math.abs((ay+ra.height/2)-(by+rb.height/2))<ra.height){
+      const sx=ax+ra.width+2,sy=ay+ra.height/2,ex=bx-5,ey=by+rb.height/2;
+      d=`M${sx},${sy} L${ex},${ey}`;
+      if(e.k==="hand"&&e.lbl&&(ex-sx)>=110)
+        lbl=`<text class="elabel" data-f="${e.f}" data-t="${e.t}" text-anchor="middle" x="${(sx+ex)/2}" y="${Math.min(sy,ey)-8}">${esc(e.lbl)}</text>`;
+    }else{
+      const down=by>ay;
+      const sx=ax+ra.width/2,sy=down?ay+ra.height:ay,ex=bx+rb.width/2,ey=down?by-5:by+rb.height+5;
+      const v=Math.max(26,Math.abs(ey-sy)*0.45)*(down?1:-1);
+      d=`M${sx},${sy} C${sx},${sy+v} ${ex},${ey-v} ${ex},${ey}`;
+      if(e.k==="hand"&&e.lbl){
+        let lx=sx+(ex-sx)*0.18+8+(e.ldx||0),anchor="start";
+        const ly=(down?sy+17:sy-10)+(e.ldy||0);
+        if(lx>W-100){anchor="end";lx=Math.min(lx,W-6);}
+        if(lx<8)lx=8;
+        lbl=`<text class="elabel" data-f="${e.f}" data-t="${e.t}" text-anchor="${anchor}" x="${lx}" y="${ly}">${esc(e.lbl)}</text>`;
+      }
+    }
+    out+=`<path class="wire ${e.k} ${grp}" data-f="${e.f}" data-t="${e.t}" d="${d}" ${e.k==="hand"?`marker-end="url(#ar-${grp})"`:""}/>`+lbl;
+  });
+  svg.innerHTML=out;
+  applySel();
+}
+let selId=null,boardSet=null;
+function applySel(){
+  const m=$("#matrix");
+  const mode=selId?"sel":(boardSet?"set":null);
+  m.classList.toggle("has-sel",!!mode);
+  const adj=new Set();
+  if(selId)EDGES.forEach(e=>{if(e.f===selId)adj.add(e.t);if(e.t===selId)adj.add(e.f);});
+  m.querySelectorAll(".station").forEach(s=>{
+    const id=s.dataset.id;
+    s.classList.toggle("sel",id===selId);
+    s.classList.toggle("adj",mode==="set"?boardSet.has(id):adj.has(id));
+  });
+  m.querySelectorAll(".wire,.elabel").forEach(w=>{
+    const hot=mode==="sel"?(w.dataset.f===selId||w.dataset.t===selId)
+      :mode==="set"?(boardSet.has(w.dataset.f)&&boardSet.has(w.dataset.t)):false;
+    w.classList.toggle("hot",hot);
+  });
+}
+const laneMeta={adeed:"ADEED, demand & governance",fed:"Federal layer, net-new",tk:"TruKKer engine, execution"};
+function nodeChip(id){
+  const n=NODE_INDEX[id];
+  return `<button class="tag" data-sel-node="${id}"><span class="dot" style="background:${LANE_DOT[n.lane]}"></span>${esc(n.l)}</button>`;
+}
+function selectNode(id,scroll){
+  boardSet=null;
+  selId=(selId===id)?null:id;
+  applySel();
+  const fd=$("#flowdetail");
+  if(!selId){fd.hidden=true;return;}
+  const n=NODE_INDEX[selId];
+  const inn=EDGES.filter(e=>e.t===selId).map(e=>({id:e.f,lbl:e.lbl}));
+  const outt=EDGES.filter(e=>e.f===selId).map(e=>({id:e.t,lbl:e.lbl}));
+  const pm=n.ph.includes("2")?"later":n.ph.includes("1")?"next":"now";
+  fd.hidden=false;
+  fd.innerHTML=`
+    <div class="fd-head"><h3>${esc(n.l)}</h3><span class="pm ${pm}">${esc(n.ph)}</span><span class="owner">${laneMeta[n.lane]}</span><button class="jref" data-goto-j="${n.j}">${n.j} journey →</button></div>
+    <p>${esc(n.d)}</p>
+    <div class="fd-flow">
+      <div><h5>Receives</h5><div class="chips">${inn.length?inn.map(x=>`${nodeChip(x.id)}${x.lbl?`<span class="via">${esc(x.lbl)}</span>`:""}`).join(""):'<span class="via">Entry point</span>'}</div></div>
+      <div><h5>Hands off</h5><div class="chips">${outt.length?outt.map(x=>`${nodeChip(x.id)}${x.lbl?`<span class="via">${esc(x.lbl)}</span>`:""}`).join(""):'<span class="via">End of chain</span>'}</div></div>
+    </div>
+    <div class="fd-refs">${n.refs.map(tag).join("")}</div>`;
+  if(scroll)fd.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+renderMatrix();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawWires);
+new ResizeObserver(()=>drawWires()).observe($("#matrix"));
+$("#matrix").addEventListener("click",e=>{
+  const b=e.target.closest(".station");if(!b)return;
+  if(tourI>=0)tourEnd(true);
+  selectNode(b.dataset.id,true);
+});
+
+/* guided tour: follow one shipment across the board */
+const TOUR=["a1","t1","t2","a2","a2b","t3","t3b","t3c","f3","t4","a4","t5","a5","t6","a6"];
+let tourI=-1;
+const tourBtn=$("#tourbtn"),tourCtl=$("#tourctl");
+function tourApply(){
+  const id=TOUR[tourI];
+  selId=null;selectNode(id,false);
+  $("#tourpos").textContent=`Stop ${tourI+1} of ${TOUR.length}`;
+  $("#tourback").disabled=tourI===0;
+  $("#tournext").disabled=tourI===TOUR.length-1;
+  const st=document.querySelector(`#matrix .station[data-id="${id}"]`);
+  if(st)st.scrollIntoView({block:"nearest",inline:"nearest",behavior:"smooth"});
+}
+function tourStart(){tourI=0;tourBtn.hidden=true;tourCtl.hidden=false;tourApply();}
+function tourEnd(keep){
+  tourI=-1;tourBtn.hidden=false;tourCtl.hidden=true;
+  if(!keep){selId=null;applySel();$("#flowdetail").hidden=true;}
+}
+tourBtn.addEventListener("click",tourStart);
+$("#tournext").addEventListener("click",()=>{if(tourI>=0&&tourI<TOUR.length-1){tourI++;tourApply();}});
+$("#tourback").addEventListener("click",()=>{if(tourI>0){tourI--;tourApply();}});
+$("#tourdone").addEventListener("click",()=>tourEnd(false));
+
+/* journey → board cross-link */
+function showJourneyOnBoard(jid){
+  show("flow");
+  requestAnimationFrame(()=>{
+    if(tourI>=0)tourEnd(true);
+    selId=null;
+    boardSet=new Set(Object.values(NODE_INDEX).filter(n=>n.j===jid).map(n=>n.id));
+    applySel();
+    const j=J.find(x=>x.id===jid);
+    const fd=$("#flowdetail");fd.hidden=false;
+    fd.innerHTML=`<div class="fd-head"><h3>${jid} on the board: ${esc(j.t)}</h3><button class="jref" data-goto-j="${jid}">Open the journey →</button><button class="jref" id="clearboard">Clear highlight</button></div><p>${esc(j.n)}</p>`;
+    const first=$("#matrix .station.adj");
+    if(first)first.scrollIntoView({block:"nearest",inline:"nearest"});
+  });
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-jboard]");
+  if(b){showJourneyOnBoard(b.dataset.jboard);return;}
+  if(e.target.id==="clearboard"){selId=null;boardSet=null;applySel();$("#flowdetail").hidden=true;}
+});
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-sel-node]");
+  if(c){selId=null;selectNode(c.dataset.selNode,false);
+    const st=$(`#matrix .station[data-id="${c.dataset.selNode}"]`);
+    if(st)st.scrollIntoView({block:"nearest",inline:"nearest",behavior:"smooth"});}
+});
+
+/* personas */
+$("#personas").innerHTML=PERSONAS.map(p=>`<div class="persona"><div class="pid">${p.id}<span class="pw">${esc(p.w)}</span></div><h3>${esc(p.n)}</h3><p>${esc(p.d)}</p></div>`).join("");
+
+/* journeys */
+let curJ="J1";
+function renderJList(){
+  $("#jlist").innerHTML=J.map(j=>`<button class="jbtn${j.id===curJ?" active":""}" role="tab" aria-selected="${j.id===curJ}" data-j="${j.id}"><small>${j.id}</small>${esc(j.t)}</button>`).join("");
+}
+function actorCls(a){
+  const s=a.toLowerCase();
+  if(s.includes("carrier")||s.includes("driver")||s.includes("trukker"))return"ac-carrier";
+  if(s.includes("ops")||s.includes("programme"))return"ac-ops";
+  if(s.includes("system")||s.includes("gateway")||s.includes("regulator")||s.includes("inspector")||s.includes("moei"))return"ac-system";
+  return"ac-client";
+}
+function renderJ(){
+  const j=J.find(x=>x.id===curJ);
+  const seen=new Set(),gaps=new Set();let live=0,build=0;
+  j.steps.forEach(s=>s.apis.forEach(a=>{const k=a.s+"|"+a.l;if(seen.has(k))return;seen.add(k);
+    if(a.s==="live")live++;else if(a.s==="gap")gaps.add(a.g||a.l);else if(a.s==="build")build++;}));
+  $("#jdetail").innerHTML=`
+    <div class="jhead">
+      <span class="jid">${j.id} · ${esc(j.ph)}</span>
+      <h2>${esc(j.t)}</h2>
+      <p class="jnarr">${esc(j.n)}</p>
+      <div class="jbar">
+        <div class="jmeta">${j.pp.map(p=>{const full=(PERSONAS.find(x=>x.id===p)||{}).n||"";const parts=full.split(":");const short=(parts[1]||parts[0]||"").trim();return `<span class="pill">${p} ${esc(short)}</span>`}).join("")}</div>
+        <div class="jstats"><span><b class="num">${j.steps.length}</b> steps</span><span class="l"><b class="num">${live}</b> live APIs</span><span class="g"><b class="num">${gaps.size}</b> open asks</span>${build?`<span><b class="num">${build}</b> ADEED builds</span>`:""}</div>
+        <button class="jboard" data-jboard="${j.id}">View on the flow board</button>
+      </div>
+    </div>
+    <div class="steps">${j.steps.map((s,i)=>`
+      <details class="step ${actorCls(s.a)}" id="st-${i}"${i===0?" open":""}>
+        <summary><span class="sn num">${i+1}</span><h4>${esc(s.t)}<span class="actor">${esc(s.a)}</span></h4><span class="chev" aria-hidden="true">›</span></summary>
+        <div class="s-b">
+          <div class="who">${esc(s.su)}</div>
+          <p>${esc(s.b)}</p>
+          <div class="apis">${s.apis.map(tag).join("")}</div>
+        </div>
+      </details>`).join("")}
+    </div>
+    <div class="jfoot">
+      <div class="row"><div class="k">Acceptance</div><div>${esc(j.kpi)}</div></div>
+      <div class="row"><div class="k">Edge cases</div><div>${esc(j.edge)}</div></div>
+    </div>`;
+  renderJList();
+}
+$("#jlist").addEventListener("click",e=>{const b=e.target.closest(".jbtn");if(!b)return;curJ=b.dataset.j;renderJ();});
+renderJ();
+
+/* apis */
+let apiFilter="all";
+function apiRow(a,status){
+  return `<div class="apirow" data-hay="${esc((a.n+" "+(a.p||"")+" "+(a.d||"")+" "+(a.j||[]).join(" ")).toLowerCase())}">
+    <div><div class="nm">${a.m?`<span class="method">${a.m}</span> `:""}${esc(a.n)}</div>${a.p?`<div class="p mono">${esc(a.p)}</div>`:""}</div>
+    <div class="d">${esc(a.d)}${a.note?`<small>${esc(a.note)}</small>`:""}${a.g?`<span class="ask">Formal ask: <button class="jref" data-goto-gap="${a.g}">${a.g} →</button></span>`:""}</div>
+    <div class="aend">${status}<div class="jj">${(a.j||[]).map(x=>`<button class="jref" data-goto-j="${x}">${x}</button>`).join("")}</div></div>
+  </div>`;
+}
+function renderApis(){
+  const q=($("#apisearch").value||"").toLowerCase().trim();
+  const match=el=>!q||el.includes(q);
+  const groups=[];
+  if(apiFilter==="all"||apiFilter==="live"){
+    [...new Set(APIS.map(a=>a.st))].forEach(st=>{
+      const rows=APIS.filter(a=>a.st===st).filter(a=>match((a.n+a.p+a.d+a.j.join(" ")).toLowerCase()));
+      if(rows.length)groups.push({t:`Live: ${st}`,rows:rows.map(a=>apiRow(a,'<span class="tag live"><span class="dot"></span>Live</span>'))});
+    });
+  }
+  if(apiFilter==="all"||apiFilter==="contract"){
+    const rows=AREAS.filter(a=>match((a.n+a.d).toLowerCase()));
+    if(rows.length)groups.push({t:"Account and onboarding, contracts pending",rows:rows.map(a=>apiRow(a,'<span class="tag contract"><span class="dot"></span>Contracts pending</span>'))});
+  }
+  if(apiFilter==="all"||apiFilter==="build"){
+    const rows=BUILDS.filter(a=>match((a.n+a.d).toLowerCase()));
+    if(rows.length)groups.push({t:"ADEED net-new builds",rows:rows.map(a=>apiRow(a,'<span class="tag build"><span class="dot"></span>ADEED build</span>'))});
+  }
+  $("#apilist").innerHTML=groups.length?groups.map((g,i)=>`
+    <details class="agroup"${q||i===0?" open":""}>
+      <summary><h3>${esc(g.t)}</h3><span class="cnt num">${g.rows.length}</span><span class="chev" aria-hidden="true">›</span></summary>
+      <div class="agroup-b">${g.rows.join("")}</div>
+    </details>`).join("")
+    :'<p style="color:var(--muted);font-size:13.5px;margin-top:24px">Nothing matches. Try a shorter term or a GAP ID.</p>';
+}
+$("#apisearch").addEventListener("input",renderApis);
+document.querySelectorAll("#view-apis .seg").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#view-apis .seg").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");apiFilter=b.dataset.f;renderApis();
+}));
+renderApis();
+
+/* gaps: featured blockers + collapsed groups */
+function gapItem(g){
+  return `<details class="gitem" id="row-${g.id}">
+    <summary><span class="gid">${g.id}</span><h4>${esc(g.t)}</h4>${g.pr!=="P0"?`<span class="prio ${g.pr}">${g.pr}</span>`:""}<span class="chev" aria-hidden="true">›</span></summary>
+    <div class="g-b">
+      <p><b>Why:</b> ${esc(g.w)}</p>
+      <p class="shape"><b>Suggested shape:</b> <code>${esc(g.s)}</code></p>
+      <div class="jrow">${g.j.map(x=>`<button class="jref" data-goto-j="${x}">${x} journey →</button>`).join("")}</div>
+    </div>
+  </details>`;
+}
+(function renderGaps(){
+  $("#p0grid").innerHTML=GAPS.filter(g=>g.pr==="P0").map(gapItem).join("");
+  const p1=GAPS.filter(g=>g.pr==="P1"),p2=GAPS.filter(g=>g.pr==="P2");
+  $("#gapgroups").innerHTML=`
+    <details class="ggroup"><summary><h3>For the federal MVP</h3><span class="cnt num">${p1.length}</span><span class="chev" aria-hidden="true">›</span></summary><div class="glist">${p1.map(gapItem).join("")}</div></details>
+    <details class="ggroup"><summary><h3>For the mandate and scale phase</h3><span class="cnt num">${p2.length}</span><span class="chev" aria-hidden="true">›</span></summary><div class="glist">${p2.map(gapItem).join("")}</div></details>`;
+})();
+
+/* cross-navigation helpers */
+function jumpGap(id){
+  show("gaps");
+  const row=document.getElementById("row-"+id);
+  if(row){
+    const grp=row.closest(".ggroup");if(grp)grp.open=true;
+    row.open=true;
+    setTimeout(()=>row.scrollIntoView({block:"center"}),60);
+    row.style.background="var(--blue-wash)";setTimeout(()=>row.style.background="",1600);
+  }
+}
+function jumpApi(q){
+  show("apis");apiFilter="all";
+  document.querySelectorAll("#view-apis .seg").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));
+  $("#apisearch").value=q;renderApis();
+}
+function jumpJourney(id){curJ=id;renderJ();show("journeys");setTimeout(()=>$("#jdetail").scrollIntoView({block:"start"}),60);}
+function jumpStation(id){
+  show("flow");
+  requestAnimationFrame(()=>{selId=null;selectNode(id,false);
+    const st=document.querySelector(`#matrix .station[data-id="${id}"]`);
+    if(st)st.scrollIntoView({block:"center",inline:"nearest"});});
+}
+document.addEventListener("click",e=>{
+  const gg=e.target.closest("[data-goto-gap]");
+  if(gg){jumpGap(gg.dataset.gotoGap);return;}
+  const ga=e.target.closest("[data-goto-api]");
+  if(ga){jumpApi(ga.dataset.gotoApi.split(",")[0]);return;}
+  const gj=e.target.closest("[data-goto-j]");
+  if(gj){jumpJourney(gj.dataset.gotoJ);}
+});
+
+/* ── command palette ── */
+const pal=$("#pal"),palIn=$("#palinput"),palList=$("#pallist");
+const PAL_BASE=[
+  ...Object.entries(CRUMBS).map(([v,t],i)=>({g:"Sections",k:"0"+(i+1),t,s:"",run:()=>show(v)})),
+  ...GAPS.map(g=>({g:"Gap register",k:g.id,t:g.t,s:g.pr,run:()=>jumpGap(g.id)})),
+  ...APIS.map(a=>({g:"API catalog",k:a.m,t:a.n,s:a.p,run:()=>jumpApi(a.n)})),
+  ...AREAS.map(a=>({g:"API catalog",k:"AREA",t:a.n,s:"contracts pending",run:()=>jumpApi(a.n)})),
+  ...BUILDS.map(a=>({g:"API catalog",k:"ADEED",t:a.n,s:"net-new build",run:()=>jumpApi(a.n)})),
+  ...J.map(j=>({g:"Journeys",k:j.id,t:j.t,s:j.ph,run:()=>jumpJourney(j.id)})),
+  ...Object.values(NODE_INDEX).map(n=>({g:"Flow stations",k:n.id,t:n.l,s:laneMeta[n.lane],run:()=>jumpStation(n.id)}))
+];
+let palItems=[],palSel=0;
+function palRender(q){
+  const needle=q.trim().toLowerCase();
+  const hits=needle?PAL_BASE.filter(x=>(x.k+" "+x.t+" "+x.s).toLowerCase().includes(needle)):PAL_BASE.filter(x=>x.g==="Sections");
+  const byG={};hits.forEach(x=>{(byG[x.g]=byG[x.g]||[]).push(x)});
+  palItems=[];let html="";
+  Object.entries(byG).forEach(([g,arr])=>{
+    html+=`<div class="pal-g">${g}</div>`;
+    arr.slice(0,6).forEach(x=>{
+      html+=`<button class="pal-i${palItems.length===0?" sel":""}" data-i="${palItems.length}"><span class="k">${esc(x.k)}</span><span>${esc(x.t)}</span>${x.s?`<small>${esc(x.s)}</small>`:""}</button>`;
+      palItems.push(x);
+    });
+  });
+  palSel=0;
+  palList.innerHTML=html||'<div class="pal-none">Nothing matches. Try a gap ID, an endpoint or a journey.</div>';
+}
+function palPaint(){
+  palList.querySelectorAll(".pal-i").forEach(el=>el.classList.toggle("sel",+el.dataset.i===palSel));
+  const cur=palList.querySelector(".pal-i.sel");
+  if(cur)cur.scrollIntoView({block:"nearest"});
+}
+function palOpen(){pal.hidden=false;palIn.value="";palRender("");palIn.focus();}
+function palClose(){pal.hidden=true;}
+$("#palbtn").addEventListener("click",palOpen);
+pal.addEventListener("click",e=>{if(e.target.closest("[data-pal-close]"))palClose();});
+palIn.addEventListener("input",()=>palRender(palIn.value));
+palList.addEventListener("click",e=>{const it=e.target.closest(".pal-i");if(it){palSel=+it.dataset.i;const x=palItems[palSel];palClose();if(x)x.run();}});
+document.addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();pal.hidden?palOpen():palClose();return;}
+  if(!pal.hidden){
+    if(e.key==="Escape"){palClose();return;}
+    if(e.key==="ArrowDown"){e.preventDefault();palSel=Math.min(palItems.length-1,palSel+1);palPaint();return;}
+    if(e.key==="ArrowUp"){e.preventDefault();palSel=Math.max(0,palSel-1);palPaint();return;}
+    if(e.key==="Enter"){e.preventDefault();const x=palItems[palSel];palClose();if(x)x.run();return;}
+    return;
+  }
+  const tag=(document.activeElement&&document.activeElement.tagName)||"";
+  if(tag==="INPUT"||tag==="TEXTAREA")return;
+  if(tourI>=0){
+    if(e.key==="ArrowRight"){e.preventDefault();$("#tournext").click();return;}
+    if(e.key==="ArrowLeft"){e.preventDefault();$("#tourback").click();return;}
+    if(e.key==="Escape"){tourEnd(false);return;}
+  }
+  if(e.key==="/"){e.preventDefault();palOpen();return;}
+  if(e.key>="1"&&e.key<="6")show(["plan","arch","flow","journeys","apis","gaps"][+e.key-1]);
+});
+
+/* ── premium interaction layer ── */
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* breadcrumb + scope-lock countdown */
+const _show=show;
+show=function(v){_show(v);const c=$("#crumb");if(c)c.textContent=CRUMBS[v]||v;};
+(function(){
+  const active=document.querySelector(".navbtn.active");
+  if(active)$("#crumb").textContent=CRUMBS[active.dataset.view];
+  const el=$("#dday");if(!el)return;
+  const d=Math.ceil((new Date("2026-09-01T00:00:00+04:00")-Date.now())/86400000);
+  el.textContent=d>1?`Scope lock in ${d} days`:d===1?"Scope lock tomorrow":d===0?"Scope lock today":"Scope lock was 1 Sep 2026";
+})();
+addEventListener("beforeprint",()=>{document.querySelectorAll("details").forEach(d=>d.open=true);if(typeof drawWires==="function")drawWires();});
+
+
+
+/* estate strip navigates */
+$("#estatestrip").addEventListener("click",e=>{
+  const s=e.target.closest("[data-strip]");if(!s)return;
+  const k=s.dataset.strip;
+  if(k==="gaps"){show("gaps");return;}
+  apiFilter=k;show("apis");
+  document.querySelectorAll("#view-apis .seg").forEach(x=>x.classList.toggle("on",x.dataset.f===k));
+  renderApis();
+});
+
+/* cursor light inside midnight panels */
+let rafPending=false;
+document.addEventListener("pointermove",e=>{
+  if(rafPending)return;
+  const p=e.target.closest&&e.target.closest(".panel-m");
+  if(!p)return;
+  rafPending=true;
+  requestAnimationFrame(()=>{
+    const r=p.getBoundingClientRect();
+    p.style.setProperty("--mx",(e.clientX-r.left)+"px");
+    p.style.setProperty("--my",(e.clientY-r.top)+"px");
+    rafPending=false;
+  });
+});
+</script>
