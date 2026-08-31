@@ -525,14 +525,43 @@ button.tag:hover{border-color:var(--ink)}
 .phasemap td:first-child{font-weight:600;white-space:nowrap;color:var(--ink)}
 
 </style>
-<style>.tkdoc{max-width:1020px;margin:0 auto;padding:44px 30px 80px}.tkdoc .s-brand{margin-bottom:34px}</style>
+<style>.tkdoc{max-width:1020px;margin:0 auto;padding:44px 30px 80px}.tkdoc .s-brand{margin-bottom:34px}
+.jtxt{font-size:12px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}</style>
 <div class="tkdoc">
   <div class="s-brand"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeEAAABoCAMAAADxXLiYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAsdQTFRFAAAAenp6ZmZmaGhod3d3q6urzc3NqqqqtLS0u7u7xMTEzMzM09PT3d3d4+Pj7+/v6+vrs7Oz4eHh19fXxsbG29vb5ubmx8fHAAAAFBQUaWlpDQ0NFhYWIiIiODg4V1dXm5ubzs7OpaWlAgICGBgYOjo6Y2Nji4uLwMDAXV1dmpqaBgYGfX19AwMDMjIydnZ2urq6KysrFRUVbGxsyMjIDg4OWlparKysf39/v7+/mZmZEhISycnJGRkZT09PhoaGMzMznZ2doaGhGhoaICAgn5+fNzc3dHR0NDQ00NDQMTExy8vLEBAQBAQEeXl5WFhYkpKS3t7eJiYmKCgotbW1BwcHlZWVfHx8uLi4k5OTZWVlFxcXR0dHcnJyTk5OAQEBZGRk6OjoPT09bW1tDAwMeHh4RkZGVlZWlpaWW1tbJCQkBQUFw8PDioqKsLCwiIiIfn5+VVVVUFBQREREGxsb6urq1dXVSEhIcHBwgICAj4+Ph4eHdXV1QEBAubm5Q0NDPDw8jIyMERER3NzcjY2NlJSUvLy8Z2dnUVFRLS0tCQkJISEhoqKiYmJiCgoKNTU1kZGRsrKyExMTPz8/bm5unp6eHh4eLCwscXFxqampOzs7l5eXU1NTmJiY2NjY7+/vXl5e2trapKSkz8/PHBwcgYGBVFRU5ubmg4ODwsLCUlJSQkJC39/fCAgIvr6+rq6ujo6OTU1Nvb29JSUlKSkpMDAw6enpWVlZo6Oj0dHRysrKsbGx6urq4ODgSUlJNjY2QUFBoKCg0tLSX19fxcXF2dnZLi4upqamDw8PPj4+1NTUhISE4+Pja2trKioqhYWFS0tLgoKCnJyct7e3XFxc4uLi5+fnr6+vYGBgCwsLb29vYWFhtra2SkpKra2tIyMjc3NzwcHBampqkJCQLy8ve3t7iYmJp6enOTk5Hx8fTExM1tbWHR0dALhbgQAAAO10Uk5TAP/////////////////AEED/4P///5D//////////////////////////////////////////////////////////////////////////////////////////////////3D/////////////////////////YP//////////////////////////////////////////////////////IP////////+g//////////////////9Q//////8w8P//////////////////sP//////////0ID/////////////////////////////rJ6i4gAAEvRJREFUeJzlnQl8Ddcex880RLhIJGJfi4ogtly1RRFEkyhiLWqpLbxYYol9jXqerXSxNPZSXqkqEuTZgtKHql1pa6e2ltK+1tJ69965N5mZ8z9nzpk5ScP8Pp/Knf+cmTmd770z53/O//yPhDgkSfJ/auMTnlM45C2ln4Py4RfOs2rl94ihkM//GArZflZuBbAcwqTfVVu59evhOSCPdJvjMlpeNBUGC0s/cpzCqWJ/cRT2cnwdpOslpIucF0E+frxHkJTngnKLq/ZU3VRtFeE51Oa8K9K3TGV5CFe6B5r9z3CcAxm8RwEP89+8y3PAC01YVqCD8jHdUhyECwX+BNqLfsN+DqcM36NiknSEubAFCDtVUpL+Sy/BQbjOJcKOsgfZT4LM3aOiuQ8wlrQIYYfKHay3n7Kbg3DYd4Qdr+zlqZDJe5SjXBpTOesQdihI2k3cx064CfF1a3twh6c6Zu9R5R8uMZSyFGGEqkj/IexhJ9z8BHFXte08lTF/j6pLW3XLWIwwQjWlZNDOTBh2lWSFbuGpioB7ZJc26RWxHGFk3/oUMjMTbkVrstXZyFETIfcoxPY5vYD1CCNU7xHwM2YlTHKVZNX/jKMeYu5RqM966n4rEkZh0qeYjZVwR3oLttFa9moIukeBVdbQdluSsKM9/InWwkq4y07q7qar2Csh7B41+5iy06KEUfOVGgMjYbKrJCtiC+0hrpa4e9RiOXnfc0a4p753wKjIpeptRsIheqMZUUuYqyDuHtEQP2eE/b1FnRaFpKo22QjTXCVZ0YuZayCQMGqZRNpjXcLojY+UW2yE+32hW8T3HGsFRBJGrRcSdliYMGqzQLHBRLjQq4d1y8TMZ72+UMJtpQ/gHVYmjNq/n/GZibCOqySrw3uMlwfukXcbZ1VkVs+eOf8tH+WqnXT25g362bpKM0E7QLhKZcYaqpVrhnILqH33Pwydd55yAyLcY5bz3xHOoJLLcjuo0W95pWt/HbvzTOfUgV4Z48ZMhIvq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" alt="ADEED"><span class="fx">Freight</span></div>
   <div class="vhead">
     <h1>For the TruKKer team</h1>
     <p>What the ADEED Freight integration needs from the TruKKer platform, ready to table. All of it already runs inside TruKKer; the missing piece is the <em>API contracts</em>, and thirteen of them block the pilot.</p>
   </div>
-  <div class="section" style="margin-top:34px">
+
+  <div class="section" style="margin-top:40px">
+    <h2>API readiness</h2>
+    <p class="note">What is live today, what is waiting on field-level contracts, and what ADEED builds. The red segment is what is missing: those asks are further down this page.</p>
+    <div class="strip">
+      <button class="seg num" data-strip="live" style="flex:19;background:var(--live)" aria-label="19 live endpoints, filter the catalog">19</button>
+      <button class="seg num" data-strip="contract" style="flex:4;background:var(--contract)" aria-label="4 contract-pending areas, filter the catalog">4</button>
+      <button class="seg num" data-strip="build" style="flex:6;background:var(--build)" aria-label="6 ADEED builds, filter the catalog">6</button>
+      <button class="seg num" data-strip="gaps" style="flex:24;background:var(--gapc)" aria-label="24 formal asks, jump to the register">24</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--live)"></i>Live and documented</span>
+      <span><i style="background:var(--contract)"></i>Live, contracts pending</span>
+      <span><i style="background:var(--build)"></i>ADEED net-new builds</span>
+      <span><i style="background:var(--gapc)"></i>Missing, the asks below</span>
+    </div>
+    <div class="controls">
+      <div class="segs">
+        <button class="seg on" data-f="all">All</button>
+        <button class="seg" data-f="live">Live<span class="num"> 19</span></button>
+        <button class="seg" data-f="contract">Contracts pending<span class="num"> 4</span></button>
+        <button class="seg" data-f="build">ADEED builds<span class="num"> 6</span></button>
+      </div>
+      <input type="search" id="apisearch" placeholder="Search name or path" aria-label="Search APIs">
+    </div>
+    <div id="apilist"></div>
+  </div>
+
+  <div class="section" id="blockers" style="margin-top:48px">
     <h2>The thirteen pilot blockers</h2>
     <p class="note">The pilot cannot go live without these. To hold 17 September, the contracts need agreement at scope lock and a live sandbox in the first week of September. Select a card for the detail and the suggested contract shape.</p>
     <div class="p0grid" id="p0grid"></div>
@@ -541,6 +570,41 @@ button.tag:hover{border-color:var(--ink)}
   <p class="nfr"><b>Also to table, non-functional:</b> a sandbox before scope lock; sign-off on the shared identifier (ADEED org ID as the externalShipperMasterId join key); rate limits and SLOs compatible with polling cadences; idempotency keys on all writes; the data-processing agreement with UAE residency attestations; webhook HMAC signing; and versioning with agreed deprecation windows.</p>
 </div>
 <script>
+const APIS=[
+ {n:"Booking RFQ",m:"POST",p:"InquiryMaster/SaveInquiry",st:"Booking & RFQ",d:"Creates a freight inquiry: shipper, pickup and drop-off plan, cargo schedule, asset and pricing mode, roughly 90 fields. The entry point of the lifecycle.",note:"Gateway owns defaults such as inquirySource “7X” and platformSource “AdminAPI”.",j:["J3"]},
+ {n:"List RFQs",m:"POST",p:"Reports/DemandTrackerReport",st:"Booking & RFQ",d:"Paginated, filterable list of inquiries per client and date range, used for demand tracking and monitoring.",j:["J3","J10"]},
+ {n:"RFQ details",m:"GET",p:"InquiryMaster/GetInquiryById",st:"Booking & RFQ",d:"Full detail of a single RFQ by inquiry ID.",j:["J3"]},
+ {n:"Bid dashboard",m:"GET",p:"LoadboardDashBoard/GetDashboardDetails",st:"Booking & RFQ",d:"The live bidding dashboard for an RFQ: the current view of bids received.",j:["J4"]},
+ {n:"Bid history",m:"POST",p:"LoadboardDashBoard/GetBidHistory",st:"Booking & RFQ",d:"Full paginated history of all bids placed against an RFQ. Feeds the transparency audit mirror.",j:["J4"]},
+ {n:"Confirmed shipments for RFQ",m:"POST",p:"Reports/GetDemandOrdersByInquiryId",st:"Booking & RFQ",d:"Confirmed orders generated from a specific RFQ.",j:["J4","J5"]},
+ {n:"List shipments",m:"POST",p:"OrderMaster/GetOrdersList",st:"Shipments",d:"Paginated shipment list with filters on status, dates, countries, truck number and type, loading type, commodity and project.",j:["J5","J6","J10"]},
+ {n:"Shipment details",m:"GET",p:"OrderMaster/GetOrderDetailsById",st:"Shipments",d:"Complete details of a single shipment order.",j:["J6"]},
+ {n:"Trip and truck info",m:"GET",p:"OrderMaster/GetTripInfoById",st:"Shipments",d:"Trip and truck assignment for a shipment order.",j:["J5"]},
+ {n:"Upload POD documents",m:"POST",p:"OrderMaster/SaveTripDocs",st:"Documents",d:"Uploads proof of delivery per truck on an order: SPOD docType with cloud-storage URLs.",j:["J7"]},
+ {n:"Get POD documents",m:"GET",p:"OrderMaster/GetTripDocs",st:"Documents",d:"Retrieves POD documents for a specific truck on a shipment.",j:["J7"]},
+ {n:"Revenue line items",m:"GET",p:"lineitemService/v1/findRevenueLineItems",st:"Documents",d:"Billable charges on a shipment order: freight, waiting, detention, tolls.",j:["J7","J8"]},
+ {n:"Bayan documents",m:"GET",p:"tripDetailsService/v1/sourceDestination",st:"Documents",d:"Customs and regulatory movement documents, keyed by order and shipper.",note:"The printed call is truncated in the source PDF; the full parameter set needs a re-issue.",j:["J7"]},
+ {n:"Uninvoiced orders",m:"POST",p:"invoiceService/v1/unBilledAgeingReport",st:"Invoicing",d:"Delivered orders not yet invoiced, filterable by region, station and POD status.",j:["J8"]},
+ {n:"Generate invoice",m:"POST",p:"invoiceService/v1/saveInvoiceGenerationData",st:"Invoicing",d:"Generates an invoice across selected orders with line-item inclusion and exclusion.",note:"Write endpoint. Switches on once the commercial terms settle, LOI §6.",j:["J8"]},
+ {n:"Invoice acknowledgement",m:"POST",p:"invoiceService/v1/getInvoiceACKTemplate",st:"Invoicing",d:"Produces the acknowledgement document for a generated invoice.",j:["J8"]},
+ {n:"Unpaid invoices",m:"POST",p:"Collection/GetInvoiceList",st:"Collections",d:"Outstanding invoices for a client in a given currency.",j:["J8"]},
+ {n:"Statement of account",m:"POST",p:"Communication/PrevStatementOfAccAsync",st:"Collections",d:"Statement of account summarising invoices and balances per client.",j:["J8"]},
+ {n:"Allocate payment",m:"POST",p:"Collection/AllocatePayment",st:"Collections",d:"Records a received payment and allocates it across outstanding invoices.",note:"Write endpoint. Switches on once the commercial terms settle.",j:["J8"]}
+];
+const AREAS=[
+ {n:"Client accounts & KYB",d:"Create and update client accounts, profile, billing-entity mapping and verification status. The basis of joint account provisioning.",g:"GAP-14",j:["J1"]},
+ {n:"Carrier & vendor onboarding",d:"Register carriers and vendors, document submission, KYC verification status tracking. Feeds the National Registry.",g:"GAP-15",j:["J2"]},
+ {n:"Drivers & assets",d:"Driver KYC and licensing records, truck registration and compliance status with expiry data.",g:"GAP-16",j:["J2","J5"]},
+ {n:"Users & access",d:"User provisioning and role-based access, mirroring client teams during transition.",g:"GAP-17",j:["J1"]}
+];
+const BUILDS=[
+ {n:"Integration Gateway",d:"Typed outbound client, polling workers (RFQ every 1-2 min, transit every 5 min, finance nightly), idempotency, retry and backoff, an immutable IntegrationLog, and the webhook receiver once events land.",j:["J1","J3","J4","J5","J6","J7","J8","J10"]},
+ {n:"Freight portal",d:"Shipper portal, carrier portal and ops console on /freight routes, in English and Arabic with role-based access.",j:["J1","J2","J3","J4","J5","J6","J7","J8","J10"]},
+ {n:"National Registry service",d:"Carrier, driver and asset models, verification workflow, quality-score engine, expiry radar, regulator read views.",j:["J2","J9"]},
+ {n:"e-Bayan engine",d:"Waybill issuance with ID and QR hash, amendment log, verification lookup. Phase 1 attaches the operating card, Phase 2 pushes to smart gates.",j:["J5","J9"]},
+ {n:"Docs-mirror pipeline",d:"Copy on receipt of POD, Bayan and invoice binaries into UAE-resident storage, retained per federal record policy.",j:["J7","J8"]},
+ {n:"Partner API freight scopes",d:"freight:requests, freight:shipments, freight:documents and freight:invoices scopes with PII-free DTOs for client ERPs.",j:["J1","J3"]}
+];
 const GAPS=[
  {id:"GAP-01",t:"Auth & environment specification",pr:"P0",w:"Everything depends on it: token issuance and refresh, expiry, base URLs per environment, sandbox credentials, IP allowlisting. The v1.0 doc names no auth scheme and prints no base URLs.",s:"OAuth2 client credentials or a documented token endpoint; a sandbox seeded with demo data",j:["J1"]},
  {id:"GAP-02",t:"Price and quote read contract",pr:"P0",w:"The board shows the price matrix sharing prices with the client for confirmation, but no API exposes the computed price, validity window or quote reference.",s:"GET quote by inquiryId returning price, currency, validity and breakdown",j:["J4"]},
@@ -569,6 +633,7 @@ const GAPS=[
 ];
 const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
 const $=s=>document.querySelector(s);
+
 function gapItem(g){
   return '<details class="gitem" id="row-'+g.id+'">'
     +'<summary><span class="gid">'+g.id+'</span><h4>'+esc(g.t)+'</h4>'+(g.pr!=="P0"?'<span class="prio '+g.pr+'">'+g.pr+'</span>':'')+'<span class="chev" aria-hidden="true">\u203A</span></summary>'
@@ -580,5 +645,56 @@ $("#p0grid").innerHTML=GAPS.filter(g=>g.pr==="P0").map(gapItem).join("");
 const p1=GAPS.filter(g=>g.pr==="P1"),p2=GAPS.filter(g=>g.pr==="P2");
 $("#gapgroups").innerHTML='<details class="ggroup"><summary><h3>For the federal MVP</h3><span class="cnt num">'+p1.length+'</span><span class="chev" aria-hidden="true">\u203A</span></summary><div class="glist">'+p1.map(gapItem).join("")+'</div></details>'
   +'<details class="ggroup"><summary><h3>For the mandate and scale phase</h3><span class="cnt num">'+p2.length+'</span><span class="chev" aria-hidden="true">\u203A</span></summary><div class="glist">'+p2.map(gapItem).join("")+'</div></details>';
+
+function apiRow(a,status){
+  return '<div class="apirow">'
+    +'<div><div class="nm">'+(a.m?'<span class="method">'+a.m+'</span> ':'')+esc(a.n)+'</div>'+(a.p?'<div class="p mono">'+esc(a.p)+'</div>':'')+'</div>'
+    +'<div class="d">'+esc(a.d)+(a.note?'<small>'+esc(a.note)+'</small>':'')
+    +(a.g?'<span class="ask">Formal ask: <button class="jref" data-goto-gap="'+a.g+'">'+a.g+' \u2192</button></span>':'')+'</div>'
+    +'<div class="aend">'+status+'<div class="jj"><span class="jtxt">'+(a.j||[]).join(", ")+'</span></div></div>'
+    +'</div>';
+}
+let apiFilter="all";
+function renderApis(){
+  const q=($("#apisearch").value||"").toLowerCase().trim();
+  const match=el=>!q||el.includes(q);
+  const groups=[];
+  if(apiFilter==="all"||apiFilter==="live"){
+    [...new Set(APIS.map(a=>a.st))].forEach(st=>{
+      const rows=APIS.filter(a=>a.st===st).filter(a=>match((a.n+a.p+a.d).toLowerCase()));
+      if(rows.length)groups.push({t:"Live: "+st,rows:rows.map(a=>apiRow(a,'<span class="tag live"><span class="dot"></span>Live</span>'))});
+    });
+  }
+  if(apiFilter==="all"||apiFilter==="contract"){
+    const rows=AREAS.filter(a=>match((a.n+a.d).toLowerCase()));
+    if(rows.length)groups.push({t:"Account and onboarding, contracts pending",rows:rows.map(a=>apiRow(a,'<span class="tag contract"><span class="dot"></span>Contracts pending</span>'))});
+  }
+  if(apiFilter==="all"||apiFilter==="build"){
+    const rows=BUILDS.filter(a=>match((a.n+a.d).toLowerCase()));
+    if(rows.length)groups.push({t:"ADEED net-new builds",rows:rows.map(a=>apiRow(a,'<span class="tag build"><span class="dot"></span>ADEED build</span>'))});
+  }
+  $("#apilist").innerHTML=groups.length?groups.map((g,i)=>
+    '<details class="agroup"'+(q||i===0?" open":"")+'>'
+    +'<summary><h3>'+esc(g.t)+'</h3><span class="cnt num">'+g.rows.length+'</span><span class="chev" aria-hidden="true">\u203A</span></summary>'
+    +'<div class="agroup-b">'+g.rows.join("")+'</div></details>').join("")
+    :'<p style="color:var(--muted);font-size:13.5px;margin-top:24px">Nothing matches. Try a shorter term or a GAP ID.</p>';
+}
+$("#apisearch").addEventListener("input",renderApis);
+document.querySelectorAll(".segs .seg").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".segs .seg").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");apiFilter=b.dataset.f;renderApis();
+}));
+document.querySelectorAll(".strip .seg").forEach(b=>b.addEventListener("click",()=>{
+  if(b.dataset.strip==="gaps"){document.getElementById("blockers").scrollIntoView({block:"start"});return;}
+  apiFilter=b.dataset.strip;
+  document.querySelectorAll(".segs .seg").forEach(x=>x.classList.toggle("on",x.dataset.f===apiFilter));
+  renderApis();
+}));
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-goto-gap]");if(!g)return;
+  const row=document.getElementById("row-"+g.dataset.gotoGap);
+  if(row){const grp=row.closest(".ggroup");if(grp)grp.open=true;row.open=true;row.scrollIntoView({block:"start"});}
+});
+renderApis();
 addEventListener("beforeprint",()=>document.querySelectorAll("details").forEach(d=>d.open=true));
 </script>
