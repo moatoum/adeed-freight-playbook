@@ -1,0 +1,925 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADEED Freight PRD</title>
+<style>
+:root{
+  color-scheme: light;
+  --canvas:#FFFFFF; --surface:#FFFFFF; --tile:#F5F5F7; --panel:#161618;
+  --ink:#1D1D1F; --ink-2:#3A3A3C; --muted:#6E6E73; --faint:#AEAEB2;
+  --line:#E8E8ED; --line-2:#D2D2D7;
+  --blue:#0020F5; --blue-hover:#001ACC; --blue-wash:#F0F3FF;
+  --on-panel:#F5F5F7; --panel-muted:#98989D; --panel-line:#2C2C2E; --panel-blue:#8FA2FF;
+  --fill:rgba(120,120,128,.12); --fill-2:rgba(120,120,128,.2);
+  --live:#008663; --contract:#A36000; --gapc:#C81E3C; --build:#0020F5;
+  --r-ctl:8px; --r-pill:980px; --r-panel:18px; --r-tag:6px;
+  --shadow-lift:0 2px 12px rgba(0,0,0,.04),0 16px 40px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;letter-spacing:-.012em;-webkit-font-smoothing:antialiased}
+code,.mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;letter-spacing:0}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.985)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+::selection{background:var(--blue);color:#fff}
+.num{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ── workspace shell ────────────────────── */
+.ws{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh;max-width:1600px;margin:0 auto}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 16px 18px;border-inline-end:1px solid var(--line-2);overflow-y:auto;background:rgba(255,255,255,.78);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%)}
+@media (prefers-reduced-transparency: reduce){.side{background:var(--canvas);backdrop-filter:none;-webkit-backdrop-filter:none}}
+.s-brand{display:flex;align-items:baseline;gap:9px;padding:0 8px}
+.s-brand img{height:16px;width:auto;display:block;transform:translateY(1px)}
+.s-brand .fx{font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--ink)}
+.s-doc{padding:16px 8px 14px}
+.s-doc b{display:block;font-size:13.5px;letter-spacing:-.01em}
+.s-sub{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.s-search{display:flex;align-items:center;gap:8px;margin:2px 0 14px;padding:8px 11px;border:none;border-radius:var(--r-ctl);background:var(--fill);font-size:13px;color:var(--muted);width:100%;transition:background .15s,color .15s}
+.s-search:hover{background:var(--fill-2);color:var(--ink)}
+.s-search kbd{margin-inline-start:auto;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:1px 5px;background:var(--surface)}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.navbtn{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--ink);text-align:start;transition:background .15s,color .15s}
+.navbtn i{display:none}
+.navbtn .badge{margin-inline-start:auto;font-variant-numeric:tabular-nums;font-weight:400;font-size:12.5px;color:var(--faint)}
+.navbtn .badge.red{color:var(--muted)}
+.navbtn:hover{background:var(--fill)}
+.navbtn.active{background:var(--fill-2);color:var(--ink);font-weight:600}
+.navbtn.active .badge{color:var(--muted)}
+.navbtn.active .badge.red{color:var(--muted)}
+.marea{min-width:0;padding:14px 22px 48px;display:flex;flex-direction:column}
+.topbar{height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 6px;font-size:12.5px}
+.crumb{color:var(--faint)}
+.crumb.cur{color:var(--ink);font-weight:600}
+.crumb-sep{color:var(--line-2)}
+.sheet{--shx:52px;background:var(--surface);border:none;border-radius:0;padding:40px 54px 58px;box-shadow:none;flex:1}
+@media (max-width:1100px){.sheet{--shx:30px;padding:32px 30px 44px}}
+@media (max-width:900px){
+  .ws{display:block}
+  .side{position:sticky;z-index:40;height:auto;flex-direction:row;align-items:center;gap:10px;padding:10px 14px;background:var(--canvas);border-inline-end:none;border-bottom:1px solid var(--line-2);overflow-x:auto;overflow-y:hidden}
+  .s-doc{display:none}
+  .s-search{width:auto;margin:0;flex:none}
+  .s-search .lbl{display:none}
+  .side nav{flex-direction:row}
+  .navbtn{white-space:nowrap;padding:7px 10px}
+  .navbtn i,.navbtn .badge{display:none}
+  .marea{padding:12px 12px 32px}
+  .topbar{display:none}
+  .sheet{--shx:16px;padding:22px 16px 36px;border-radius:0}
+}
+.view{display:none}
+.view.active{display:block;animation:rise .3s cubic-bezier(.16,1,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── command palette ────────────────────── */
+#pal{position:fixed;inset:0;z-index:80}
+#pal[hidden]{display:none}
+.pal-back{position:absolute;inset:0;background:rgba(0,0,0,.22)}
+.pal-panel{position:relative;max-width:600px;margin:11vh auto 0;background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:.5px solid rgba(0,0,0,.1);border-radius:var(--r-panel);box-shadow:0 30px 90px -20px rgba(0,0,0,.35);overflow:hidden}
+.pal-panel input{width:100%;border:none;outline:none;background:transparent;padding:17px 22px;font:inherit;font-size:18px;color:var(--ink);border-bottom:1px solid rgba(0,0,0,.08)}
+.pal-panel input::placeholder{color:var(--faint)}
+.pal-list{max-height:46vh;overflow-y:auto;padding:8px}
+.pal-g{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 12px 4px}
+.pal-i{display:flex;align-items:baseline;gap:10px;width:100%;text-align:start;padding:8px 12px;border-radius:8px;font-size:13.5px;color:var(--ink-2)}
+.pal-i .k{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);flex:none;min-width:52px}
+.pal-i small{color:var(--faint);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-i.sel,.pal-i:hover{background:var(--fill);color:var(--ink)}
+.pal-none{padding:18px;font-size:13.5px;color:var(--muted)}
+@media (prefers-reduced-motion: no-preference){.pal-panel{animation:palIn .18s cubic-bezier(.16,1,.3,1)}@keyframes palIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}}
+@media (prefers-reduced-transparency: reduce){.pal-panel{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}}
+
+h1{font-size:32px;line-height:1.12;letter-spacing:-.022em;font-weight:600;text-wrap:balance}
+h2{font-size:24px;letter-spacing:-.018em;font-weight:600;text-wrap:balance}
+.sub{color:var(--ink-2);font-size:16px;max-width:52ch;margin-top:16px}
+.sub em{font-style:normal;color:var(--ink);font-weight:600}
+/* report document header + figures */
+.doch h1{font-size:26px;letter-spacing:-.02em;max-width:none}
+.doch .meta{display:flex;flex-wrap:wrap;gap:0;margin-top:12px;font-size:12px;color:var(--muted)}
+.doch .meta span{padding:0 14px;border-inline-start:1px solid var(--line-2)}
+.doch .meta span:first-child{padding-inline-start:0;border-inline-start:none}
+.doch .meta b{font-weight:600;color:var(--ink-2)}
+.doch .meta .st{color:var(--contract);font-weight:600}
+.brief-sum{font-size:15px;color:var(--ink-2);max-width:72ch;margin-top:22px;line-height:1.65}
+.brief-sum b{color:var(--ink)}
+.exhibit{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
+.exhibit b{color:var(--ink);font-weight:600}
+.brieffig{margin-top:14px;max-width:840px}
+.mile.done .d{color:var(--faint)}
+.mile.done .t{color:var(--muted)}
+.mile .st{display:inline-block;font-size:11px;font-weight:600;letter-spacing:0;padding:1px 7px;border-radius:var(--r-tag);margin-inline-start:10px;vertical-align:1px}
+.mile .st.ok{background:rgba(0,134,99,.12);color:var(--live)}
+.mile .st.nx{background:var(--ink);color:#fff}
+/* elevated interactive surfaces */
+
+
+button.tag{transition:background .15s,transform .12s}
+button.tag:hover{transform:translateY(-1px)}
+.station{transition:background .15s,color .15s,transform .15s}
+.station:hover{transform:translateY(-1px)}
+/* ledger: numbers are buttons into their views */
+.ledger > div{transition:background .2s}
+.ledger > div:hover{background:var(--tile)}
+/* estate strip is navigable */
+.strip .seg{border:none;cursor:pointer;transition:filter .15s,flex-grow .25s cubic-bezier(.16,1,.3,1)}
+.strip .seg:hover{filter:brightness(1.12)}
+/* premium panel material: interior corner light + top edge highlight */
+.panel-m{position:relative}
+.panel-m::after{content:none}
+/* load choreography (storytelling: brand, message, instrument, then the ledger) */
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(16px);animation:riseIn .8s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d,0s)}
+  @keyframes riseIn{to{opacity:1;transform:none}}
+  .cor.base,.cor.minor{stroke-dasharray:1;stroke-dashoffset:1;animation:corDraw 1.5s cubic-bezier(.4,0,.2,1) forwards}
+  .cor.minor{animation-delay:.55s}
+  @keyframes corDraw{to{stroke-dashoffset:0}}
+  .mnode{opacity:0;animation:nodeIn .5s ease forwards;animation-delay:1.15s}
+  @keyframes nodeIn{to{opacity:1}}
+}
+/* corridor map panel */
+.mappanel{background:var(--panel);border-radius:var(--r-panel);padding:20px 20px 14px;color:var(--on-panel)}
+.mnode[data-loc]{cursor:pointer;pointer-events:bounding-box}
+.mnode[data-loc]:hover .mp-lbl,.mnode[data-loc]:focus-visible .mp-lbl{fill:#E8ECF8}
+.mnode.on rect{stroke:#E8ECF8;stroke-width:1.8}
+.mnode.on .mp-lbl{fill:#E8ECF8}
+.mp-cap b{color:#C6CDE0;font-weight:600}
+.mappanel .mp-head{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--panel-blue);margin-bottom:4px;padding-inline-start:4px}
+.mappanel svg{width:100%;height:auto;display:block}
+.mappanel .mp-cap{font-size:11.5px;color:var(--panel-muted);line-height:1.5;padding:8px 4px 2px;max-width:52ch}
+.cor{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cor.base{stroke:#33417F;stroke-width:2.5}
+.cor.minor{stroke:#2A3350;stroke-width:1.8}
+.cor.flow{stroke:#8FA2FF;stroke-width:2.5;opacity:0}
+@media (prefers-reduced-motion: no-preference){
+  .cor.flow{stroke-dasharray:3 14;animation:corFade .5s 1.5s forwards,corflow 30s linear infinite}
+  @keyframes corFade{to{opacity:.95}}
+  @keyframes corflow{to{stroke-dashoffset:-680}}
+}
+@media (prefers-reduced-motion: reduce){.cor.flow{opacity:.5;stroke-dasharray:3 14}}
+.mp-city{fill:#B8C0D4}
+.mp-port{fill:#E8ECF8;stroke:#8FA2FF;stroke-width:1.4}
+.mp-gate{fill:#2AA189}
+.mp-lbl{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:9.5px;fill:#8E97AE}
+.mp-lbl.big{fill:#C6CDE0;font-size:10px}
+.mp-out{fill:#5A648A;font-size:9.5px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+/* architecture board */
+.archboard{background:var(--tile);border-radius:var(--r-panel);padding:26px 28px;display:grid;grid-template-columns:1.08fr 34px 1fr 34px 1.08fr;gap:14px;margin-top:28px}
+.az{display:flex;flex-direction:column;gap:10px;min-width:0}
+.az-h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.az-adeed .az-h{color:var(--muted)}
+.az-gw .az-h{color:var(--muted)}
+.az-tk .az-h{color:var(--muted)}
+.ac{background:var(--surface);border:1px solid var(--line-2);border-radius:10px;padding:11px 14px}
+.ac b{display:block;font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.ac span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.ac.gw{background:var(--blue-wash);border-color:#D5DCFF}
+.aconn{display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:20px}
+@media (max-width:900px){.archboard{grid-template-columns:1fr;gap:12px}.aconn{transform:rotate(90deg);font-size:18px}}
+.factgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+@media (max-width:820px){.factgrid{grid-template-columns:1fr}}
+.factgrid > div{background:var(--tile);border-radius:12px;padding:13px 16px}
+.factgrid b{display:block;font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.factgrid span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+/* disclosure system: focus first, reveal on demand */
+details summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.chev{margin-inline-start:auto;color:var(--faint);font-size:13px;flex:none;transition:transform .2s}
+details[open] > summary .chev{transform:rotate(90deg)}
+/* featured gap cards */
+.p0grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+@media (max-width:820px){.p0grid{grid-template-columns:1fr}}
+.gitem{background:var(--tile);border-radius:12px;align-self:start;transition:background .3s}
+.gitem > summary{display:flex;align-items:baseline;gap:10px;padding:13px 16px}
+.gitem .gid{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11.5px;font-weight:600;color:var(--muted);flex:none}
+.gitem h4{font-size:14px;font-weight:600;letter-spacing:-.01em;flex:1;min-width:0}
+.gitem .prio{flex:none}
+.gitem .g-b{padding:0 16px 15px;max-width:64ch}
+.gitem .g-b p{font-size:13px;color:var(--ink-2);margin-bottom:7px}
+.gitem .g-b .shape{font-size:12px;color:var(--muted)}
+.gitem .g-b .shape code{font-size:11.5px;color:var(--ink-2)}
+.gitem .g-b .jrow{display:flex;gap:10px;margin-top:9px}
+.ggroup{margin-top:14px;border-top:1px solid var(--line)}
+.ggroup > summary{display:flex;align-items:center;gap:10px;padding:16px 2px}
+.ggroup > summary h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ggroup > summary .cnt{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted);background:var(--fill);border-radius:var(--r-pill);padding:1.5px 9px}
+.ggroup .glist{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 0 20px}
+@media (max-width:820px){.ggroup .glist{grid-template-columns:1fr}}
+/* TruKKer response layer */
+.rsum{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.rs{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:5px 11px;border-radius:var(--r-pill);background:var(--fill);color:var(--ink-2)}
+.rs b{font-weight:600;color:var(--ink)}
+.rs i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.rs.ok i{background:var(--live)}.rs.part i{background:var(--contract)}.rs.no i{background:var(--gapc)}
+.rpill{flex:none;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap}
+.rpill.ok{background:rgba(0,134,99,.12);color:var(--live)}.rpill.part{background:rgba(163,96,0,.12);color:var(--contract)}.rpill.wait{background:var(--fill);color:var(--muted)}.rpill.no{background:rgba(200,30,60,.1);color:var(--gapc)}
+.gitem .g-b .rt{font-size:13px;color:var(--ink-2);margin-top:10px;padding-top:9px;border-top:1px solid var(--line-2)}
+.gitem .g-b .rn{font-size:12.5px;color:var(--muted);margin-top:5px}
+/* collapsible api groups */
+.agroup{margin-top:12px;border-top:1px solid var(--line)}
+.agroup > summary{display:flex;align-items:center;gap:10px;padding:15px 2px}
+.agroup > summary h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.agroup > summary .cnt{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted);background:var(--fill);border-radius:var(--r-pill);padding:1.5px 9px}
+.agroup-b{padding-bottom:8px}
+/* guided tour + cross-links */
+.exrow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tourbtn,.jboard{padding:7px 16px;border:none;border-radius:var(--r-pill);background:var(--fill);font-size:13px;font-weight:500;color:var(--blue);transition:background .15s,transform .12s}
+.tourbtn:hover,.jboard:hover{background:var(--fill-2);transform:translateY(-1px)}
+.tourctl{display:flex;align-items:center;gap:8px}
+.tourctl[hidden]{display:none}
+.tourctl button{padding:6px 15px;border:none;border-radius:var(--r-pill);font-size:13px;font-weight:500;color:var(--ink);background:var(--fill)}
+.tourctl button:hover{background:var(--fill-2)}
+.tourctl button.go{background:var(--blue);color:#fff}
+.tourctl button.go:hover{background:var(--blue-hover)}
+.tourctl button[disabled]{opacity:.35;pointer-events:none}
+.tourctl #tourpos{font-size:11.5px;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;white-space:nowrap}
+.jboard{margin-top:14px}
+/* compact view headers */
+.vhead h1{font-size:32px;letter-spacing:-.022em;max-width:none}
+.vhead p{color:var(--muted);font-size:15px;max-width:64ch;margin-top:9px}
+.vhead p em{font-style:normal;color:var(--ink);font-weight:600}
+/* print as a report */
+@media print{
+  .side,.topbar,.s-search{display:none}
+  .ws{display:block}
+  .marea{padding:0}
+  .sheet{border:none;box-shadow:none;padding:0}
+  .view{display:block!important;page-break-after:always;animation:none}
+  .matrix-wrap{overflow:visible}
+}
+.section{margin-top:56px}
+.section > h2{margin-bottom:6px}
+.section > .note,.agroup-b > .note{color:var(--muted);font-size:14.5px;max-width:62ch;margin-bottom:24px}
+.rule{border:none;border-top:1px solid var(--line);margin:0}
+
+/* ledger strip */
+.ledger{display:flex;flex-wrap:wrap;border-block:1px solid var(--line);margin-top:44px}
+.ledger > div{flex:1 1 150px;padding:18px 22px 16px;border-inline-end:1px solid var(--line)}
+.ledger > div:last-child{border-inline-end:none}
+.ledger .v{font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.ledger .v.blue{color:var(--blue)}
+.ledger .v.red{color:var(--gapc)}
+.ledger .l{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+/* who does what */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.split > div{padding:26px 32px 28px;border-inline-start:2px solid var(--blue)}
+.split > div + div{border-inline-start-color:var(--ink)}
+.split .who{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+.split > div + div .who{color:var(--ink)}
+.split h3{font-size:16.5px;margin:8px 0 8px;letter-spacing:-.01em}
+.split p{font-size:14px;color:var(--ink-2);max-width:44ch}
+@media (max-width:760px){.split{grid-template-columns:1fr}.split > div{padding:22px 24px}}
+.seam{margin-top:26px;padding:16px 22px;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);font-size:13.5px;color:var(--ink-2);display:flex;gap:12px;align-items:baseline}
+.seam b{color:var(--ink);white-space:nowrap}
+
+/* coverage strip */
+.strip{display:flex;gap:2px;height:26px;border-radius:6px;overflow:hidden;margin:22px 0 12px}
+.strip .seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;min-width:30px}
+.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+/* milestones */
+.miles{margin-top:8px}
+.mile{display:grid;grid-template-columns:128px 1fr;gap:22px;padding:15px 0;border-bottom:1px solid var(--line)}
+.mile:last-child{border-bottom:none}
+.mile .d{font-size:12.5px;color:var(--muted);font-weight:500;padding-top:2px}
+.mile .t{font-size:15px;color:var(--ink-2);max-width:66ch}
+.mile .t b{color:var(--ink)}
+
+/* ── flow matrix ────────────────────────── */
+.matrix-wrap{overflow-x:auto;margin:24px calc(var(--shx,52px)*-1) 0;padding:0 var(--shx,52px)}
+.matrix{min-width:1060px;background:var(--tile);border-radius:var(--r-panel);padding:20px 20px 22px}
+.mrow{display:grid;grid-template-columns:148px repeat(7,1fr);gap:0;align-items:stretch}
+.mhead .mcell{border-bottom:1px solid var(--line-2);padding:2px 14px 10px;font-size:11.5px;color:var(--muted)}
+.mhead .mcell b{display:block;color:var(--ink);font-size:12.5px;letter-spacing:-.01em}
+.mhead .mcell .n{color:var(--muted);font-weight:600;margin-inline-end:6px}
+.mlane .lanehead{padding:18px 14px 18px 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.mlane .lanehead small{display:block;font-weight:500;letter-spacing:0;text-transform:none;color:var(--muted);font-size:11px;margin-top:3px}
+.mlane.adeed .lanehead{color:var(--blue)}
+.mlane.fed .lanehead{color:var(--live)}
+.mlane.tk .lanehead{color:var(--ink-2)}
+.mlane.adeed{background:rgba(0,32,245,.05);border-radius:12px}
+.mcell{padding:12px 12px 12px 0;display:flex;flex-direction:column;gap:8px;align-items:flex-start;border-inline-start:1px solid var(--line)}
+.mlane .mcell{min-height:64px}
+.station{display:inline-flex;align-items:flex-start;gap:8px;text-align:start;font-size:12px;font-weight:500;line-height:1.35;color:var(--ink-2);padding:7px 11px;border-radius:8px;background:var(--surface);border:1px solid var(--line-2);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .15s,transform .15s,background .15s,opacity .2s}
+.station .dot{width:7px;height:7px;border-radius:50%;flex:none;margin-top:4px}
+.mlane.adeed .dot{background:var(--blue)}
+.mlane.fed .dot{background:transparent;border:1.5px dashed var(--live)}
+.mlane.tk .dot{background:var(--ink)}
+.station:hover{border-color:var(--faint);transform:translateY(-1px)}
+.station.sel{background:var(--blue);border-color:#4A62FF;color:#fff}
+.station.sel .dot{background:#fff;border:none}
+.gateway{grid-column:1 / -1;display:flex;align-items:center;gap:14px;background:var(--blue-wash);border-block:1px solid #D5DCFF;border-radius:6px;padding:9px 16px;margin:12px 0;font-size:12px}
+.gateway b{color:var(--blue);letter-spacing:.08em;text-transform:uppercase;font-size:11px;white-space:nowrap}
+.gateway span{color:var(--muted)}
+.flowdetail{margin-top:26px;border-top:2px solid var(--ink);padding-top:20px;max-width:820px}
+.flowdetail .fd-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.flowdetail h3{font-size:17px;letter-spacing:-.01em}
+.flowdetail .owner{font-size:12px;color:var(--muted)}
+.flowdetail p{font-size:14px;color:var(--ink-2);margin-top:8px;max-width:66ch}
+.flowdetail .fd-refs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.flowdetail .pm{flex:none}
+.fd-flow{display:grid;grid-template-columns:1fr 1fr;gap:20px 32px;margin-top:16px;max-width:660px}
+@media (max-width:600px){.fd-flow{grid-template-columns:1fr}}
+.fd-flow h5{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fd-flow .chips{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.fd-flow .via{font-size:11px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;padding-inline-start:2px;margin-bottom:2px}
+/* wires */
+.matrix{position:relative}
+.wires{position:absolute;inset:0;pointer-events:none;z-index:0}
+.mrow{position:relative;z-index:1}
+.wire{fill:none;transition:opacity .2s,stroke-width .2s}
+.wire.seq{stroke-width:1.25;opacity:.3}
+.wire.seq.adeed{stroke:#4053E0}
+.wire.seq.tk{stroke:#98989D}
+.wire.hand{stroke-width:1.7;opacity:.75}
+.wire.hand.adeed{stroke:#0020F5}
+.wire.hand.fed{stroke:#008663}
+.wire.hand.tk{stroke:#3A3A3C}
+.elabel{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:10px;fill:#6E6E73;paint-order:stroke;stroke:#F5F5F7;stroke-width:3.5px;stroke-linejoin:round;opacity:.9;transition:opacity .2s}
+.matrix.has-sel .wire{opacity:.05}
+.matrix.has-sel .elabel{opacity:.08}
+.matrix.has-sel .wire.hot{opacity:1;stroke-width:2.2}
+.matrix.has-sel .wire.hot.seq{opacity:.55;stroke-width:1.5}
+.matrix.has-sel .elabel.hot{opacity:1;fill:#1D1D1F}
+.matrix.has-sel .station{opacity:.28}
+.matrix.has-sel .station.sel,.matrix.has-sel .station.adj{opacity:1}
+.station.adj{border-color:var(--blue)}
+@media (prefers-reduced-motion: no-preference){
+  .matrix.has-sel .wire.hot.hand{stroke-dasharray:7 6;animation:wireflow 1.1s linear infinite}
+  @keyframes wireflow{to{stroke-dashoffset:-26}}
+}
+/* journey blueprint: actor colors carry the story */
+.ac-client{--acc:#0020F5;--acf:#0020F5;--act:#fff}
+.ac-carrier{--acc:#0A0F1E;--acf:#0A0F1E;--act:#fff}
+.ac-system{--acc:#008663;--acf:#008663;--act:#fff}
+.ac-ops{--acc:#0020F5;--acf:#fff;--act:#0020F5}
+.step{scroll-margin-top:90px}
+.jstats{display:flex;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--muted)}
+.jstats span{padding:0 14px;border-inline-start:1px solid var(--line-2)}
+.jstats span:first-child{padding-inline-start:0;border-inline-start:none}
+.jstats b{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-weight:600;color:var(--ink)}
+.jstats .g b{color:var(--gapc)}
+.jstats .l b{color:var(--live)}
+
+/* custody table */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;color:var(--muted);text-align:start;font-weight:600;padding:0 14px 10px 0;border-bottom:1px solid var(--line-2);white-space:nowrap}
+td{padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+td b{color:var(--ink)}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+
+/* ── tags & shared ──────────────────────── */
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3.5px 9px;border:none;border-radius:var(--r-tag);background:var(--fill);font-size:11.5px;font-weight:500;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;color:var(--ink-2);white-space:nowrap;transition:background .15s}
+.tag .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.tag.live .dot{background:var(--live)}
+.tag.contract .dot{background:var(--contract)}
+.tag.gap .dot{background:var(--gapc)}
+.tag.build .dot{background:var(--build)}
+button.tag:hover{border-color:var(--ink)}
+.jref{color:var(--blue);font-weight:600;font-size:12.5px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;background:none;border:none;padding:0}
+.jref:hover{text-decoration:underline}
+.prio{display:inline-flex;align-items:center;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:var(--r-tag);letter-spacing:.04em}
+.prio.P0{background:var(--gapc);color:#fff}
+.prio.P1{background:rgba(163,96,0,.12);color:var(--contract)}
+.prio.P2{background:var(--fill);color:var(--muted)}
+.method{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.06em;padding:2px 6px;border-radius:var(--r-tag);background:var(--fill);color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+
+/* segmented control + search */
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:24px 0 8px}
+.segs{display:inline-flex;border:none;border-radius:9px;padding:2px;background:var(--fill)}
+.seg{padding:6px 14px;border-radius:7px;font-size:13px;font-weight:500;color:var(--ink-2);white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s}
+.seg:hover{color:var(--ink)}
+.seg.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.controls input[type=search]{background:var(--fill);border:none;border-radius:var(--r-ctl);padding:8px 14px;font:inherit;font-size:13.5px;color:var(--ink);min-width:230px}
+.controls input[type=search]::placeholder{color:var(--faint)}
+.controls input[type=search]:focus{outline:none;box-shadow:0 0 0 3px rgba(0,32,245,.25)}
+@media (max-width:720px){.segs{overflow-x:auto;max-width:100%}}
+
+/* ── personas ───────────────────────────── */
+.personas{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line-2);margin:26px 0 0}
+.persona{padding:18px 20px 18px 0;border-inline-end:1px solid var(--line)}
+.persona:nth-child(4n){border-inline-end:none}
+.persona:nth-child(n+5){border-top:1px solid var(--line)}
+.persona:nth-child(n+2){padding-inline-start:20px}
+.persona:nth-child(4n+1){padding-inline-start:0}
+.persona .pid{font-size:11px;font-weight:600;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;display:flex;align-items:baseline;gap:8px}
+.persona .pw{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,sans-serif;font-weight:400;font-size:11px;color:var(--faint);letter-spacing:0}
+.persona h3{font-size:13.5px;margin:3px 0 4px;letter-spacing:-.01em}
+.persona p{font-size:12px;color:var(--muted);line-height:1.5}
+@media (max-width:900px){.personas{grid-template-columns:repeat(2,1fr)}
+.persona{border-inline-end:none;padding-inline-start:0!important}
+.persona:nth-child(odd){border-inline-end:1px solid var(--line)}
+.persona:nth-child(even){padding-inline-start:20px!important}
+.persona:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* ── journeys ───────────────────────────── */
+.jlayout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:44px;margin-top:34px}
+@media (max-width:880px){.jlayout{grid-template-columns:1fr;gap:24px}}
+.jlist{display:flex;flex-direction:column;align-self:start;position:sticky;top:84px}
+@media (max-width:880px){.jlist{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px}}
+.jbtn{position:relative;text-align:start;padding:10px 36px 10px 12px;border-radius:9px;font-size:13.5px;color:var(--muted);line-height:1.35;transition:color .15s,background .15s}
+.jbtn .jn{position:absolute;inset-inline-end:12px;top:11px;font-size:11px;color:var(--faint)}
+.jbtn small{display:block;font-size:10.5px;color:var(--faint);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;margin-bottom:2px}
+.jbtn:hover{color:var(--ink);background:var(--fill)}
+.jbtn.active{background:var(--fill);color:var(--ink);font-weight:600}
+.jbtn.active small{color:var(--muted)}
+@media (max-width:880px){.jbtn{white-space:nowrap;padding:8px 12px}
+.jbtn .jn{display:none}
+.jbtn.active{background:var(--fill)}}
+.jhead .jid{font-size:12px;color:var(--muted);font-weight:600;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.jhead h2{margin-top:6px;font-size:28px}
+.jmeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.jmeta .pill{font-size:11.5px;padding:3px 10px;border-radius:999px;background:var(--fill);color:var(--ink-2);font-weight:500}
+.jnarr{font-size:15px;color:var(--ink-2);max-width:64ch;margin-top:14px}
+.jbar{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin-top:22px;padding:12px 0;border-block:1px solid var(--line)}
+.jbar .jmeta,.jbar .jstats{margin-top:0}
+.jbar .jboard{margin-top:0;margin-inline-start:auto}
+.jwrap{animation:jIn .28s cubic-bezier(.16,1,.3,1)}
+@keyframes jIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stepshead{display:flex;justify-content:flex-end;margin-top:16px}
+.stepsall{font-size:12.5px;font-weight:500;color:var(--blue);padding:4px 9px;border-radius:var(--r-pill);transition:background .15s}
+.stepsall:hover{background:var(--fill)}
+.steps{margin-top:4px;display:flex;flex-direction:column}
+.step{position:relative;padding:0 0 6px}
+.step::before{content:"";position:absolute;inset-inline-start:13px;top:34px;bottom:-2px;width:2px;background:var(--line)}
+.step:last-child::before{display:none}
+.step summary{display:flex;align-items:center;gap:13px;padding:7px 8px 7px 0;border-radius:10px;transition:background .15s}
+.step summary:hover{background:var(--fill)}
+.step .sn{position:relative;z-index:1;width:26px;height:26px;flex:none;border-radius:50%;background:var(--acf);border:1.5px solid var(--acc);color:var(--act);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:14px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0}
+.step h4 .actor{font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:2px 9px;border-radius:var(--r-pill);background:var(--acf);border:1px solid var(--acc);color:var(--act)}
+.step .s-b{margin:4px 0 10px 39px;background:var(--tile);border-radius:12px;padding:13px 16px 14px;max-width:70ch}
+.step .who{font-size:11.5px;color:var(--muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.step p{font-size:13.5px;color:var(--ink-2);margin-top:6px;max-width:64ch}
+.step .apis{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.jfoot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px}
+@media (max-width:600px){.jfoot{grid-template-columns:1fr}}
+.jf{background:var(--tile);border-radius:12px;padding:14px 16px}
+.jf b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.jf p{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.55;max-width:60ch}
+.jnav{display:flex;justify-content:space-between;gap:10px;margin-top:26px}
+.jnavb{max-width:48%;text-align:start;padding:12px 16px;border-radius:12px;background:var(--tile);font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em;transition:background .15s,transform .12s}
+.jnavb:hover{background:var(--fill-2);transform:translateY(-1px)}
+.jnavb small{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-bottom:2px}
+.jnavb.next{text-align:end;margin-inline-start:auto}
+
+/* ── api catalog ────────────────────────── */
+.apigroup{margin-top:34px}
+.apigroup > h3{font-size:14px;font-weight:600;letter-spacing:-.01em;padding-bottom:10px;border-bottom:1px solid var(--line-2);display:flex;align-items:baseline;gap:10px}
+.apigroup > h3 .cnt{font-size:12px;color:var(--faint);font-weight:500;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.apirow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.55fr) auto;gap:6px 24px;align-items:start;padding:15px 0;border-bottom:1px solid var(--line)}
+.apirow:last-child{border-bottom:none}
+.apirow .nm{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.apirow .p{font-size:11.5px;word-break:break-all;color:var(--muted);margin-top:3px}
+.apirow .d{font-size:13.5px;color:var(--ink-2)}
+.apirow .d small{display:block;color:var(--contract);font-size:12px;margin-top:4px}
+.apirow .d .ask{display:block;font-size:12px;margin-top:4px;color:var(--muted)}
+.apirow .aend{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.apirow .jj{display:flex;gap:8px}
+@media (max-width:720px){.apirow{grid-template-columns:1fr}.apirow .aend{flex-direction:row;align-items:center}}
+
+/* ── gaps ───────────────────────────────── */
+.p0board{background:var(--panel);color:var(--on-panel);border-radius:var(--r-panel);padding:26px 30px;margin-top:30px}
+.p0board h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--panel-blue)}
+.p0board ol{margin-top:14px;columns:2;column-gap:40px;padding-inline-start:18px;font-size:13.5px;color:var(--on-panel)}
+.p0board li{margin-bottom:8px;padding-inline-start:4px}
+.p0board li::marker{color:var(--panel-blue);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:12px}
+.p0board li .g{color:var(--panel-muted);font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11.5px;margin-inline-start:6px}
+@media (max-width:720px){.p0board ol{columns:1}}
+.gaprow{padding:16px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.gaprow:last-child{border-bottom:none}
+.gaprow .g-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.gaprow .gid{font-size:12px;font-weight:600;color:var(--muted);min-width:62px;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.gaprow h4{font-size:14.5px;font-weight:600;flex:1;min-width:200px;letter-spacing:-.01em}
+.gaprow .caret{color:var(--faint);transition:transform .15s;font-size:13px}
+.gaprow.open .caret{transform:rotate(90deg)}
+.gaprow .g-body{display:none;margin-top:10px;padding-inline-start:76px;max-width:72ch}
+.gaprow.open .g-body{display:block}
+.gaprow .g-body p{font-size:13.5px;color:var(--ink-2);margin-bottom:6px}
+.gaprow .g-body .shape{font-size:12.5px;color:var(--muted)}
+.gaprow .g-body .shape code{font-size:11.5px;color:var(--ink-2)}
+@media (max-width:720px){.gaprow .g-body{padding-inline-start:0}}
+.nfr{margin-top:34px;border-top:1px solid var(--line-2);padding-top:18px;font-size:13.5px;color:var(--ink-2);max-width:74ch}
+.nfr b{color:var(--ink)}
+
+/* ── phasing ────────────────────────────── */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border-block:1px solid var(--line-2)}
+.phase{padding:24px 28px 28px 0;border-inline-end:1px solid var(--line)}
+.phase + .phase{padding-inline-start:28px}
+.phase:last-child{border-inline-end:none}
+.phase .ph{font-size:12px;color:var(--muted);font-weight:600;font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace}
+.phase h3{margin:6px 0 2px;font-size:17px;letter-spacing:-.01em}
+.phase .win{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.phase ul{list-style:none}
+.phase li{font-size:13.5px;color:var(--ink-2);padding:7px 0 7px 16px;position:relative;border-top:1px solid var(--line)}
+.phase li:first-child{border-top:none}
+.phase li::before{content:"";position:absolute;inset-inline-start:0;top:14px;width:6px;height:6px;border-radius:2px;background:var(--line-2)}
+.phase.p1 li::before{background:var(--line-2)}
+.phase.p2 li::before{background:var(--line-2)}
+@media (max-width:860px){.phases{grid-template-columns:1fr}
+.phase{border-inline-end:none;border-bottom:1px solid var(--line);padding-inline-start:0!important}
+.phase:last-child{border-bottom:none}}
+.sprints{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+@media (max-width:900px){.sprints{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.sprints{grid-template-columns:1fr}}
+.sprint{background:var(--tile);border-radius:12px;padding:14px 16px}
+.sprint .sd{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted)}
+.sprint b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em;margin-top:5px}
+.sprint p{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.pm{display:inline-block;padding:2px 9px;border-radius:var(--r-tag);font-size:12px;font-weight:600}
+.pm.now{background:var(--fill);color:var(--ink-2)}
+.pm.next{background:var(--fill);color:var(--ink-2)}
+.pm.later{color:var(--muted)}
+.pm.none{color:var(--faint)}
+.phasemap td:first-child{font-weight:600;white-space:nowrap;color:var(--ink)}
+
+</style>
+<style>
+.prd{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1240px;margin:0 auto;gap:48px;padding:40px 30px 90px}
+.prd-toc{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+.prd-toc a{color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:8px;line-height:1.3}
+.prd-toc a.t1{font-weight:600;color:var(--ink);margin-top:8px}
+.prd-toc a.t2{padding-inline-start:18px}
+.prd-toc a:hover{background:var(--fill);color:var(--ink)}
+.prd-body{max-width:78ch}
+.prd-body h1{font-size:34px;margin:0 0 6px}
+.prd-body h2{font-size:24px;margin:52px 0 10px;padding-top:22px;border-top:1px solid var(--line)}
+.prd-body h3{font-size:17px;font-weight:600;margin:28px 0 8px;letter-spacing:-.01em}
+.prd-body h4{font-size:14.5px;font-weight:600;margin:20px 0 6px}
+.prd-body p{font-size:15px;color:var(--ink-2);line-height:1.6;margin:10px 0}
+.prd-body li{font-size:14.5px;color:var(--ink-2);line-height:1.55;margin:4px 0}
+.prd-body ul,.prd-body ol{padding-inline-start:22px;margin:8px 0}
+.prd-body table{font-size:13.5px;margin:12px 0}
+.prd-body th{font-size:12px}
+.prd-body td{padding:9px 12px 9px 0}
+.prd-body code{font-family:ui-monospace,'SF Mono',SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--fill);padding:1px 5px;border-radius:5px}
+.prd-body pre{background:var(--tile);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:12px 0}
+.prd-body pre code{background:none;padding:0;font-size:12.5px;line-height:1.5}
+.prd-body blockquote{border-inline-start:3px solid var(--line-2);margin:12px 0;padding:2px 14px;color:var(--muted);font-size:14px}
+.prd-body hr{border:none;border-top:1px solid var(--line);margin:28px 0}
+.prd-body a{color:var(--blue)}
+@media (max-width:900px){.prd{grid-template-columns:1fr;gap:20px}.prd-toc{position:static;max-height:none;flex-direction:row;flex-wrap:wrap}.prd-toc a.t2{display:none}}
+</style>
+<div class="prd">
+  <nav class="prd-toc" aria-label="Contents"><div class="s-brand" style="margin:0 0 12px"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeEAAABoCAMAAADxXLiYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAsdQTFRFAAAAenp6ZmZmaGhod3d3q6urzc3NqqqqtLS0u7u7xMTEzMzM09PT3d3d4+Pj7+/v6+vrs7Oz4eHh19fXxsbG29vb5ubmx8fHAAAAFBQUaWlpDQ0NFhYWIiIiODg4V1dXm5ubzs7OpaWlAgICGBgYOjo6Y2Nji4uLwMDAXV1dmpqaBgYGfX19AwMDMjIydnZ2urq6KysrFRUVbGxsyMjIDg4OWlparKysf39/v7+/mZmZEhISycnJGRkZT09PhoaGMzMznZ2doaGhGhoaICAgn5+fNzc3dHR0NDQ00NDQMTExy8vLEBAQBAQEeXl5WFhYkpKS3t7eJiYmKCgotbW1BwcHlZWVfHx8uLi4k5OTZWVlFxcXR0dHcnJyTk5OAQEBZGRk6OjoPT09bW1tDAwMeHh4RkZGVlZWlpaWW1tbJCQkBQUFw8PDioqKsLCwiIiIfn5+VVVVUFBQREREGxsb6urq1dXVSEhIcHBwgICAj4+Ph4eHdXV1QEBAubm5Q0NDPDw8jIyMERER3NzcjY2NlJSUvLy8Z2dnUVFRLS0tCQkJISEhoqKiYmJiCgoKNTU1kZGRsrKyExMTPz8/bm5unp6eHh4eLCwscXFxqampOzs7l5eXU1NTmJiY2NjY7+/vXl5e2trapKSkz8/PHBwcgYGBVFRU5ubmg4ODwsLCUlJSQkJC39/fCAgIvr6+rq6ujo6OTU1Nvb29JSUlKSkpMDAw6enpWVlZo6Oj0dHRysrKsbGx6urq4ODgSUlJNjY2QUFBoKCg0tLSX19fxcXF2dnZLi4upqamDw8PPj4+1NTUhISE4+Pja2trKioqhYWFS0tLgoKCnJyct7e3XFxc4uLi5+fnr6+vYGBgCwsLb29vYWFhtra2SkpKra2tIyMjc3NzwcHBampqkJCQLy8ve3t7iYmJp6enOTk5Hx8fTExM1tbWHR0dALhbgQAAAO10Uk5TAP/////////////////AEED/4P///5D//////////////////////////////////////////////////////////////////////////////////////////////////3D/////////////////////////YP//////////////////////////////////////////////////////IP////////+g//////////////////9Q//////8w8P//////////////////sP//////////0ID/////////////////////////////rJ6i4gAAEvRJREFUeJzlnQl8Ddcex880RLhIJGJfi4ogtly1RRFEkyhiLWqpLbxYYol9jXqerXSxNPZSXqkqEuTZgtKHql1pa6e2ltK+1tJ69965N5mZ8z9nzpk5ScP8Pp/Knf+cmTmd770z53/O//yPhDgkSfJ/auMTnlM45C2ln4Py4RfOs2rl94ihkM//GArZflZuBbAcwqTfVVu59evhOSCPdJvjMlpeNBUGC0s/cpzCqWJ/cRT2cnwdpOslpIucF0E+frxHkJTngnKLq/ZU3VRtFeE51Oa8K9K3TGV5CFe6B5r9z3CcAxm8RwEP89+8y3PAC01YVqCD8jHdUhyECwX+BNqLfsN+DqcM36NiknSEubAFCDtVUpL+Sy/BQbjOJcKOsgfZT4LM3aOiuQ8wlrQIYYfKHay3n7Kbg3DYd4Qdr+zlqZDJe5SjXBpTOesQdihI2k3cx064CfF1a3twh6c6Zu9R5R8uMZSyFGGEqkj/IexhJ9z8BHFXte08lTF/j6pLW3XLWIwwQjWlZNDOTBh2lWSFbuGpioB7ZJc26RWxHGFk3/oUMjMTbkVrstXZyFETIfcoxPY5vYD1CCNU7xHwM2YlTHKVZNX/jKMeYu5RqM966n4rEkZh0qeYjZVwR3oLttFa9moIukeBVdbQdluSsKM9/InWwkq4y07q7qar2Csh7B41+5iy06KEUfOVGgMjYbKrJCtiC+0hrpa4e9RiOXnfc0a4p753wKjIpeptRsIheqMZUUuYqyDuHtEQP2eE/b1FnRaFpKo22QjTXCVZ0YuZayCQMGqZRNpjXcLojY+UW2yE+32hW8T3HGsFRBJGrRcSdliYMGqzQLHBRLjQq4d1y8TMZ72+UMJtpQ/gHVYmjNq/n/GZibCOqySrw3uMlwfukXcbZ1VkVs+eOf8tH+WqnXT25g362bpKM0E7QLhKZcYaqpVrhnILqH33Pwydd55yAyLcY5bz3xHOoJLLcjuo0W95pWt/HbvzTOfUgV4Z48ZMhIvq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" alt="ADEED"><span class="fx">Freight</span></div><a class="t1" href="#adeed-freight-product-requirements-document">ADEED Freight, Product Requirements Document</a><a class="t2" href="#1-summary">1. Summary</a><a class="t2" href="#2-goals-non-goals-and-success-measures">2. Goals, non-goals and success measures</a><a class="t2" href="#3-users">3. Users</a><a class="t2" href="#4-scope-and-releases">4. Scope and releases</a><a class="t2" href="#5-experience-principles-and-design-direction">5. Experience principles and design direction</a><a class="t2" href="#6-information-architecture">6. Information architecture</a><a class="t2" href="#7-functional-requirements">7. Functional requirements</a><a class="t2" href="#8-integration-gateway-requirements">8. Integration Gateway requirements</a><a class="t2" href="#9-data-model">9. Data model</a><a class="t2" href="#10-technical-foundations">10. Technical foundations</a><a class="t2" href="#11-non-functional-requirements">11. Non-functional requirements</a><a class="t2" href="#12-analytics-and-instrumentation">12. Analytics and instrumentation</a><a class="t2" href="#13-delivery">13. Delivery</a><a class="t2" href="#14-risks-and-open-decisions">14. Risks and open decisions</a><a class="t2" href="#15-appendices">15. Appendices</a></nav>
+  <main class="prd-body"><h1 id="adeed-freight-product-requirements-document">ADEED Freight, Product Requirements Document</h1>
+<div class="tablewrap"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Version</td><td>1.0, for design and build kickoff</td></tr><tr><td>Date</td><td>8 September 2026</td></tr><tr><td>Owner</td><td>Mohammed Atoum, 7X Innovation Studio</td></tr><tr><td>Status</td><td>Working draft, pilot target 17 September 2026</td></tr><tr><td>Inputs</td><td>ADEED × TruKKer Land Freight Flow board; TruKKer API v1.0 (28 Jul) and v2 (4 Sep); TruKKer response to the ADEED asks (3 Sep); UAE Land Freight Imperative V1; workshop deck (7 Aug); LOI redline v2 (26 Aug); the ADEED platform codebase; the integration playbook at docs.7x-lab.com/adeed-freight-v1-plan</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-summary">1. Summary</h2>
+<p>ADEED Freight is a new portal inside the ADEED platform that lets government and enterprise shippers move road freight through a governed marketplace, with TruKKer's platform running execution behind an ADEED-owned experience. Shippers post demand once and get a transparent price, a verified carrier, a digital waybill under every movement, live status, proof of delivery, and an invoice they can accept in the same place. Carriers and drivers enter a National Registry that gives them a portable, verified identity. ADEED operates the control tower and reports the pilot to the Group CEO office.</p>
+<p>The product is built on one integration seam. Every call to TruKKer passes through the ADEED Integration Gateway; no user ever touches a TruKKer surface. ADEED holds the governance data (accounts, registry, procurement audit, waybills, documents); TruKKer runs the freight (sourcing, assignment, tracking, invoicing).</p>
+<p>Three release horizons govern this document:</p>
+<ul>
+<li><b>Pilot, 17 September 2026.</b> A thin, honest slice for the anchor clients: shipper demand and tracking on the live TruKKer engine, carrier onboarding into the registry, an ops console, and a programme dashboard. Several steps are ops-mediated where TruKKer's API does not yet expose them.</li>
+<li><b>Enhancement sprints, 21 September to 13 November.</b> Four two-week sprints that turn the slice into the full portal experience and absorb TruKKer's remaining contracts as they land.</li>
+<li><b>Phase 1 federal MVP, target January 2027,</b> and <b>Phase 2 mandate readiness</b> beyond it: registry at scale, the e-Bayan issuance engine, regulator views, smart-gate integration.</li>
+</ul>
+<p>The experience target is deliberate: a portal that feels like a calm, precise instrument rather than a logistics back office. One accent colour, a white ground, typography doing the hierarchy, and a small set of signature objects (the shipment strip, the bid ledger, the waybill card) reused everywhere so the product reads as one system. Bilingual English and Arabic with full right-to-left from the first screen.</p>
+<hr>
+<h2 id="2-goals-non-goals-and-success-measures">2. Goals, non-goals and success measures</h2>
+<h3 id="2-1-goals">2.1 Goals</h3>
+<ol>
+<li>Give shippers a single governed place to post demand, see a transparent price, confirm, track, receive POD and accept invoices.</li>
+<li>Put a verified carrier, driver and truck behind every movement through the National Registry, mastered in ADEED.</li>
+<li>Issue an ADEED waybill (e-Bayan v0) under every pilot movement.</li>
+<li>Keep the full procurement audit trail (every quote, every bid, every confirmation) in ADEED.</li>
+<li>Operate the network from an ADEED control tower with the pilot KPIs live for the programme office.</li>
+<li>Prove the integration model: one gateway, polling first, copy on receipt, one shared identifier.</li>
+</ol>
+<h3 id="2-2-non-goals">2.2 Non-goals</h3>
+<ul>
+<li>Replacing TruKKer's execution stack. Sourcing, assignment, telematics, invoicing and collections stay in TruKKer.</li>
+<li>Carrier bidding inside the ADEED carrier portal. TruKKer declined the bid API (GAP-21); carriers keep bidding on TruKKer's loadboard.</li>
+<li>A driver-facing ADEED app in the pilot. Drivers stay in TruKKer's app until Phase 1.</li>
+<li>Regulator and inspector surfaces in the pilot. They are Phase 1 onward.</li>
+<li>Payment execution inside the portal. Payments run on the 7X financial rails; the portal records and reflects them.</li>
+<li>Any TruKKer-branded surface inside the ADEED experience.</li>
+</ul>
+<h3 id="2-3-success-measures">2.3 Success measures</h3>
+<p>Pilot service measures come from the strategy paper's Exhibit 12 and are re-adopted at scope lock. Product and integration measures are ADEED's own.</p>
+<div class="tablewrap"><table><thead><tr><th>Area</th><th>Measure</th><th>Target</th><th>Source</th></tr></thead><tbody><tr><td>Service</td><td>On-time delivery</td><td>95 percent or better</td><td>Annex A milestones, planned versus actual</td></tr><tr><td>Service</td><td>Live track and trace</td><td>100 percent of pilot movements with a current status</td><td>Milestone polling</td></tr><tr><td>Service</td><td>Digital POD</td><td>Within 6 hours of delivery</td><td>GetTripDocs mirror timestamp</td></tr><tr><td>Service</td><td>Incident reporting</td><td>Within 1 hour</td><td>Ops exception queue</td></tr><tr><td>Onboarding</td><td>Carrier digital onboarding</td><td>Within 72 hours per carrier</td><td>Registry queue timestamps</td></tr><tr><td>Governance</td><td>Waybill coverage</td><td>100 percent of pilot movements</td><td>Waybill issuance log</td></tr><tr><td>Governance</td><td>Quotes on-system</td><td>100 percent of anchor-client road freight in scope</td><td>RFQ pipeline</td></tr><tr><td>Product</td><td>Shipper time to first RFQ after invitation</td><td>Under 2 working days</td><td>Onboarding events</td></tr><tr><td>Product</td><td>RFQ completeness at first submission</td><td>90 percent without a missing-info loop</td><td>Validation events</td></tr><tr><td>Integration</td><td>Gateway sync success</td><td>99.5 percent of poll cycles without error</td><td>Integration log</td></tr><tr><td>Integration</td><td>Nightly reconciliation</td><td>Zero unexplained count differences (orders, invoices)</td><td>Reconciliation job</td></tr><tr><td>Reporting</td><td>Programme cadence</td><td>Fortnightly to the working group, monthly one page to the Group CEO</td><td>Dashboard exports</td></tr></tbody></table></div>
+<hr>
+<h2 id="3-users">3. Users</h2>
+<h3 id="3-1-personas-and-pilot-surfaces">3.1 Personas and pilot surfaces</h3>
+<p>Eight roles appear across the arc. Only four designed surfaces exist at go-live; the persona list is the full cast, not the pilot scope.</p>
+<div class="tablewrap"><table><thead><tr><th>#</th><th>Persona</th><th>What they need</th><th>Pilot surface</th><th>When designed</th></tr></thead><tbody><tr><td>P1</td><td>Shipper, Transport Planner</td><td>Post demand, confirm a price, track, receive PODs</td><td>Shipper portal</td><td>Pilot</td></tr><tr><td>P2</td><td>Shipper, Procurement Lead</td><td>Lanes and wallet, bid transparency, savings against baseline</td><td>Shipper portal, role-gated tabs</td><td>Pilot</td></tr><tr><td>P3</td><td>Shipper, Finance (AP)</td><td>Line items, invoices, SOA, disputes</td><td>Shipper portal, billing</td><td>Pilot (reads), writes after the DAs</td></tr><tr><td>P4</td><td>Carrier, Fleet Operations</td><td>Register company, fleet and drivers; see trips; get paid</td><td>Carrier onboarding wizard</td><td>Onboarding at pilot, portal in Sprint 3</td></tr><tr><td>P5</td><td>Driver</td><td>KYC once, portable credential, fast lanes later</td><td>None in the pilot (TruKKer app)</td><td>Phase 1</td></tr><tr><td>P6</td><td>ADEED Freight Ops</td><td>Network board, registry queue, exceptions, integration health</td><td>Ops console</td><td>Pilot</td></tr><tr><td>P7</td><td>Regulator, Inspector</td><td>Registry search, waybill verification, compliance statistics</td><td>None in the pilot</td><td>Phase 1</td></tr><tr><td>P8</td><td>Programme, GCEO Office</td><td>Pilot KPIs, savings, formalisation metrics</td><td>Programme dashboard</td><td>Pilot, one page</td></tr></tbody></table></div>
+<h3 id="3-2-jobs-to-be-done">3.2 Jobs to be done</h3>
+<ul>
+<li>Planner: "Get this load moved at a price I can defend, and know where it is without calling anyone."</li>
+<li>Procurement: "Every quote on-system, every bid visible, savings I can show against last year."</li>
+<li>Finance: "One invoice per shipment with the lines I approved, accepted in the same place I saw the POD."</li>
+<li>Carrier: "Register once, get verified fast, see my trips, get paid quickly."</li>
+<li>Ops: "See the whole network at a glance and act before an SLA breaks."</li>
+<li>Programme office: "One honest page a month."</li>
+</ul>
+<h3 id="3-3-access-model">3.3 Access model</h3>
+<p>All human users authenticate through the existing ADEED session (magic link or password). Freight access is granted by a <code>FreightParticipant</code> row with a freight role (<code>shipper_planner</code>, <code>shipper_procurement</code>, <code>shipper_finance</code>, <code>carrier</code>, <code>ops</code>, <code>programme</code>, later <code>regulator</code>), mirroring the Finance portal's <code>FinanceParticipant</code> precedent so one email can hold several ADEED roles. Machine access (client ERPs) uses the Partner API key model with new freight scopes.</p>
+<hr>
+<h2 id="4-scope-and-releases">4. Scope and releases</h2>
+<h3 id="4-1-pilot-17-september-2026">4.1 Pilot, 17 September 2026</h3>
+<p>The pilot is a working slice on the live TruKKer engine for two to three public-sector anchor clients and their current carriers. It is honest about what TruKKer's API exposes today.</p>
+<p>Must have:</p>
+<ul>
+<li>Shipper accounts, KYB, verification, joint provisioning to TruKKer (v2 client contracts), team roles.</li>
+<li>Demand capture through the RFQ wizard with templates; completeness checks; submission creates the TruKKer inquiry; amend and cancel before confirmation (v2).</li>
+<li>Price and bids visible to the shipper: transparent bid board mirrored from TruKKer, the auto-declared winner, price, quote reference. Client confirmation recorded by ops in TruKKer and mirrored by ADEED, until the self-serve write exists.</li>
+<li>Shipments mirrored with ADEED references; assignment (truck and driver) visible.</li>
+<li>Waybill v0: an ADEED waybill ID issued per movement with a QR-verifiable record, attached to the order as soon as TruKKer confirms the hook (GAP-19).</li>
+<li>Status timeline from the Annex A dictionary by polling shipment details; notifications per milestone by email.</li>
+<li>POD pulled and copied on receipt into UAE-resident storage; document vault; line items.</li>
+<li>Invoice per order with PDF (v2), statement of account and unpaid invoices; acceptance and disputes are read-only until the write lands.</li>
+<li>Carrier onboarding wizard writing to the v2 supplier, driver and truck contracts; ops verification queue; registry credential and quality score v0.</li>
+<li>Ops console: pipeline, exceptions, SLA board, registry queue, integration health.</li>
+<li>Programme dashboard: the pilot measures on one page, exportable.</li>
+<li>Bilingual EN/AR, RTL, WCAG AA.</li>
+</ul>
+<p>Ops-mediated in the pilot (with a portal state that reflects the outcome): client price confirmation, incident logging, waybill attachment if GAP-19 slips.</p>
+<h3 id="4-2-sprints-21-september-to-13-november">4.2 Sprints, 21 September to 13 November</h3>
+<div class="tablewrap"><table><thead><tr><th>Sprint</th><th>Dates</th><th>Theme</th><th>Lands</th></tr></thead><tbody><tr><td>1</td><td>21 Sep to 2 Oct</td><td>Pilot hardening</td><td>Fix what live loads surface; tracking cadence and exception handling; cancel and order-level amend (GAP-09); daily reconciliation clean; joint standup through week one</td></tr><tr><td>2</td><td>5 to 16 Oct</td><td>Money flows</td><td>Invoice acceptance and disputes (GAP-12); payment and settlement read-back (GAP-13); carrier settlement visibility with MoXey status</td></tr><tr><td>3</td><td>19 to 30 Oct</td><td>Supply side</td><td>Carrier portal (trips, fleet, registry credential, payments) on the v2 contracts; carrier self-serve onboarding beyond the anchor group; user provisioning (GAP-17); rate-card reads if agreed (GAP-22)</td></tr><tr><td>4</td><td>2 to 13 Nov</td><td>Scale groundwork</td><td>Webhook channel to replace polling (GAP-05); document taxonomy and upload custody (GAP-10); bulk carrier-migration preparation (GAP-18); first regulator preview; Copilot demand capture</td></tr></tbody></table></div>
+<h3 id="4-3-phase-1-and-phase-2">4.3 Phase 1 and Phase 2</h3>
+<p>Phase 1 (target January 2027): National Registry at scale, e-Bayan issuance engine with the operating-card pathway, migration of the existing carrier base, first regulator views, webhook channel, ERP self-serve, invoicing and collections writes once the commercial terms settle. Phase 2: regulator and inspection console, 24 smart gates, emirate interoperability (Asateel, RTA, SRTA), UAE e-invoicing regime, GCC interoperability.</p>
+<h3 id="4-4-feature-by-release">4.4 Feature by release</h3>
+<div class="tablewrap"><table><thead><tr><th>Capability</th><th>Pilot</th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>Phase 1</th></tr></thead><tbody><tr><td>Shipper onboarding and provisioning</td><td>Full</td><td></td><td></td><td></td><td></td><td>UAE Pass</td></tr><tr><td>Team roles mirrored to TruKKer</td><td>ADEED only</td><td></td><td></td><td>Yes</td><td></td><td></td></tr><tr><td>RFQ wizard, templates, amend, cancel</td><td>Full</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Copilot and assisted drafts</td><td></td><td></td><td></td><td></td><td>Copilot</td><td>Drafts (GAP-23)</td></tr><tr><td>ERP channel (Partner API freight scopes)</td><td></td><td></td><td></td><td></td><td>Yes</td><td>Self-serve</td></tr><tr><td>Transparent bid board, winner, quote</td><td>Full</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Client confirmation</td><td>Ops-mediated</td><td>Self-serve if TruKKer delivers</td><td></td><td></td><td></td><td></td></tr><tr><td>Shipments, assignment view</td><td>Full</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Waybill v0</td><td>Issue and attach (GAP-19 dependent)</td><td></td><td></td><td></td><td></td><td>Engine</td></tr><tr><td>Timeline, milestones, notifications</td><td>Polling, email</td><td>Cadence tuning</td><td></td><td></td><td>Webhooks</td><td>Positions, ETA</td></tr><tr><td>Exceptions and incidents</td><td>Ops-logged</td><td>Feed if TruKKer delivers</td><td></td><td></td><td></td><td></td></tr><tr><td>POD, vault, line items, Bayan docs</td><td>Full</td><td></td><td></td><td></td><td>Taxonomy, upload custody</td><td></td></tr><tr><td>Invoices, PDF, SOA, unpaid</td><td>Reads</td><td></td><td>Accept, dispute, payments read-back</td><td></td><td></td><td>Writes</td></tr><tr><td>Carrier onboarding wizard</td><td>Full</td><td></td><td></td><td>Self-serve at scale</td><td></td><td>Bulk migration</td></tr><tr><td>Carrier portal (trips, fleet, credential, payments)</td><td></td><td></td><td></td><td>Full</td><td></td><td></td></tr><tr><td>Ops console</td><td>Full</td><td>Hardened</td><td></td><td></td><td></td><td></td></tr><tr><td>Programme dashboard</td><td>One page</td><td></td><td></td><td></td><td></td><td>Radar feed</td></tr><tr><td>Regulator views</td><td></td><td></td><td></td><td></td><td>Preview</td><td>Full</td></tr></tbody></table></div>
+<hr>
+<h2 id="5-experience-principles-and-design-direction">5. Experience principles and design direction</h2>
+<h3 id="5-1-principles">5.1 Principles</h3>
+<ol>
+<li><b>One system, one language.</b> Every surface (shipper, carrier, ops, programme) shares the same shell, type, spacing and objects. Nothing looks bolted on.</li>
+<li><b>State is the interface.</b> The product is mostly about where things are: a request, a shipment, a document, an invoice. State is shown in form (a strip, a chip, a stripe), never only as a word.</li>
+<li><b>Quiet by default, loud for exceptions.</b> Colour appears only where something needs attention or can be clicked. The blue is for actions and ADEED-owned identity; red is reserved for breaches; nothing decorative.</li>
+<li><b>Show the evidence.</b> Every price carries its bids, every status its timestamp, every document its receipt time. Trust is built by showing, not stating.</li>
+<li><b>Arabic is a first language, not a translation.</b> Layout is designed in both directions; Arabic copy is written, not translated word for word.</li>
+<li><b>Nothing fake.</b> No placeholder numbers, no invented savings, no cosmetic motion. If data is missing, the interface says so and says why.</li>
+</ol>
+<h3 id="5-2-visual-direction">5.2 Visual direction</h3>
+<p>The direction is a precise, calm instrument: white ground, ink typography, a single brand accent, and data-first surfaces with generous rhythm. It should feel closer to a well-made financial terminal redesigned by a product studio than to a logistics dashboard.</p>
+<div class="tablewrap"><table><thead><tr><th>Token</th><th>Value</th><th>Notes</th></tr></thead><tbody><tr><td>Ground</td><td><code>#FFFFFF</code> page, <code>#FAFAFA</code> portal content, <code>#F5F5F7</code> tiles</td><td>White first; tiles only for grouped detail</td></tr><tr><td>Ink</td><td><code>#0A0F1E</code> (midnight) headings, <code>#1D1D1F</code> body, <code>#6E6E73</code> muted, <code>#AEAEB2</code> faint</td><td>Existing platform palette</td></tr><tr><td>Accent</td><td><code>#0020F5</code> brand blue, hover <code>#001ACC</code></td><td>The only accent; interactive and ADEED-owned data</td></tr><tr><td>Status</td><td>On-time and live <code>#008663</code>; pending and contract <code>#A36000</code>; breach and missing <code>#C81E3C</code></td><td>Validated for colour-vision deficiency; always paired with a label or icon</td></tr><tr><td>Lines</td><td><code>#E8E8ED</code> hairline, <code>#D2D2D7</code> structural</td><td>Hairlines organise real content only</td></tr><tr><td>Type</td><td>Space Grotesk (Latin), Noto Kufi Arabic (Arabic)</td><td>Already loaded in the platform; display weights 600, body 400, tabular numerals for all figures</td></tr><tr><td>Scale</td><td>32 / 24 / 17 / 15 / 13 / 11.5 px</td><td>Titles semibold; no display sizes above 32 in portals</td></tr><tr><td>Radius</td><td>Controls pill; containers 12 px; tags 6 px</td><td>One documented rule, applied everywhere</td></tr><tr><td>Shadow</td><td>None on white; one soft lift on floating panels only</td><td>No card stacks</td></tr><tr><td>Motion</td><td>150 to 280 ms, ease-out, transform and opacity only</td><td>Only for state transitions and feedback; honours reduced motion</td></tr></tbody></table></div>
+<h3 id="5-3-signature-objects">5.3 Signature objects</h3>
+<p>These are the reusable objects the design phase must define first, because every screen composes from them.</p>
+<ol>
+<li><b>Shipment strip.</b> A horizontal state strip that renders the Annex A sequence (Upcoming to Completed; cross-border adds the border states) as segments with the current segment filled, timestamps on hover, planned versus actual underneath. It is the same object in list rows, the shipment hero, the ops board and notifications.</li>
+<li><b>Bid ledger.</b> The transparent bid board as a ledger: anonymised bidders until award, price, trucks, validity, time received, and the auto-declared winner marked with the quote reference. It is an audit record first and a table second.</li>
+<li><b>Waybill card.</b> The ADEED waybill as a physical-feeling card: <code>EBN</code> reference in mono, QR, shipper, consignee, cargo, route, carrier, driver, truck, validity window, verification state. Printable.</li>
+<li><b>Registry credential.</b> The carrier or driver identity card: registry ID, verification state, quality score, expiries, AEO track.</li>
+<li><b>Vault tile.</b> A document as a tile with type, source (TruKKer or ADEED), received time and the copy-on-receipt marker.</li>
+<li><b>Control board.</b> The ops network view: pipeline counts, SLA countdowns (6-hour POD, 1-hour incident, 72-hour onboarding), the exception queue, integration health, all readable in ten seconds.</li>
+<li><b>Onboarding wizard.</b> One wizard pattern for shipper and carrier onboarding: numbered steps on the left, one question group per screen, progress saved, documents with expiry extraction.</li>
+</ol>
+<h3 id="5-4-layout-system">5.4 Layout system</h3>
+<ul>
+<li>Portal shell: a 240 px collapsible rail, a page header with the title, a one-line context and at most one primary action, content at a maximum width of 1280 px.</li>
+<li>Lists are rows with hairline separators, not card grids; detail views open in place or as a drawer, never a modal for reading.</li>
+<li>Density is operational: 15 px body, 13 px secondary, tabular numerals, 44 px minimum row height.</li>
+<li>Mobile: the rail becomes a top bar and drawer; every list and strip collapses to one column; carrier onboarding is designed mobile-first.</li>
+</ul>
+<h3 id="5-5-bilingual-and-right-to-left">5.5 Bilingual and right-to-left</h3>
+<ul>
+<li>Logical CSS properties throughout (<code>padding-inline</code>, <code>margin-inline-start</code>, <code>inset-inline</code>), no left or right in component styles.</li>
+<li>Direction is set at the locale layout; the shipment strip, wizard and ledger are mirrored, not flipped.</li>
+<li>Arabic copy is authored by a native writer from the same content model; numerals stay Western Arabic in both languages for consistency with references and invoices.</li>
+<li>Every screen is reviewed in Arabic before it is signed off.</li>
+</ul>
+<h3 id="5-6-accessibility-and-content">5.6 Accessibility and content</h3>
+<ul>
+<li>WCAG 2.2 AA: contrast, focus visible, keyboard paths through the wizard, strip and ledger, reduced-motion and reduced-transparency respected.</li>
+<li>Copy: plain sentences, active voice, no jargon a shipper would not use. Controls say what happens ("Confirm price", then "Price confirmed"). Errors say what went wrong and what to do.</li>
+<li>Empty, loading and error states are designed for every list and object: an empty vault says what will appear and when; a shipment with no status yet says "awaiting the first update from TruKKer".</li>
+</ul>
+<h3 id="5-7-what-to-avoid">5.7 What to avoid</h3>
+<p>Purple or gradient accents; dark-mode sections inside a light product; three-equal-card feature rows; decorative dots and status colours on every row; eyebrow labels above every heading; fake precision in numbers; em dashes in copy; any surface that reads as a marketing page.</p>
+<hr>
+<h2 id="6-information-architecture">6. Information architecture</h2>
+<p>New route namespace <code>src/app/[locale]/freight/<b></code>, mirroring the Finance portal shape; APIs under <code>src/app/api/freight/</b></code>.</p>
+<pre><code>
+/freight                          Entry: value line, sign in, carrier registration link
+/freight/login                    Magic link, role routing
+
+Shipper portal
+/freight/portal                   Dashboard: active shipments (strips), open requests, invoices due
+/freight/portal/requests          Requests list
+/freight/portal/requests/new      Demand wizard; templates; import
+/freight/portal/requests/[ref]    Request detail: status, bid ledger, winner, confirmation, shipments
+/freight/portal/shipments         Shipments list, strip per row, map toggle (Phase 1 positions)
+/freight/portal/shipments/[ref]   Shipment: strip hero, assignment, waybill card, vault, line items
+/freight/portal/documents         Vault
+/freight/portal/billing           Invoices, PDFs, SOA, unpaid, acceptance queue (S2)
+/freight/portal/lanes             Contract lanes, rate cards (if GAP-22), savings versus baseline
+/freight/portal/profile           Organisation, billing entities, team and roles, ERP keys (S4)
+
+Carrier
+/freight/carrier/onboarding       Wizard: company, documents, fleet, drivers, payment
+/freight/carrier                  Dashboard (S3): trips, earnings, registry status
+/freight/carrier/trips, /fleet, /registry, /payments   (S3)
+
+Governance
+/admin/freight                    Ops console: pipeline, exceptions, SLA board
+/admin/freight/registry           Verification queue
+/admin/freight/waybills           Waybill log and lookup
+/admin/freight/integration        Gateway health, sync jobs, errors, reconciliation
+/admin/freight/programme          Programme dashboard (P8 reads a shared, print-ready page)
+/freight/regulator                Phase 1
+</code></pre>
+<p>References: requests <code>FRT-YYYYMMDD-XXXX</code>; shipments carry the TruKKer <code>orderNumber</code> plus an ADEED reference; waybills <code>EBN-YYYY-NNNNNN</code>.</p>
+<p>Role routing after login: planner and procurement land on the shipper dashboard, finance on billing, carrier on onboarding or the carrier dashboard, ops on the console, programme on the dashboard.</p>
+<hr>
+<h2 id="7-functional-requirements">7. Functional requirements</h2>
+<p>Each requirement lists what the user can do, what the system does, the acceptance criteria, and the TruKKer endpoints involved (API v2 names). "Ops-mediated" marks pilot steps where an ADEED ops user records an outcome that TruKKer's API does not yet expose.</p>
+<h3 id="fr-1-access-and-accounts">FR-1 Access and accounts</h3>
+<ul>
+<li>FR-1.1 Users sign in with the existing ADEED magic link or password; freight access requires a <code>FreightParticipant</code> row. Users without one see a request-access page.</li>
+<li>FR-1.2 Role-gated navigation and API guards for every freight role; an 8-hour inactivity timeout on freight sessions, as the Finance portal does.</li>
+<li>FR-1.3 Shipper admins invite planners, procurement and finance users; invitations create the participant row and send a magic link.</li>
+<li>Acceptance: a user with two ADEED roles switches portals without re-authenticating; a revoked participant loses access within one request.</li>
+</ul>
+<h3 id="fr-2-shipper-onboarding-and-joint-provisioning">FR-2 Shipper onboarding and joint provisioning</h3>
+<ul>
+<li>FR-2.1 Invitation or sign-up creates a shipper organisation pending verification.</li>
+<li>FR-2.2 KYB captures trade licence, TRN, billing entities and signatories with document upload and expiry extraction.</li>
+<li>FR-2.3 Ops verifies; on approval the gateway provisions the TruKKer client: <code>Shipper/BasicInformation</code> (billing and ordering entity mappings), <code>Shipper/SaveKYCDetails</code>, <code>Shipper/CreditInfo/SaveCreditInfo</code> where credit terms exist, and stores the link with the ADEED organisation ID as <code>externalShipperMasterId</code>.</li>
+<li>FR-2.4 Lanes and wallet: the organisation registers defined lanes or the full wallet and lists current carriers for invitation.</li>
+<li>Acceptance: an anchor client is usable end to end without any TruKKer credential; provisioning is idempotent (a retry does not create a second client); duplicate organisations are caught by TRN.</li>
+</ul>
+<h3 id="fr-3-carrier-driver-and-asset-onboarding-registry">FR-3 Carrier, driver and asset onboarding (Registry)</h3>
+<ul>
+<li>FR-3.1 Invitation by tokenised link, Arabic, Urdu and English; mobile-first wizard.</li>
+<li>FR-3.2 Company KYB: trade licence, operating card, TRN, insurance; fleet by plate and chassis; drivers with Emirates ID, passport, visa, licence; bank details and MoXey opt-in.</li>
+<li>FR-3.3 Ops verification queue with document, expiry and sanctions checks; approve or reject with reasons; 72-hour SLA countdown per carrier.</li>
+<li>FR-3.4 On approval the gateway writes <code>Supplier/BasicInfo/BasicInformation</code>, <code>Supplier/kycInfo/SaveKYCDetails</code>, <code>Driver/BasicInfo/BasicInformation</code>, <code>Driver/kycInfo/SaveKYCDetails</code>, <code>Truck/BasicInfo/BasicInformation</code>, <code>TruckDetails/SaveTruckDetails</code>.</li>
+<li>FR-3.5 Registry credential issued with a quality score v0 (OTIF, POD timeliness, incidents, document hygiene) and expiry alerts at 30 and 7 days with auto-suspend.</li>
+<li>Acceptance: onboarding completes within 72 hours for the anchor clients' carriers; every verified carrier, driver and truck exists in TruKKer with matching identifiers; suspension propagates.</li>
+</ul>
+<h3 id="fr-4-demand-capture">FR-4 Demand capture</h3>
+<ul>
+<li>FR-4.1 Wizard: lane with map pins, cargo, asset type, schedule, customs mode, pricing mode (contract or spot), documents; templates from previous requests; the field groups follow <code>SaveInquiry</code>.</li>
+<li>FR-4.2 Completeness checks per move type with missing-information prompts before submission.</li>
+<li>FR-4.3 Submission persists the request, maps the payload and calls <code>InquiryMaster/SaveInquiry</code> with <code>inquirySource "7X"</code>; the inquiry number is stored on the request.</li>
+<li>FR-4.4 Track, amend and cancel before confirmation: <code>Reports/DemandTrackerReport</code>, <code>InquiryMaster/GetInquiryById</code>, <code>InquiryMaster/UpdateInquiryDetails</code>, <code>InquiryMaster/CancelInquiry</code> with the disposition reasons.</li>
+<li>FR-4.5 Confirmed-type demand (<code>inquiryType Confirmed</code>) skips price discovery and goes straight to booking; contract lanes price from the rate card.</li>
+<li>Acceptance: 90 percent of first submissions pass completeness; every request has a TruKKer inquiry number within one poll cycle; an amend after confirmation is refused with a clear message.</li>
+</ul>
+<h3 id="fr-5-pricing-bidding-and-confirmation">FR-5 Pricing, bidding and confirmation</h3>
+<ul>
+<li>FR-5.1 Spot requests show the bid ledger from <code>LoadboardDashBoard/GetDashboardDetails</code> and <code>GetBidHistory</code>, polled every 1 to 2 minutes while bidding is live; bidders anonymised until award under a policy toggle.</li>
+<li>FR-5.2 The winner, price, quote reference and currency come from <code>GetInquiryById</code> once TruKKer auto-declares the lowest vendor rate; the inquiry status follows Annex A (Pending, Partially Fulfilled, Fulfilled, Partially Booked, Booked, Cancelled).</li>
+<li>FR-5.3 Confirmation, pilot: the shipper presses Confirm or Decline in ADEED; ADEED records the decision in the audit trail and raises an ops task; ops confirms in TruKKer; the mirror flips the request to Booked when <code>GetDemandOrdersByInquiryId</code> returns orders. Self-serve write replaces the ops step when TruKKer delivers it (GAP-02).</li>
+<li>FR-5.4 Savings against the pre-pilot baseline shown to procurement per lane.</li>
+<li>Acceptance: every bid and the confirming identity appear in the audit trail; time from confirmation to Booked in ADEED is under 15 minutes in the pilot; no request is booked without a recorded confirmation.</li>
+</ul>
+<h3 id="fr-6-booking-assignment-and-waybill">FR-6 Booking, assignment and waybill</h3>
+<ul>
+<li>FR-6.1 Orders mirrored as shipments with ADEED references from <code>GetDemandOrdersByInquiryId</code> and <code>OrderMaster/GetOrdersList</code>; details from <code>GetOrderDetailsById</code>; truck and driver from <code>GetTripInfoById</code>.</li>
+<li>FR-6.2 Waybill v0 issued per movement from the order data: <code>EBN</code> reference, QR, shipper, consignee, cargo, route, carrier, driver, truck; attached to the TruKKer order through the hook agreed under GAP-19; amendment log on reassignment; one waybill per truck on multi-truck orders.</li>
+<li>FR-6.3 Cancel a confirmed shipment with a disposition reason: <code>OrderMaster/CancelOrder</code>.</li>
+<li>Acceptance: 100 percent of pilot movements carry a waybill; the QR resolves to a verification page with the current state; a cancelled order closes the waybill.</li>
+</ul>
+<h3 id="fr-7-tracking-and-exceptions">FR-7 Tracking and exceptions</h3>
+<ul>
+<li>FR-7.1 Timeline from the Annex A <code>statusName</code> sequence (domestic 8 states, cross-border 12), polled from shipment details every 5 minutes; timestamps in ISO 8601 UTC displayed in Gulf time.</li>
+<li>FR-7.2 Notifications per milestone by email to the shipper's chosen recipients; consignee link for the delivery window.</li>
+<li>FR-7.3 Exceptions: delay, breakdown, rejection, deviation open an incident in the ops queue with a 1-hour clock; pilot incidents are logged by ops from TruKKer's operations channel until a feed exists (GAP-08).</li>
+<li>FR-7.4 Positions and ETA arrive with GAP-06; the strip and map are designed for them now and hidden until data exists.</li>
+<li>Acceptance: every active shipment shows a status no older than one poll cycle; a missed poll raises an integration alert, not a silent stale state.</li>
+</ul>
+<h3 id="fr-8-delivery-pod-and-the-vault">FR-8 Delivery, POD and the vault</h3>
+<ul>
+<li>FR-8.1 Delivery status from the timeline; POD retrieved with <code>OrderMaster/GetTripDocs</code> and copied on receipt into UAE-resident storage; upload from ADEED with <code>SaveTripDocs</code> once upload custody is settled (GAP-10).</li>
+<li>FR-8.2 Ops verification of legibility and completeness; disputes open before invoicing; a POD missing past 6 hours triggers a carrier chase with quality-score impact.</li>
+<li>FR-8.3 Vault per shipment: POD, waybill, Bayan and customs documents (<code>tripDetailsService/v1/sourceDestination</code>), line items (<code>lineitemService/v1/findRevenueLineItems</code>).</li>
+<li>Acceptance: POD visible in ADEED within 6 hours of delivery for 95 percent of movements; every stored binary has a receipt timestamp and source.</li>
+</ul>
+<h3 id="fr-9-billing-and-settlement">FR-9 Billing and settlement</h3>
+<ul>
+<li>FR-9.1 Uninvoiced queue (<code>invoiceService/v1/unBilledAgeingReport</code>), line-item review, invoice generation across selected orders (<code>saveInvoiceGenerationData</code>, activation subject to the commercial terms).</li>
+<li>FR-9.2 Invoice per order with PDF: <code>getInvoicesDetailsByOrderNumber</code>; acknowledgement document; unpaid invoices (<code>Collection/GetInvoiceList</code>); statement of account (<code>Communication/PrevStatementOfAccAsync</code>).</li>
+<li>FR-9.3 Acceptance and disputes (Sprint 2, GAP-12), payments read-back (GAP-13), payment allocation (<code>Collection/AllocatePayment</code>) once writes activate.</li>
+<li>FR-9.4 Carrier settlement visibility with MoXey status (Sprint 3, GAP-13).</li>
+<li>Acceptance: a shipper finance user can find, open and download every invoice for a period in under a minute; turning writes on changes nothing on screen, only gateway behaviour.</li>
+</ul>
+<h3 id="fr-10-ops-console">FR-10 Ops console</h3>
+<ul>
+<li>FR-10.1 Network board: active requests and shipments, SLA countdowns (pricing, 6-hour POD, 1-hour incident), exception queue.</li>
+<li>FR-10.2 Registry queue with the 72-hour SLA and expiry radar.</li>
+<li>FR-10.3 Integration health: sync-job status, error rates, nightly reconciliation differences, the immutable integration log.</li>
+<li>FR-10.4 Ops-mediated actions with an audit trail: confirmation recorded, incident logged, waybill attached, POD verified.</li>
+<li>Acceptance: any SLA at risk is visible on the board at least 30 minutes before breach; every ops action is attributable.</li>
+</ul>
+<h3 id="fr-11-programme-dashboard">FR-11 Programme dashboard</h3>
+<ul>
+<li>FR-11.1 One page: the Section 2.3 measures with definitions, current value, trend and data freshness; savings against baseline; formalisation metrics (carriers and drivers verified).</li>
+<li>FR-11.2 Print and PDF export for the monthly brief; fortnightly working-group view.</li>
+<li>Acceptance: the page is readable in under a minute and every figure links to its source view.</li>
+</ul>
+<h3 id="fr-12-regulator-views-phase-1">FR-12 Regulator views (Phase 1)</h3>
+<p>Registry search, waybill verification by QR, compliance statistics, PII minimised per role. Designed in Sprint 4 as a preview, built in Phase 1.</p>
+<h3 id="fr-13-notifications">FR-13 Notifications</h3>
+<ul>
+<li>Email through the existing notification engine with freight templates in English and Arabic; recipients per organisation and event; digest option.</li>
+<li>In-app notifications derived from the shipment and request event tables, with unread counts.</li>
+<li>WhatsApp is a later channel through an approved business line; not in the pilot.</li>
+</ul>
+<h3 id="fr-14-search-and-copilot">FR-14 Search and Copilot</h3>
+<ul>
+<li>Global search across requests, shipments, documents and invoices by reference, lane, carrier or date.</li>
+<li>Copilot (Sprint 4): conversational capture that produces a governed draft request using the same validation as the wizard; quote, book and track as callable tools.</li>
+</ul>
+<h3 id="fr-15-partner-api-freight-scopes-sprint-4">FR-15 Partner API freight scopes (Sprint 4)</h3>
+<ul>
+<li><code>freight:requests</code>, <code>freight:shipments</code>, <code>freight:documents</code>, <code>freight:invoices</code> scopes on the existing <code>/api/v1</code> key model, PII-free DTOs, idempotency keys on request creation, for client ERPs (SAP, Oracle).</li>
+</ul>
+<hr>
+<h2 id="8-integration-gateway-requirements">8. Integration Gateway requirements</h2>
+<p>The gateway is the only component that talks to TruKKer. It is a set of typed outbound clients, polling workers and mappers inside the ADEED platform.</p>
+<h3 id="8-1-responsibilities">8.1 Responsibilities</h3>
+<ul>
+<li>Token custody per environment; never in client code; OAuth as confirmed by TruKKer.</li>
+<li>Payload mapping between ADEED entities and the TruKKer contracts, including the 90-field <code>SaveInquiry</code> payload and the v2 onboarding payloads.</li>
+<li>Polling: open requests every 1 to 2 minutes while bidding is live; in-transit shipments every 5 minutes; finance nightly; a daily reconciliation of order and invoice counts.</li>
+<li>Idempotency keys on every write; retries with backoff; a repeat call must return the original result (agreed by TruKKer).</li>
+<li>An immutable integration log of every call in both directions: endpoint, identifiers, status, duration, correlation ID.</li>
+<li>Copy on receipt: every document binary retrieved from TruKKer is stored in UAE-resident storage the moment it is fetched.</li>
+</ul>
+<h3 id="8-2-identifier-convention">8.2 Identifier convention</h3>
+<p>The ADEED organisation ID is the <code>externalShipperMasterId</code> join key on every request in both directions (confirmed by TruKKer). The gateway maps it onto the four field spellings TruKKer still uses (<code>externalShipperMasterId</code>, <code>shipperMasterId</code>, <code>extShipperId</code>, <code>shipperId</code>) until the conventions annex unifies them. Orders keep the TruKKer <code>orderNumber</code> and an ADEED reference; inquiries keep <code>inquiryNumber</code>.</p>
+<h3 id="8-3-status-mapping">8.3 Status mapping</h3>
+<p>Annex A states map to the ADEED canonical vocabulary. Spelling and casing of <code>statusName</code> are contractual.</p>
+<div class="tablewrap"><table><thead><tr><th>Annex A (domestic)</th><th>Annex A (cross-border additions)</th><th>ADEED canonical</th></tr></thead><tbody><tr><td>Upcoming</td><td></td><td>booked</td></tr><tr><td>Start For Pick Up</td><td></td><td>assigned</td></tr><tr><td>At Loading, Completed loading</td><td></td><td>at_pickup</td></tr><tr><td>Enroute</td><td>Enroute to Origin border, At origin border, Enroute to destination border, At Destination Border, Enroute to destination</td><td>in_transit (with at_border for the border states)</td></tr><tr><td>At Unloading</td><td></td><td>arriving</td></tr><tr><td>Completed</td><td></td><td>delivered</td></tr><tr><td>Cancelled</td><td></td><td>cancelled</td></tr></tbody></table></div>
+<p>Inquiry states: Pending to pricing; Partially Fulfilled and Fulfilled to winner declared; Partially Booked and Booked to booked; Cancelled to cancelled. Downstream ADEED states (pod_received, ready_to_invoice, invoiced, paid) derive from document and finance polling.</p>
+<h3 id="8-4-dependencies-and-fallbacks">8.4 Dependencies and fallbacks</h3>
+<div class="tablewrap"><table><thead><tr><th>Dependency</th><th>Status (3 Sep)</th><th>Pilot fallback</th></tr></thead><tbody><tr><td>Sandbox and OAuth credentials (GAP-01)</td><td>Within five business days of user-journey sign-off</td><td>None; this is the critical path</td></tr><tr><td>Client confirmation write (GAP-02)</td><td>Open, offered as per scope</td><td>Ops-mediated confirmation with mirror</td></tr><tr><td>Milestone endpoint (GAP-06)</td><td>Committed, no endpoint yet</td><td>Poll shipment details for <code>statusName</code></td></tr><tr><td>Incident feed (GAP-08)</td><td>Open</td><td>Ops logs incidents from TruKKer's channel</td></tr><tr><td>Waybill hooks (GAP-19)</td><td>Next workshop</td><td>Waybill issued in ADEED; attachment recorded by ops until the hook exists</td></tr><tr><td>Conventions and response schemas (GAP-20)</td><td>After scope lock</td><td>Contract tests against the sandbox; tolerant parsers</td></tr><tr><td>Upload custody (GAP-10)</td><td>Cloud storage API details to come</td><td>POD upload stays in the TruKKer app in the pilot</td></tr></tbody></table></div>
+<hr>
+<h2 id="9-data-model">9. Data model</h2>
+<p>Net-new Prisma models in the main platform database (not the NLC database), following the platform's conventions (uuid IDs, snake-case column maps, <code>createdAt</code>/<code>updatedAt</code>).</p>
+<div class="tablewrap"><table><thead><tr><th>Model</th><th>Purpose</th><th>Key fields</th></tr></thead><tbody><tr><td>FreightOrganisation</td><td>Shipper or carrier organisation</td><td>type, name, trn, status, trukkerShipperId, trukkerSupplierId, billingEntities Json</td></tr><tr><td>FreightParticipant</td><td>Access grant per user</td><td>userId, organisationId, freightRole, status</td></tr><tr><td>FreightRequest</td><td>Demand record</td><td>ref, organisationId, lane, cargo, schedule, pricingMode, status, inquiryNumber, payload Json</td></tr><tr><td>FreightBid</td><td>Mirror of bids for audit</td><td>requestId, bidRef, carrierRef, price, trucks, validity, receivedAt, isWinner</td></tr><tr><td>FreightConfirmation</td><td>The confirmation record</td><td>requestId, decision, decidedBy, decidedAt, channel (portal, ops), quoteRef</td></tr><tr><td>Shipment</td><td>Order mirror</td><td>requestId, orderNumber, ref, status, statusName, assignment Json, plannedTimes, actualTimes</td></tr><tr><td>ShipmentEvent</td><td>Timeline (copies the FinanceApplicationEvent pattern)</td><td>shipmentId, type, fromStatus, toStatus, actorRole, message, metadata Json, at</td></tr><tr><td>Waybill</td><td>e-Bayan v0</td><td>ref, shipmentId, truckRef, payload Json, qrHash, validFrom, validTo, state, amendments Json</td></tr><tr><td>FreightDocument</td><td>Vault entry</td><td>shipmentId, type, source, blobUrl, sha256, receivedAt, sizeBytes</td></tr><tr><td>FreightInvoice</td><td>Invoice mirror</td><td>organisationId, invoiceNo, orderNumbers, amount, currency, pdfBlobUrl, status, acceptedAt</td></tr><tr><td>CarrierProfile, DriverProfile, AssetProfile</td><td>Registry</td><td>registryId, organisationId, verification, documents Json, expiries, qualityScore, trukkerIds</td></tr><tr><td>Incident</td><td>Exception</td><td>shipmentId, type, severity, openedAt, clock, resolution, source</td></tr><tr><td>IntegrationLog</td><td>Immutable call log</td><td>direction, endpoint, method, correlationId, identifiers Json, status, durationMs, at</td></tr><tr><td>ReconciliationRun</td><td>Nightly counts</td><td>date, ordersAdeed, ordersTrukker, invoicesAdeed, invoicesTrukker, diffs Json</td></tr><tr><td>FreightAuditLog</td><td>Actor actions</td><td>actorRole, actorEmail, action, entityType, entityId, detail</td></tr></tbody></table></div>
+<p>Retention: documents per the federal record policy; integration logs 24 months; audit logs indefinitely.</p>
+<hr>
+<h2 id="10-technical-foundations">10. Technical foundations</h2>
+<p>The portal is built inside the existing ADEED platform and follows its conventions. The survey below states what exists and what this product adds.</p>
+<h3 id="10-1-existing-conventions-to-follow">10.1 Existing conventions to follow</h3>
+<ul>
+<li>Next.js 15.5 App Router, React 18.3, TypeScript strict, Tailwind 3.4 with <code>cn()</code>; client pages call route handlers under <code>src/app/api</code>, Prisma 6 on Azure Postgres; Zustand for client state; <code>framer-motion</code> for motion; <code>lucide-react</code> icons; <code>recharts</code> for charts; Leaflet and Mapbox already present for maps.</li>
+<li>Locale segment <code>/[locale]/</code> with <code>en</code> and <code>ar</code>, custom dictionaries in <code>src/i18n/en.ts</code> and <code>ar.ts</code>, <code>useTranslation()</code> and the locale layout that sets <code>dir</code> and the Arabic font. Freight adds <code>freight-en.ts</code> and <code>freight-ar.ts</code> dictionaries; no inline label maps.</li>
+<li>Sessions: the shared <code>adeed_session</code> cookie; a new <code>src/lib/freight-session.ts</code> mirrors <code>finance-session.ts</code> (participant gate, 8-hour idle timeout, <code>requireFreightRole</code>, <code>ensureFreightParticipant</code>); a <code>FreightPortalShell</code> mirrors <code>FinancePortalShell</code>.</li>
+<li>Partner API: <code>withApiKey</code>, the response envelope, the DTO boundary in <code>api-dto.ts</code>, <code>ApiRequestLog</code>.</li>
+<li>Timeline pattern: <code>ShipmentEvent</code> copies <code>FinanceApplicationEvent</code>; audit copies <code>FinanceAuditLog</code>.</li>
+<li>Deployment: GitHub Actions to the Azure Web App with <code>prisma migrate deploy</code> at boot; a proper migration is required for the freight models (recent models were applied by <code>db push</code>; freight must not repeat that).</li>
+</ul>
+<h3 id="10-2-what-this-product-adds-to-the-platform">10.2 What this product adds to the platform</h3>
+<div class="tablewrap"><table><thead><tr><th>Need</th><th>Today</th><th>Decision</th></tr></thead><tbody><tr><td>Document storage</td><td>Base64 data URIs in Postgres JSON</td><td>Azure Blob Storage in a UAE region with SAS-scoped access, a <code>FreightDocument</code> record per binary, SHA-256, server-side encryption; a signed-download route handler; virus scanning on upload. PODs and waybills are too large and too regulated for JSON columns</td></tr><tr><td>Background jobs</td><td>None</td><td>A worker process for the polling and reconciliation jobs (Azure Container App job or WebJob running the same codebase), with a job table and lock so a single instance runs each cadence; in-process caches replaced by Redis when the app scales beyond one instance</td></tr><tr><td>Webhook receiver</td><td>None</td><td>An <code>/api/freight/webhooks/trukker</code> handler with HMAC verification and replay protection, built in Sprint 4 for GAP-05</td></tr><tr><td>Route guards</td><td>Client-side chrome plus per-handler checks</td><td>Same pattern for freight, plus a server component guard on the freight layouts so a direct URL cannot flash protected content</td></tr><tr><td>Notifications</td><td>Email through the EPG engine, fire and forget</td><td>An outbox table with retries for freight emails; templates in both languages; WhatsApp later</td></tr><tr><td>Maps</td><td>Libraries present, no freight use</td><td>Lane pins in the wizard (pilot); positions on the shipment map when GAP-06 delivers</td></tr><tr><td>Tests</td><td>Root <code>tsx</code> end-to-end scripts, none in CI</td><td><code>test-freight-e2e.ts</code> against the sandbox for the pilot journeys; contract tests for every gateway mapper; lint and tests added to the CI workflow</td></tr><tr><td>Feature flags</td><td>None</td><td>A small <code>FreightFlag</code> table read by the gateway and UI: self-serve confirmation, webhooks, invoice writes, positions</td></tr><tr><td>Observability</td><td>Request logs</td><td>Correlation IDs from UI to gateway to TruKKer; alerting on poll failures, reconciliation differences and SLA breaches</td></tr></tbody></table></div>
+<h3 id="10-3-environments">10.3 Environments</h3>
+<p>Local against the TruKKer sandbox once issued; staging on the existing staging app; production on the production app. Separate TruKKer tokens per environment held as app settings, never in the repository.</p>
+<hr>
+<h2 id="11-non-functional-requirements">11. Non-functional requirements</h2>
+<ul>
+<li><b>Security.</b> OAuth tokens in server-side custody; least-privilege roles; same-origin checks on mutations; PII minimised per role (regulator views never see contact details); document access only through signed, audited routes.</li>
+<li><b>Residency.</b> All user, registry, waybill and transactional data, and every document copy, in the 7X-procured UAE tenancy per LOI clause 2.</li>
+<li><b>Performance.</b> Portal pages interactive under 2 seconds on a normal connection; lists paginated at 25; the shipment strip renders without layout shift; poll workloads sized to TruKKer's published rate limits.</li>
+<li><b>Reliability.</b> Gateway retries with backoff; idempotent writes; nightly reconciliation with alerts; no silent stale states (every status carries its age).</li>
+<li><b>Accessibility.</b> WCAG 2.2 AA in both languages; keyboard paths through every flow; reduced motion honoured.</li>
+<li><b>Auditability.</b> Every confirmation, verification, incident and document receipt attributable to an actor with a timestamp; integration log immutable.</li>
+<li><b>Browser support.</b> Current Chrome, Safari, Edge and Firefox on desktop; iOS Safari and Android Chrome for the carrier wizard.</li>
+</ul>
+<hr>
+<h2 id="12-analytics-and-instrumentation">12. Analytics and instrumentation</h2>
+<p>Product events (no PII in payloads): <code>freight.request.created</code>, <code>request.submitted</code>, <code>request.completeness_failed</code>, <code>request.amended</code>, <code>request.cancelled</code>, <code>bid.viewed</code>, <code>confirmation.decided</code>, <code>shipment.status_changed</code>, <code>waybill.issued</code>, <code>waybill.verified</code>, <code>pod.received</code>, <code>pod.verified</code>, <code>document.downloaded</code>, <code>invoice.viewed</code>, <code>invoice.downloaded</code>, <code>carrier.invited</code>, <code>carrier.step_completed</code>, <code>carrier.verified</code>, <code>incident.opened</code>, <code>incident.resolved</code>, <code>gateway.poll</code> (with outcome and duration), <code>reconciliation.run</code>.</p>
+<p>Dashboards: the programme page (Section FR-11), an ops SLA view, and an integration health view built from the integration log.</p>
+<hr>
+<h2 id="13-delivery">13. Delivery</h2>
+<h3 id="13-1-design-phase-this-week">13.1 Design phase, this week</h3>
+<ol>
+<li>Define the signature objects (5.3) and the shell in Figma with real Annex A states and real reference formats; both languages.</li>
+<li>Design the pilot screens: shipper dashboard, request wizard, request detail with the bid ledger, shipment detail with the strip and waybill card, vault, billing list, carrier wizard, ops console, programme page.</li>
+<li>Content pass in English and Arabic on every screen.</li>
+<li>Sign off against Section 5.7 and an accessibility check before build.</li>
+</ol>
+<h3 id="13-2-build-pilot-slice">13.2 Build, pilot slice</h3>
+<ul>
+<li>Data model and migration; freight session and shell; dictionaries.</li>
+<li>Gateway: clients for the pilot endpoint set (the onboarding writes, SaveInquiry, DemandTrackerReport, GetInquiryById, GetDashboardDetails, GetBidHistory, GetDemandOrdersByInquiryId, GetOrdersList, GetOrderDetailsById, GetTripInfoById, GetTripDocs, findRevenueLineItems, sourceDestination, getInvoicesDetailsByOrderNumber, GetInvoiceList, PrevStatementOfAccAsync, CancelInquiry, UpdateInquiryDetails, CancelOrder), mappers, pollers, integration log, blob storage, reconciliation.</li>
+<li>Screens in the order of the journeys: onboarding, demand, pricing and confirmation, shipments and waybill, tracking, documents, billing, ops, programme.</li>
+<li>End-to-end script against the sandbox; content and accessibility review; go-live checklist.</li>
+</ul>
+<h3 id="13-3-go-live-checklist">13.3 Go-live checklist</h3>
+<ul>
+<li>User-journey scope signed off with TruKKer; credentials and sandbox received; pilot endpoint set exercised end to end.</li>
+<li>Anchor clients and their carriers onboarded and provisioned; test loads run through to POD and invoice on the sandbox.</li>
+<li>Waybill hook agreed or the ops attachment path staffed.</li>
+<li>Ops rota and the daily joint standup with TruKKer through week one.</li>
+<li>Rollback: the portal can be switched to read-only mirroring with ops acting in TruKKer.</li>
+</ul>
+<h3 id="13-4-team">13.4 Team</h3>
+<p>Product owner; design lead and a bilingual content designer; two full-stack engineers on the portal and one on the gateway; QA through the end-to-end scripts; an ops lead for the console and the registry queue; the TruKKer counterparts through the joint technical design authority.</p>
+<hr>
+<h2 id="14-risks-and-open-decisions">14. Risks and open decisions</h2>
+<div class="tablewrap"><table><thead><tr><th>#</th><th>Risk or decision</th><th>Owner</th><th>Needed by</th></tr></thead><tbody><tr><td>1</td><td>User-journey sign-off gates credentials and the sandbox; five business days from sign-off leaves two days before 17 September</td><td>7X product</td><td>This week</td></tr><tr><td>2</td><td>Client confirmation model for the pilot: commission the self-serve write or run ops-mediated with mirror</td><td>7X and TruKKer</td><td>Next workshop</td></tr><tr><td>3</td><td>Tracking has a dictionary but no endpoint; confirm shipment details already return <code>statusName</code> and timestamps</td><td>TruKKer</td><td>Next workshop</td></tr><tr><td>4</td><td>Waybill hook (GAP-19) needs a date; without it attachment is manual</td><td>TruKKer</td><td>Before 17 September</td></tr><tr><td>5</td><td>Incident visibility (GAP-08) has no mechanism</td><td>TruKKer</td><td>Next workshop</td></tr><tr><td>6</td><td>Blob storage and the worker process are new platform capabilities on the critical path</td><td>7X engineering</td><td>Build week one</td></tr><tr><td>7</td><td>Bidding stays in TruKKer (GAP-21); the carrier portal value proposition rests on registry, trips and payments</td><td>7X product</td><td>Sprint 3 design</td></tr><tr><td>8</td><td>LOI commencement conditions and the Definitive Agreements timing relative to go-live</td><td>7X commercial</td><td>Scope lock</td></tr><tr><td>9</td><td>Rate limits are sized from expected volumes; volumes must be shared</td><td>7X product</td><td>This week</td></tr></tbody></table></div>
+<hr>
+<h2 id="15-appendices">15. Appendices</h2>
+<h3 id="a-endpoint-to-feature-matrix-api-v2">A. Endpoint to feature matrix (API v2)</h3>
+<div class="tablewrap"><table><thead><tr><th>Endpoint</th><th>Feature</th></tr></thead><tbody><tr><td>Shipper/BasicInformation, Shipper/SaveKYCDetails, Shipper/CreditInfo/SaveCreditInfo</td><td>FR-2 provisioning</td></tr><tr><td>Supplier/BasicInfo/BasicInformation, Supplier/kycInfo/SaveKYCDetails, Driver/BasicInfo/BasicInformation, Driver/kycInfo/SaveKYCDetails, Truck/BasicInfo/BasicInformation, TruckDetails/SaveTruckDetails</td><td>FR-3 registry sync</td></tr><tr><td>InquiryMaster/SaveInquiry, UpdateInquiryDetails, CancelInquiry, GetInquiryById, Reports/DemandTrackerReport</td><td>FR-4 demand</td></tr><tr><td>LoadboardDashBoard/GetDashboardDetails, GetBidHistory, GetInquiryById, Reports/GetDemandOrdersByInquiryId</td><td>FR-5 pricing and confirmation</td></tr><tr><td>OrderMaster/GetOrdersList, GetOrderDetailsById, GetTripInfoById, CancelOrder</td><td>FR-6 shipments, FR-7 tracking</td></tr><tr><td>OrderMaster/GetTripDocs, SaveTripDocs, lineitemService/v1/findRevenueLineItems, tripDetailsService/v1/sourceDestination</td><td>FR-8 documents</td></tr><tr><td>getInvoicesDetailsByOrderNumber, invoiceService/v1/unBilledAgeingReport, saveInvoiceGenerationData, getInvoiceACKTemplate, Collection/GetInvoiceList, Communication/PrevStatementOfAccAsync, Collection/AllocatePayment</td><td>FR-9 billing</td></tr></tbody></table></div>
+<h3 id="b-pilot-measure-definitions">B. Pilot measure definitions</h3>
+<p>On-time delivery: delivered timestamp at or before the planned delivery window end. Track and trace: a movement with a status update no older than one poll cycle for its entire in-transit period. Digital POD: POD document present in the vault within 6 hours of the delivered timestamp. Incident reporting: incident opened within 60 minutes of the triggering event. Carrier onboarding: verified within 72 hours of invitation acceptance. Waybill coverage: movements with a waybill in state issued or later at departure.</p>
+<h3 id="c-glossary">C. Glossary</h3>
+<p>RFQ, a request for quotation, TruKKer's inquiry. Loadboard, TruKKer's carrier bidding marketplace. DRT, TruKKer's document review before dispatch. e-Bayan, the digital waybill ADEED issues. POD, proof of delivery. SOA, statement of account. KYB and KYC, business and individual verification. Annex A, TruKKer's status dictionary delivered on 3 September. Gateway, the ADEED Integration Gateway.</p>
+<h3 id="d-references">D. References</h3>
+<p>The interactive playbook at docs.7x-lab.com/adeed-freight-v1-plan; the standalone TruKKer page at /trukker; <code>01-CUSTOMER-JOURNEYS.md</code>; <code>02-API-COVERAGE-AND-GAPS.md</code> with section 5 (TruKKer response and API v2); <code>trukker-workshop/ARCHITECTURE.md</code>.</p></main>
+</div>
