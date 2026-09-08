@@ -202,6 +202,16 @@ details[open] > summary .chev{transform:rotate(90deg)}
 .ggroup > summary .cnt{font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--muted);background:var(--fill);border-radius:var(--r-pill);padding:1.5px 9px}
 .ggroup .glist{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 0 20px}
 @media (max-width:820px){.ggroup .glist{grid-template-columns:1fr}}
+/* TruKKer response layer */
+.rsum{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.rs{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:5px 11px;border-radius:var(--r-pill);background:var(--fill);color:var(--ink-2)}
+.rs b{font-weight:600;color:var(--ink)}
+.rs i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.rs.ok i{background:var(--live)}.rs.part i{background:var(--contract)}.rs.no i{background:var(--gapc)}
+.rpill{flex:none;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-pill);white-space:nowrap}
+.rpill.ok{background:rgba(0,134,99,.12);color:var(--live)}.rpill.part{background:rgba(163,96,0,.12);color:var(--contract)}.rpill.wait{background:var(--fill);color:var(--muted)}.rpill.no{background:rgba(200,30,60,.1);color:var(--gapc)}
+.gitem .g-b .rt{font-size:13px;color:var(--ink-2);margin-top:10px;padding-top:9px;border-top:1px solid var(--line-2)}
+.gitem .g-b .rn{font-size:12.5px;color:var(--muted);margin-top:5px}
 /* collapsible api groups */
 .agroup{margin-top:12px;border-top:1px solid var(--line)}
 .agroup > summary{display:flex;align-items:center;gap:10px;padding:15px 2px}
@@ -536,8 +546,8 @@ button.tag:hover{border-color:var(--ink)}
     <button class="navbtn" data-view="arch">Architecture</button>
     <button class="navbtn" data-view="flow">System flows</button>
     <button class="navbtn" data-view="journeys">Journey map</button>
-    <button class="navbtn" data-view="apis">API readiness<b class="badge num">29</b></button>
-    <button class="navbtn" data-view="gaps">For TruKKer<b class="badge red num">24</b></button>
+    <button class="navbtn" data-view="apis">API readiness<b class="badge num">39</b></button>
+    <button class="navbtn" data-view="gaps">For TruKKer<b class="badge red num">18</b></button>
   </nav>
 </aside>
 <div class="marea">
@@ -556,8 +566,9 @@ button.tag:hover{border-color:var(--ink)}
     <h2>Where the programme stands</h2>
     <div class="miles">
       <div class="mile done"><div class="d num">21 Aug 2026</div><div class="t">Technical working session: integration architecture, joint account provisioning, shared client identifier.<span class="st ok">Done</span></div></div>
-      <div class="mile"><div class="d num">1 Sep 2026</div><div class="t"><b>Scope lock.</b> Pilot scope and the P0 contract list freeze. Sandbox access and seeded test data are due the same week.<span class="st nx">Next</span></div></div>
-      <div class="mile"><div class="d num">17 Sep 2026</div><div class="t"><b>Pilot go-live, target.</b> ADEED Freight live for the anchor clients on the TruKKer engine, a waybill under every movement.</div></div>
+      <div class="mile"><div class="d num">1 Sep 2026</div><div class="t"><b>Scope lock.</b> Pilot scope and the P0 contract list freeze. Credentials and the sandbox follow user-journey sign-off, within five business days.</div></div>
+      <div class="mile done"><div class="d num">3 Sep 2026</div><div class="t">TruKKer response and API v2: 13 new endpoints (onboarding, cancel and amend, invoice for order) and the Annex A status dictionary. Six of the thirteen blockers delivered.<span class="st ok">Done</span></div></div>
+      <div class="mile"><div class="d num">17 Sep 2026</div><div class="t"><b>Pilot go-live, target.</b> ADEED Freight live for the anchor clients on the TruKKer engine, a waybill under every movement.<span class="st nx">Next</span></div></div>
       <div class="mile"><div class="d num">21 Sep to 13 Nov</div><div class="t">Four two-week enhancement sprints: hardening, money flows, supply side, scale groundwork.</div></div>
       <div class="mile"><div class="d num">Jan 2027</div><div class="t">Phase 1 target, the federal MVP: registry at scale, e-Bayan issuance engine, first regulator views.</div></div>
     </div>
@@ -609,7 +620,7 @@ button.tag:hover{border-color:var(--ink)}
     <div class="sprints">
       <div class="sprint"><span class="sd num">Sprint 1 · 21 Sep to 2 Oct</span><b>Pilot hardening</b><p>Fix what the first live loads surface. Tracking and exception handling tightened, cancel and amend (GAP-09), daily reconciliation running clean, joint standup with TruKKer through week one.</p></div>
       <div class="sprint"><span class="sd num">Sprint 2 · 5 to 16 Oct</span><b>Money flows</b><p>Invoice acceptance and disputes (GAP-12), payment and settlement read-back (GAP-13), carrier settlement visibility including MoXey status.</p></div>
-      <div class="sprint"><span class="sd num">Sprint 3 · 19 to 30 Oct</span><b>Supply side</b><p>Carrier self-serve onboarding beyond the anchor group, user provisioning (GAP-17), carrier bidding inside ADEED (GAP-21), rate-card reads (GAP-22).</p></div>
+      <div class="sprint"><span class="sd num">Sprint 3 · 19 to 30 Oct</span><b>Supply side</b><p>Carrier self-serve onboarding on the v2 supplier, driver and truck contracts, user provisioning (GAP-17), rate-card reads if TruKKer and the client agree (GAP-22). In-portal bidding is dropped: carriers keep bidding on the TruKKer loadboard.</p></div>
       <div class="sprint"><span class="sd num">Sprint 4 · 2 to 13 Nov</span><b>Scale groundwork</b><p>Webhook channel to replace polling (GAP-05), full document taxonomy (GAP-10), bulk carrier-migration prep (GAP-18), first regulator preview for Phase 1.</p></div>
     </div>
   </div>
@@ -751,12 +762,12 @@ button.tag:hover{border-color:var(--ink)}
 <section class="view" id="view-apis">
   <div class="vhead">
     <h1>API readiness</h1>
-    <p>What is live today, what is waiting on field-level contracts, and what ADEED builds. The red segment is what is missing: those asks sit in the For TruKKer tab.</p>
+    <p>What is live today on API v2 (4 September), what is still waiting on a contract, and what ADEED builds. The red segment is the ask register, now carrying TruKKer's responses in the For TruKKer tab.</p>
   </div>
   <div class="section" style="margin-top:26px">
     <div class="strip" id="estatestrip">
-      <button class="seg num" data-strip="live" style="flex:19;background:var(--live)" aria-label="19 live endpoints, open the catalog">19</button>
-      <button class="seg num" data-strip="contract" style="flex:4;background:var(--contract)" aria-label="4 contract-pending areas, open the catalog">4</button>
+      <button class="seg num" data-strip="live" style="flex:32;background:var(--live)" aria-label="32 live endpoints, open the catalog">32</button>
+      <button class="seg num" data-strip="contract" style="flex:2;background:var(--contract)" aria-label="1 contract-pending area, open the catalog">1</button>
       <button class="seg num" data-strip="build" style="flex:6;background:var(--build)" aria-label="6 ADEED builds, open the catalog">6</button>
       <button class="seg num" data-strip="gaps" style="flex:24;background:var(--gapc)" aria-label="24 formal asks, open the gap register">24</button>
     </div>
@@ -765,14 +776,14 @@ button.tag:hover{border-color:var(--ink)}
       <span><i style="background:var(--live)"></i>Live and documented</span>
       <span><i style="background:var(--contract)"></i>Live, contracts pending</span>
       <span><i style="background:var(--build)"></i>ADEED net-new builds</span>
-      <span><i style="background:var(--gapc)"></i>Missing, asks for TruKKer</span>
+      <span><i style="background:var(--gapc)"></i>Asks, with TruKKer's response</span>
     </div>
   </div>
   <div class="controls">
     <div class="segs">
       <button class="seg on" data-f="all">All</button>
-      <button class="seg" data-f="live">Live<span class="num"> 19</span></button>
-      <button class="seg" data-f="contract">Contracts pending<span class="num"> 4</span></button>
+      <button class="seg" data-f="live">Live<span class="num"> 32</span></button>
+      <button class="seg" data-f="contract">Contracts pending<span class="num"> 1</span></button>
       <button class="seg" data-f="build">ADEED builds<span class="num"> 6</span></button>
     </div>
     <input type="search" id="apisearch" placeholder="Search name, path or journey" aria-label="Search APIs">
@@ -784,12 +795,13 @@ button.tag:hover{border-color:var(--ink)}
 <section class="view" id="view-gaps">
   <div class="vhead">
     <div class="exrow"><h1>For the TruKKer team</h1><button class="jboard" id="sharetk" style="margin-top:0">Share this tab</button></div>
-    <p>What the integration needs from your side, ready to table. All of it already runs inside the TruKKer platform; the missing piece is the <em>API contracts</em>, and thirteen of them block the pilot.</p>
+    <p>TruKKer answered on 3 September with API v2 attached. Of the thirteen pilot blockers, <em>six are delivered</em>, two are partly delivered, two are committed but gated, and three are still open. Every card carries their response.</p>
   </div>
+  <div class="rsum" id="rsum"></div>
 
   <div class="section" style="margin-top:34px">
     <h2>The thirteen pilot blockers</h2>
-    <p class="note">The pilot cannot go live without these. To hold 17 September, the contracts need agreement at scope lock and a live sandbox in the first week of September. Select a card for the detail and the suggested contract shape.</p>
+    <p class="note">To hold 17 September: sign off the user-journey scope this week so credentials and the sandbox land within five business days, and close the three open blockers, client confirmation, incident visibility and the e-Bayan hooks, at the next workshop. Select a card for the detail, the suggested shape and TruKKer's response.</p>
     <div class="p0grid" id="p0grid"></div>
   </div>
   <div id="gapgroups" style="margin-top:30px"></div>
@@ -812,7 +824,16 @@ button.tag:hover{border-color:var(--ink)}
 <script>
 /* ════════ DATA ════════ */
 const APIS=[
- {n:"Booking RFQ",m:"POST",p:"InquiryMaster/SaveInquiry",st:"Booking & RFQ",d:"Creates a freight inquiry: shipper, pickup and drop-off plan, cargo schedule, asset and pricing mode, roughly 90 fields. The entry point of the lifecycle.",note:"Gateway owns defaults such as inquirySource “7X” and platformSource “AdminAPI”.",j:["J3"]},
+ {n:"Save client basic information",m:"POST",p:"Shipper/BasicInformation",st:"Onboarding",d:"Creates or updates the client profile: company, contacts, service types, billing and ordering entity mappings, credit settings and onboarding completion status.",note:"New in API v2 (4 Sep). Closes GAP-14.",j:["J1"]},
+ {n:"Save client credit information",m:"POST",p:"Shipper/CreditInfo/SaveCreditInfo",st:"Onboarding",d:"Credit limit, period, grace limit and Coface risk rating for a client.",j:["J1"]},
+ {n:"Save client KYC",m:"POST",p:"Shipper/SaveKYCDetails",st:"Onboarding",d:"VAT certificate, trade licence, company registration and service agreement for a billing entity, with expiry dates.",j:["J1"]},
+ {n:"Save driver basic information",m:"POST",p:"Driver/BasicInfo/BasicInformation",st:"Onboarding",d:"Driver profile with licence number and expiry, nationality, contact, associated supplier and licence documents.",note:"New in API v2. With driver KYC, closes GAP-16.",j:["J2"]},
+ {n:"Save driver KYC",m:"POST",p:"Driver/kycInfo/SaveKYCDetails",st:"Onboarding",d:"Profile photo, national ID, passport and visa documents with expiry dates.",j:["J2"]},
+ {n:"Save truck basic information",m:"POST",p:"Truck/BasicInfo/BasicInformation",st:"Onboarding",d:"Truck type and weight, registration number, city and expiry, plate, associated supplier and registration documents.",j:["J2","J5"]},
+ {n:"Save truck details",m:"POST",p:"TruckDetails/SaveTruckDetails",st:"Onboarding",d:"Brand, model, year of manufacture, chassis number and trailer configuration.",j:["J2"]},
+ {n:"Save supplier basic information",m:"POST",p:"Supplier/BasicInfo/BasicInformation",st:"Onboarding",d:"Carrier company details, contact, communication preferences and onboarding completion status.",note:"New in API v2. Closes GAP-15.",j:["J2"]},
+ {n:"Save supplier KYC",m:"POST",p:"Supplier/kycInfo/SaveKYCDetails",st:"Onboarding",d:"National ID, driving licence, permit, VAT, trade licence, company registration and insurance documents for a carrier.",j:["J2"]},
+ {n:"Booking RFQ",m:"POST",p:"InquiryMaster/SaveInquiry",st:"Booking & RFQ",d:"Creates a freight inquiry: shipper, pickup and drop-off plan, cargo schedule, asset and pricing mode, roughly 90 fields. The entry point of the lifecycle.",note:"Gateway owns defaults such as inquirySource “7X” and platformSource “Admin” (v2).",j:["J3"]},
  {n:"List RFQs",m:"POST",p:"Reports/DemandTrackerReport",st:"Booking & RFQ",d:"Paginated, filterable list of inquiries per client and date range, used for demand tracking and monitoring.",j:["J3","J10"]},
  {n:"RFQ details",m:"GET",p:"InquiryMaster/GetInquiryById",st:"Booking & RFQ",d:"Full detail of a single RFQ by inquiry ID.",j:["J3"]},
  {n:"Bid dashboard",m:"GET",p:"LoadboardDashBoard/GetDashboardDetails",st:"Booking & RFQ",d:"The live bidding dashboard for an RFQ: the current view of bids received.",j:["J4"]},
@@ -824,18 +845,19 @@ const APIS=[
  {n:"Upload POD documents",m:"POST",p:"OrderMaster/SaveTripDocs",st:"Documents",d:"Uploads proof of delivery per truck on an order: SPOD docType with cloud-storage URLs.",j:["J7"]},
  {n:"Get POD documents",m:"GET",p:"OrderMaster/GetTripDocs",st:"Documents",d:"Retrieves POD documents for a specific truck on a shipment.",j:["J7"]},
  {n:"Revenue line items",m:"GET",p:"lineitemService/v1/findRevenueLineItems",st:"Documents",d:"Billable charges on a shipment order: freight, waiting, detention, tolls.",j:["J7","J8"]},
- {n:"Bayan documents",m:"GET",p:"tripDetailsService/v1/sourceDestination",st:"Documents",d:"Customs and regulatory movement documents, keyed by order and shipper.",note:"The printed call is truncated in the source PDF; the full parameter set needs a re-issue.",j:["J7"]},
+ {n:"Bayan documents",m:"GET",p:"tripDetailsService/v1/sourceDestination",st:"Documents",d:"Customs and regulatory movement documents, keyed by order and shipper.",note:"API v2 restores the full call: externalOrderMasterId, externalShipperMasterId and orderType=New.",j:["J7"]},
  {n:"Uninvoiced orders",m:"POST",p:"invoiceService/v1/unBilledAgeingReport",st:"Invoicing",d:"Delivered orders not yet invoiced, filterable by region, station and POD status.",j:["J8"]},
  {n:"Generate invoice",m:"POST",p:"invoiceService/v1/saveInvoiceGenerationData",st:"Invoicing",d:"Generates an invoice across selected orders with line-item inclusion and exclusion.",note:"Write endpoint. Switches on once the commercial terms settle, LOI §6.",j:["J8"]},
  {n:"Invoice acknowledgement",m:"POST",p:"invoiceService/v1/getInvoiceACKTemplate",st:"Invoicing",d:"Produces the acknowledgement document for a generated invoice.",j:["J8"]},
  {n:"Unpaid invoices",m:"POST",p:"Collection/GetInvoiceList",st:"Collections",d:"Outstanding invoices for a client in a given currency.",j:["J8"]},
  {n:"Statement of account",m:"POST",p:"Communication/PrevStatementOfAccAsync",st:"Collections",d:"Statement of account summarising invoices and balances per client.",j:["J8"]},
- {n:"Allocate payment",m:"POST",p:"Collection/AllocatePayment",st:"Collections",d:"Records a received payment and allocates it across outstanding invoices.",note:"Write endpoint. Switches on once the commercial terms settle.",j:["J8"]}
+ {n:"Allocate payment",m:"POST",p:"Collection/AllocatePayment",st:"Collections",d:"Records a received payment and allocates it across outstanding invoices.",note:"Write endpoint. Switches on once the commercial terms settle.",j:["J8"]},
+ {n:"Cancel RFQ",m:"POST",p:"InquiryMaster/CancelInquiry",st:"Booking & RFQ",d:"Cancels an active inquiry with a cancelDisposition reason (material not ready, document issue, loading bay issue, client denied) and remarks.",note:"New in API v2. With amend, closes GAP-04.",j:["J3"]},
+ {n:"Amend RFQ",m:"POST",p:"InquiryMaster/UpdateInquiryDetails",st:"Booking & RFQ",d:"Updates an existing inquiry before confirmation: client and billing entity, truck type, pickup and drop-off plan, customs and other parameters.",j:["J3"]},
+ {n:"Cancel shipment",m:"POST",p:"OrderMaster/CancelOrder",st:"Shipments",d:"Cancels an active order with a cancelDisposition reason and remarks.",note:"New in API v2. Covers the cancel half of GAP-09.",j:["J6"]},
+ {n:"Invoice for order",m:"GET",p:"getInvoicesDetailsByOrderNumber",st:"Invoicing",d:"Invoice ID, a cloud storage PDF link and invoice metadata for a shipment order.",note:"New in API v2. Closes GAP-11.",j:["J8"]}
 ];
 const AREAS=[
- {n:"Client accounts & KYB",d:"Create and update client accounts, profile, billing-entity mapping and verification status. The basis of joint account provisioning.",g:"GAP-14",j:["J1"]},
- {n:"Carrier & vendor onboarding",d:"Register carriers and vendors, document submission, KYC verification status tracking. Feeds the National Registry.",g:"GAP-15",j:["J2"]},
- {n:"Drivers & assets",d:"Driver KYC and licensing records, truck registration and compliance status with expiry data.",g:"GAP-16",j:["J2","J5"]},
  {n:"Users & access",d:"User provisioning and role-based access, mirroring client teams during transition.",g:"GAP-17",j:["J1"]}
 ];
 const BUILDS=[
@@ -847,30 +869,30 @@ const BUILDS=[
  {n:"Partner API freight scopes",d:"freight:requests, freight:shipments, freight:documents and freight:invoices scopes with PII-free DTOs for client ERPs.",j:["J1","J3"]}
 ];
 const GAPS=[
- {id:"GAP-01",t:"Auth & environment specification",pr:"P0",w:"Everything depends on it: token issuance and refresh, expiry, base URLs per environment, sandbox credentials, IP allowlisting. The v1.0 doc names no auth scheme and prints no base URLs.",s:"OAuth2 client credentials or a documented token endpoint; a sandbox seeded with demo data",j:["J1"]},
- {id:"GAP-02",t:"Price and quote read contract",pr:"P0",w:"The board shows the price matrix sharing prices with the client for confirmation, but no API exposes the computed price, validity window or quote reference.",s:"GET quote by inquiryId returning price, currency, validity and breakdown",j:["J4"]},
- {id:"GAP-03",t:"Award and price-confirmation write",pr:"P0",w:"The client's confirmation must convert inquiry to confirmed order from the ADEED surface. Today that happens only inside TruKKer ops tooling.",s:"POST confirm/award { inquiryId, quoteRef or bidId, confirmedBy }, idempotent",j:["J4"]},
- {id:"GAP-04",t:"RFQ amend and cancel",pr:"P0",w:"Clients change quantities and dates, or withdraw: the lead-closure loop on the board. No update or cancel endpoint is documented.",s:"POST inquiry amend for a pre-award field subset, plus POST inquiry cancel { reason }",j:["J3"]},
- {id:"GAP-05",t:"Webhook and event-push channel",pr:"P1",w:"The documented surface is pull-only, so ADEED must poll. Acceptable for the pilot, not for scale.",s:"Event subscriptions (bid_placed, price_ready, order_created, assigned, milestone, pod_uploaded, invoice_generated, payment_allocated) with HMAC signing and replay",j:["J6"]},
- {id:"GAP-06",t:"Live tracking, ETA and telemetry",pr:"P0",w:"The pilot KPI is live track and trace at 100%. The board shows GPS deployment and geofencing, but no positions, ETA or milestone API exists, and the board routes status updates only to TruKKer's own loadboard and admin surfaces: no client-facing tracking view exists anywhere today. The single largest functional gap.",s:"GET positions by orderId (lat, lon, ts, speed); GET milestones with geofence events, planned vs actual; an ETA field",j:["J5","J6"]},
- {id:"GAP-07",t:"Status and milestone dictionary",pr:"P0",w:"orderStatus values, trip states, event codes and timestamp semantics are undocumented, and the canonical ADEED status map depends on them.",s:"A data dictionary annex to the API reference",j:["J6","J10"]},
- {id:"GAP-08",t:"Exception and incident feed",pr:"P0",w:"Pilot KPI: incident reporting within the hour. The board shows rejection and driver-replacement loops with FATIMA status chasing, and none of it is exposed.",s:"An incidents feed { orderId, type, severity, ts, resolution } including assignment replacements",j:["J6"]},
- {id:"GAP-09",t:"Order cancel and change",pr:"P1",w:"Cancel a confirmed shipment, or change pickup, drop-off and time windows before pickup.",s:"POST order cancel/amend with cutoff rules",j:["J6"]},
- {id:"GAP-10",t:"Document taxonomy and generic doc API",pr:"P1",w:"Beyond SPOD: delivery note, packing list, gate pass, customs set. Upload custody too: SaveTripDocs takes a pre-uploaded cloud URL and no endpoint issues one, so either TruKKer provides an upload contract or accepts ADEED-hosted URLs.",s:"An enumerated docType list; generic GET and POST documents by orderId; an upload or pre-signed URL contract",j:["J7"]},
- {id:"GAP-11",t:"Invoice detail and PDF retrieval",pr:"P0",w:"The board shares the invoice with the client for viewing over API, but no endpoint returns the invoice document or per-invoice line detail.",s:"GET invoice { invoiceNo } returning header, lines, tax and a PDF URL",j:["J8"]},
- {id:"GAP-12",t:"Invoice acceptance and dispute write",pr:"P1",w:"Invoice acceptance is a client action, and credit and debit notes exist internally. ADEED needs the write plus CN and DN retrieval.",s:"POST invoice accept/dispute { invoiceNo, reason }; GET credit-debit-notes",j:["J8"]},
- {id:"GAP-13",t:"Payment and settlement read-back",pr:"P1",w:"AllocatePayment is write-only. There is no receipts or payment-history read, and carrier-side vendor-payment status, including MoXey advances, is invisible.",s:"GET payments by client or invoice; GET vendor settlement by orderId",j:["J2","J8"]},
- {id:"GAP-14",t:"Client accounts and KYB contracts",pr:"P0",w:"Joint provisioning is a stated workshop objective. It needs create, update and status payloads, billing-entity mapping and the shared client identifier convention. The doc spells the shipper key four ways (externalShipperMasterId, shipperMasterId, extShipperId, shipperId); the convention must unify them.",s:"The full contract set, with the ADEED org ID as the externalShipperMasterId join key on every request in both directions",j:["J1"]},
- {id:"GAP-15",t:"Carrier and vendor onboarding contracts",pr:"P0",w:"Registry intake and two-way verification status sync.",s:"Register and update carrier, document submission, KYC status read plus change events",j:["J2"]},
- {id:"GAP-16",t:"Driver and asset contracts",pr:"P0",w:"Driver KYC and licensing with expiry data, truck registration and compliance, and assignment visibility beyond GetTripInfoById.",s:"Driver and asset read with compliance status and expiry fields; an assignment event",j:["J2","J5"]},
- {id:"GAP-17",t:"User provisioning and RBAC contracts",pr:"P1",w:"Mirror client users and roles during the transition period.",s:"User create and disable, plus a role mapping table",j:["J1"]},
- {id:"GAP-18",t:"Bulk carrier-base export and migration",pr:"P1",w:"The LOI's Phase 1 migrates the existing carrier base, 70k+ registered on TruKKer's FY2025 figures, into the registry. That needs bulk read plus a consent and data-sharing framework, not row-by-row calls.",s:"Batched export, either a paginated bulk API or a file drop, with an agreed schema and legal basis",j:["J2"]},
- {id:"GAP-19",t:"e-Bayan integration hooks",pr:"P0",w:"ADEED issues the waybill. TruKKer must supply the full movement payload at confirmation, accept the waybill ID on the order, and emit trip start and complete to open and close validity. isMultiTruckBayan on SaveInquiry suggests the plumbing exists.",s:"v0 for the pilot: an attach field plus the movement payload. The engine lands in the joint SoW.",j:["J5","J9"]},
- {id:"GAP-20",t:"API conventions annex",pr:"P0",w:"Error model and response schemas (none are documented for any of the 19 endpoints), pagination norms (three sorting conventions, three unpaginated list endpoints), rate limits, idempotency keys on writes, retry guidance, timestamp rules (five datetime formats visible), and versioning: 13 of 19 endpoints are unversioned.",s:"A conventions annex plus per-endpoint mandatory and optional field tables",j:["J10"]},
- {id:"GAP-21",t:"Carrier-side bid submission API",pr:"P1",w:"If carriers bid inside the ADEED carrier portal, bid placement needs an API. The pilot can proceed with TruKKer-side bidding plus the ADEED mirror.",s:"POST bid { inquiryId, price, trucks, validity } plus an own-bid read",j:["J4"]},
- {id:"GAP-22",t:"Contract rate-card read",pr:"P1",w:"inquiryRateType Contract/Spot implies rate cards per client and lane, but there is no read API. Needed for instant contract-lane pricing and the savings report.",s:"GET rate cards by client and lane",j:["J4"]},
- {id:"GAP-23",t:"Assisted-channel draft lifecycle",pr:"P2",w:"EVA-created WhatsApp and email drafts must surface as governed ADEED drafts. draftInquiryNumber already exists in SaveInquiry.",s:"A draft list, read and promote contract",j:["J3"]},
- {id:"GAP-24",t:"SLA and OTIF source data",pr:"P1",w:"The pilot reports on-time delivery at 95% or better, which needs planned vs actual timestamps per milestone. Derivable once GAP-06 and GAP-07 deliver complete fields.",s:"Covered by GAP-06 and GAP-07 field completeness, kept as an explicit acceptance criterion",j:["J10"]}
+ {id:"GAP-01",r:"agreed",rt:"Credentials and the sandbox are issued once both teams sign off the user-journey scope, within five business days of that sign-off. Auth is OAuth; the conventions annex follows with the credentials.",rn:"Critical path for 17 September: the user-journey sign-off has to happen this week.",t:"Auth & environment specification",pr:"P0",w:"Everything depends on it: token issuance and refresh, expiry, base URLs per environment, sandbox credentials, IP allowlisting. The v1.0 doc names no auth scheme and prints no base URLs.",s:"OAuth2 client credentials or a documented token endpoint; a sandbox seeded with demo data",j:["J1"]},
+ {id:"GAP-02",r:"open",rt:"Client confirmation is handled by TruKKer operations today; clients have no self-serve option. TruKKer can build one and share it as per scope. The inquiry detail API returns the winning supplier, price, quote reference and currency.",rn:"Decision needed now: commission the self-serve confirmation write for the pilot, or run confirmation through TruKKer ops with ADEED mirroring the outcome.",t:"Price and quote read contract",pr:"P0",w:"The board shows the price matrix sharing prices with the client for confirmation, but no API exposes the computed price, validity window or quote reference.",s:"GET quote by inquiryId returning price, currency, validity and breakdown",j:["J4"]},
+ {id:"GAP-03",r:"partial",rt:"There is no manual award step. Contracted shippers resolve from the client rate card; for spot inquiries TruKKer auto-declares the winning bid on the lowest submitted vendor rate. GetInquiryById returns the winning supplier, price and quote reference.",rn:"Award is automatic, so what remains is the client confirmation under GAP-02. The Annex A inquiry states Partially Booked and Booked show an acceptance step exists internally.",t:"Award and price-confirmation write",pr:"P0",w:"The client's confirmation must convert inquiry to confirmed order from the ADEED surface. Today that happens only inside TruKKer ops tooling.",s:"POST confirm/award { inquiryId, quoteRef or bidId, confirmedBy }, idempotent",j:["J4"]},
+ {id:"GAP-04",r:"delivered",rt:"CancelInquiry with a cancelDisposition reason and UpdateInquiryDetails for amendments before confirmation are in API v2.",t:"RFQ amend and cancel",pr:"P0",w:"Clients change quantities and dates, or withdraw: the lead-closure loop on the board. No update or cancel endpoint is documented.",s:"POST inquiry amend for a pre-award field subset, plus POST inquiry cancel { reason }",j:["J3"]},
+ {id:"GAP-05",r:"agreed",rt:"To be finalised between the teams at pilot start, HMAC signing included.",t:"Webhook and event-push channel",pr:"P1",w:"The documented surface is pull-only, so ADEED must poll. Acceptable for the pilot, not for scale.",s:"Event subscriptions (bid_placed, price_ready, order_created, assigned, milestone, pod_uploaded, invoice_generated, payment_allocated) with HMAC signing and replay",j:["J6"]},
+ {id:"GAP-06",r:"partial",rt:"Milestone status updates are committed for all shipments: at border, at unloading, delivered and the full Annex A set. TruKKer integrates several GPS telemetry providers; details to follow.",rn:"API v2 carries no milestone, position or ETA endpoint yet. Until one lands, the 100 percent track and trace KPI has no data source.",t:"Live tracking, ETA and telemetry",pr:"P0",w:"The pilot KPI is live track and trace at 100%. The board shows GPS deployment and geofencing, but no positions, ETA or milestone API exists, and the board routes status updates only to TruKKer's own loadboard and admin surfaces: no client-facing tracking view exists anywhere today. The single largest functional gap.",s:"GET positions by orderId (lat, lon, ts, speed); GET milestones with geofence events, planned vs actual; an ETA field",j:["J5","J6"]},
+ {id:"GAP-07",r:"delivered",rt:"Annex A delivers the order status dictionary for domestic (8 states) and cross-border (12 states) moves and the inquiry status set (6 states). statusName spelling and casing are contractual; all timestamps are ISO 8601 UTC.",t:"Status and milestone dictionary",pr:"P0",w:"orderStatus values, trip states, event codes and timestamp semantics are undocumented, and the canonical ADEED status map depends on them.",s:"A data dictionary annex to the API reference",j:["J6","J10"]},
+ {id:"GAP-08",r:"open",rt:"Incidents and replacements are handled in TruKKer operations and updated in the TruKKer platform; the same will be visible to shippers.",rn:"Visible where, and through which contract, is not answered. The one-hour incident KPI still has no feed.",t:"Exception and incident feed",pr:"P0",w:"Pilot KPI: incident reporting within the hour. The board shows rejection and driver-replacement loops with FATIMA status chasing, and none of it is exposed.",s:"An incidents feed { orderId, type, severity, ts, resolution } including assignment replacements",j:["J6"]},
+ {id:"GAP-09",r:"partial",rt:"CancelOrder with a cancelDisposition reason is in API v2. Amendments are available at inquiry level before confirmation through UpdateInquiryDetails.",rn:"No order-level amend after confirmation.",t:"Order cancel and change",pr:"P1",w:"Cancel a confirmed shipment, or change pickup, drop-off and time windows before pickup.",s:"POST order cancel/amend with cutoff rules",j:["J6"]},
+ {id:"GAP-10",r:"agreed",rt:"TruKKer will provide cloud storage API details. API v2 also enumerates the onboarding document types: VAT, trade licence, company registration, service agreement, driver ID, passport, visa, truck registration, insurance.",rn:"Movement document types beyond SPOD remain unlisted.",t:"Document taxonomy and generic doc API",pr:"P1",w:"Beyond SPOD: delivery note, packing list, gate pass, customs set. Upload custody too: SaveTripDocs takes a pre-uploaded cloud URL and no endpoint issues one, so either TruKKer provides an upload contract or accepts ADEED-hosted URLs.",s:"An enumerated docType list; generic GET and POST documents by orderId; an upload or pre-signed URL contract",j:["J7"]},
+ {id:"GAP-11",r:"delivered",rt:"getInvoicesDetailsByOrderNumber returns the invoice ID, a cloud storage PDF link and invoice metadata per order.",t:"Invoice detail and PDF retrieval",pr:"P0",w:"The board shares the invoice with the client for viewing over API, but no endpoint returns the invoice document or per-invoice line detail.",s:"GET invoice { invoiceNo } returning header, lines, tax and a PDF URL",j:["J8"]},
+ {id:"GAP-12",r:"agreed",rt:"TruKKer will share this API; details pending.",t:"Invoice acceptance and dispute write",pr:"P1",w:"Invoice acceptance is a client action, and credit and debit notes exist internally. ADEED needs the write plus CN and DN retrieval.",s:"POST invoice accept/dispute { invoiceNo, reason }; GET credit-debit-notes",j:["J8"]},
+ {id:"GAP-13",r:"agreed",rt:"TruKKer will share this API; details pending.",t:"Payment and settlement read-back",pr:"P1",w:"AllocatePayment is write-only. There is no receipts or payment-history read, and carrier-side vendor-payment status, including MoXey advances, is invisible.",s:"GET payments by client or invoice; GET vendor settlement by orderId",j:["J2","J8"]},
+ {id:"GAP-14",r:"delivered",rt:"Shipper/BasicInformation, CreditInfo/SaveCreditInfo and SaveKYCDetails are in API v2 with billing and ordering entity mappings, credit terms and completion status. The ADEED organisation ID is confirmed as the externalShipperMasterId join key on every request in both directions.",t:"Client accounts and KYB contracts",pr:"P0",w:"Joint provisioning is a stated workshop objective. It needs create, update and status payloads, billing-entity mapping and the shared client identifier convention. The doc spells the shipper key four ways (externalShipperMasterId, shipperMasterId, extShipperId, shipperId); the convention must unify them.",s:"The full contract set, with the ADEED org ID as the externalShipperMasterId join key on every request in both directions",j:["J1"]},
+ {id:"GAP-15",r:"delivered",rt:"Supplier/BasicInfo/BasicInformation and Supplier/kycInfo/SaveKYCDetails are in API v2, with document types and expiry dates.",t:"Carrier and vendor onboarding contracts",pr:"P0",w:"Registry intake and two-way verification status sync.",s:"Register and update carrier, document submission, KYC status read plus change events",j:["J2"]},
+ {id:"GAP-16",r:"delivered",rt:"Driver basic information and KYC, truck basic information and truck details are in API v2, with licence, registration and document expiry dates.",rn:"Assignment visibility still relies on GetTripInfoById; there is no assignment event.",t:"Driver and asset contracts",pr:"P0",w:"Driver KYC and licensing with expiry data, truck registration and compliance, and assignment visibility beyond GetTripInfoById.",s:"Driver and asset read with compliance status and expiry fields; an assignment event",j:["J2","J5"]},
+ {id:"GAP-17",r:"agreed",rt:"To be finalised at scope lock.",t:"User provisioning and RBAC contracts",pr:"P1",w:"Mirror client users and roles during the transition period.",s:"User create and disable, plus a role mapping table",j:["J1"]},
+ {id:"GAP-18",r:"deferred",rt:"Legal basis first; the mechanism follows execution of the Definitive Agreements.",t:"Bulk carrier-base export and migration",pr:"P1",w:"The LOI's Phase 1 migrates the existing carrier base, 70k+ registered on TruKKer's FY2025 figures, into the registry. That needs bulk read plus a consent and data-sharing framework, not row-by-row calls.",s:"Batched export, either a paginated bulk API or a file drop, with an agreed schema and legal basis",j:["J2"]},
+ {id:"GAP-19",r:"open",rt:"To be finalised in the next workshop meeting.",rn:"Waybill v0 under every pilot movement depends on this. It needs a date before 17 September.",t:"e-Bayan integration hooks",pr:"P0",w:"ADEED issues the waybill. TruKKer must supply the full movement payload at confirmation, accept the waybill ID on the order, and emit trip start and complete to open and close validity. isMultiTruckBayan on SaveInquiry suggests the plumbing exists.",s:"v0 for the pilot: an attach field plus the movement payload. The engine lands in the joint SoW.",j:["J5","J9"]},
+ {id:"GAP-20",r:"agreed",rt:"To be shared after scope lock together with the OAuth credentials. Confirmed already: timestamps ISO 8601 UTC on every endpoint; idempotency mandatory, a repeat call returns the original result; rate limits published with the specification once volumes are confirmed.",t:"API conventions annex",pr:"P0",w:"Error model and response schemas (none are documented for any of the 19 endpoints), pagination norms (three sorting conventions, three unpaginated list endpoints), rate limits, idempotency keys on writes, retry guidance, timestamp rules (five datetime formats visible), and versioning: 13 of 19 endpoints are unversioned.",s:"A conventions annex plus per-endpoint mandatory and optional field tables",j:["J10"]},
+ {id:"GAP-21",r:"declined",rt:"Not applicable: the TruKKer platform and operations handle bidding and sourcing internally.",rn:"Carriers keep bidding on the TruKKer loadboard. In-portal bidding is dropped from the ADEED carrier portal and from Sprint 3.",t:"Carrier-side bid submission API",pr:"P1",w:"If carriers bid inside the ADEED carrier portal, bid placement needs an API. The pilot can proceed with TruKKer-side bidding plus the ADEED mirror.",s:"POST bid { inquiryId, price, trucks, validity } plus an own-bid read",j:["J4"]},
+ {id:"GAP-22",r:"open",rt:"To be decided; the contract is between TruKKer and the client.",t:"Contract rate-card read",pr:"P1",w:"inquiryRateType Contract/Spot implies rate cards per client and lane, but there is no read API. Needed for instant contract-lane pricing and the savings report.",s:"GET rate cards by client and lane",j:["J4"]},
+ {id:"GAP-23",r:"deferred",rt:"Legal basis first; the mechanism follows the Definitive Agreements.",t:"Assisted-channel draft lifecycle",pr:"P2",w:"EVA-created WhatsApp and email drafts must surface as governed ADEED drafts. draftInquiryNumber already exists in SaveInquiry.",s:"A draft list, read and promote contract",j:["J3"]},
+ {id:"GAP-24",r:"agreed",rt:"Derived from the milestone data under GAP-06 and the Annex A dictionary; carried as an acceptance criterion rather than a separate contract.",t:"SLA and OTIF source data",pr:"P1",w:"The pilot reports on-time delivery at 95% or better, which needs planned vs actual timestamps per milestone. Derivable once GAP-06 and GAP-07 deliver complete fields.",s:"Covered by GAP-06 and GAP-07 field completeness, kept as an explicit acceptance criterion",j:["J10"]}
 ];
 const PERSONAS=[
  {id:"P1",w:"Pilot",n:"Shipper: Transport Planner",d:"Creates demand, confirms prices, tracks movements, receives PODs. Government or enterprise demand org."},
@@ -889,7 +911,7 @@ const J=[
    {t:"Invite and sign-up",a:"Shipper admin",su:"/freight/login",b:"Magic link. A freight participant record is created pending verification.",apis:[{l:"ADEED auth",s:"build"}]},
    {t:"Organisation KYB",a:"Shipper admin",su:"/freight/portal/profile",b:"Trade licence, TRN, billing entities and signatories. UAE Pass verification arrives in Phase 1.",apis:[{l:"ADEED profile",s:"build"}]},
    {t:"Verification",a:"ADEED Ops",su:"/admin/freight",b:"Ops approves and the organisation becomes verified.",apis:[{l:"ADEED ops",s:"build"}]},
-   {t:"Joint provisioning",a:"System",su:"Gateway, invisible",b:"Creates the TruKKer client and billing entity, then stores the account link with the shared identifier carried on every subsequent call.",apis:[{l:"Client accounts & KYB",s:"contract"},{l:"GAP-14 identifier convention",s:"gap",g:"GAP-14"}]},
+   {t:"Joint provisioning",a:"System",su:"Gateway, invisible",b:"Creates the TruKKer client and billing entity, then stores the account link with the shared identifier carried on every subsequent call.",apis:[{l:"Shipper/BasicInformation",s:"live"},{l:"SaveKYCDetails",s:"live"},{l:"SaveCreditInfo",s:"live"}]},
    {t:"Team and roles",a:"Shipper admin",su:"/freight/portal/profile",b:"Invite planners and finance users. Roles are mirrored to TruKKer during transition.",apis:[{l:"Users & access",s:"contract"},{l:"GAP-17",s:"gap",g:"GAP-17"}]},
    {t:"Lanes and wallet definition",a:"Procurement + Ops",su:"/freight/portal/lanes",b:"Defined lanes or the full freight wallet registered. The client\u2019s current carriers are listed for the J2 invitation.",apis:[{l:"ADEED lanes",s:"build"}]},
    {t:"ERP connection, optional",a:"Shipper IT",su:"Developers portal",b:"A freight-scoped Partner API key is issued so SAP or Oracle posts demand directly.",apis:[{l:"Partner API scopes",s:"build"}]}
@@ -900,13 +922,13 @@ const J=[
   n:"The layer that makes ADEED Freight governed rather than brokered: every carrier KYB-verified, every driver KYC-verified with a portable credential and a quality score from the first movement. The National Registry is mastered in ADEED and seeds the future federal registry.",
   steps:[
    {t:"Invitation",a:"ADEED Ops, current-carrier lists",su:"Tokenised link to the onboarding wizard",b:"Arabic, Urdu and English, reusing the ADEED partner intake flow.",apis:[{l:"ADEED onboarding",s:"build"}]},
-   {t:"Company KYB",a:"Carrier",su:"Wizard steps 1-2",b:"Trade licence, operating card under Law 9/2011, TRN, insurance, with automatic expiry extraction.",apis:[{l:"Carrier onboarding",s:"contract"},{l:"GAP-15",s:"gap",g:"GAP-15"}]},
-   {t:"Fleet registration",a:"Carrier",su:"Wizard step 3",b:"Trucks by plate and chassis: type, axle, capacity, registration expiry, Asateel unit where applicable.",apis:[{l:"Drivers & assets",s:"contract"},{l:"GAP-16",s:"gap",g:"GAP-16"}]},
-   {t:"Driver KYC",a:"Carrier or driver",su:"Wizard step 4",b:"Emirates ID, passport and visa, licence class and expiry. A portable credential is issued on verification.",apis:[{l:"Drivers & assets",s:"contract"},{l:"GAP-16",s:"gap",g:"GAP-16"}]},
+   {t:"Company KYB",a:"Carrier",su:"Wizard steps 1-2",b:"Trade licence, operating card under Law 9/2011, TRN, insurance, with automatic expiry extraction.",apis:[{l:"Supplier/BasicInformation",s:"live"},{l:"Supplier KYC",s:"live"}]},
+   {t:"Fleet registration",a:"Carrier",su:"Wizard step 3",b:"Trucks by plate and chassis: type, axle, capacity, registration expiry, Asateel unit where applicable.",apis:[{l:"Truck/BasicInformation",s:"live"},{l:"SaveTruckDetails",s:"live"}]},
+   {t:"Driver KYC",a:"Carrier or driver",su:"Wizard step 4",b:"Emirates ID, passport and visa, licence class and expiry. A portable credential is issued on verification.",apis:[{l:"Driver/BasicInformation",s:"live"},{l:"Driver KYC",s:"live"}]},
    {t:"Payment setup",a:"Carrier",su:"Wizard step 5",b:"Bank details and the MoXey wallet opt-in. Instant pay is the registration incentive.",apis:[{l:"GAP-13 settlement visibility",s:"gap",g:"GAP-13"}]},
    {t:"Verification queue",a:"ADEED Ops",su:"/admin/freight/registry",b:"Document verification, expiry checks, passport and visa checks, sanctions screening. Approve or reject with reasons.",apis:[{l:"ADEED registry",s:"build"}]},
    {t:"Registry credential",a:"System",su:"/freight/carrier/registry",b:"Registry ID plus a quality score built from OTIF, POD timeliness, incidents and document hygiene. The AEO track is visible.",apis:[{l:"ADEED registry",s:"build"}]},
-   {t:"Sync to execution",a:"System",su:"Gateway",b:"Verified carriers, drivers and assets are pushed to TruKKer so loadboard eligibility reflects registry status. Suspensions propagate both ways.",apis:[{l:"GAP-15/16 write-back",s:"gap",g:"GAP-15"}]},
+   {t:"Sync to execution",a:"System",su:"Gateway",b:"Verified carriers, drivers and assets are pushed to TruKKer so loadboard eligibility reflects registry status. Suspensions propagate both ways.",apis:[{l:"Supplier, driver and truck writes",s:"live"}]},
    {t:"Base migration, Phase 1",a:"System",su:"Bulk pipeline",b:"The existing TruKKer UAE carrier base migrates into the registry, matched against ADEED commercial-registration and asset datasets.",apis:[{l:"GAP-18 bulk export",s:"gap",g:"GAP-18"}]}
   ],
   kpi:"Digital onboarding within 72 hours per carrier. No existing carrier displaced. Verification before first movement.",
@@ -921,20 +943,20 @@ const J=[
    {t:"Completeness checks",a:"System",su:"Draft state",b:"Required-field validation per move type, with missing-info prompts to the client.",apis:[{l:"ADEED validation",s:"build"}]},
    {t:"Submission",a:"Planner",su:"Wizard confirm",b:"The freight request persists, the gateway maps the 90-field payload and creates the TruKKer inquiry, and the inquiry number is stored on the request.",apis:[{l:"SaveInquiry",s:"live"}]},
    {t:"Registry pre-check",a:"System",su:"Background",b:"The RFQ is flagged if the lane or cargo needs capabilities no verified carrier holds. An early supply-gap signal.",apis:[{l:"ADEED registry",s:"build"}]},
-   {t:"Track and amend",a:"Planner",su:"/freight/portal/requests",b:"The open-RFQ list with status, amendments and cancellation before award.",apis:[{l:"DemandTrackerReport",s:"live"},{l:"GetInquiryById",s:"live"},{l:"GAP-04 amend/cancel",s:"gap",g:"GAP-04"}]}
+   {t:"Track and amend",a:"Planner",su:"/freight/portal/requests",b:"The open-RFQ list with status, amendments and cancellation before award.",apis:[{l:"DemandTrackerReport",s:"live"},{l:"GetInquiryById",s:"live"},{l:"UpdateInquiryDetails",s:"live"},{l:"CancelInquiry",s:"live"}]}
   ],
   kpi:"Every channel lands in one governed RFQ pipeline. No off-system demand.",
   edge:"Project moves carry multi-period schedules. LTL requests use the package block. Contract lanes skip pricing and book at card rate, and Confirmed-type demand (inquiryType Confirmed) skips price discovery entirely, the board's demand-type fork."},
  {id:"J4",t:"Price discovery, transparent bidding and award",ph:"Phase 0",pp:["P1","P2","P4"],
-  n:"Contract lanes price instantly from the rate card; spot demand goes to the loadboard where verified carriers bid. The shipper sees a transparent bid board with every bid mirrored for procurement audit, and award needs explicit client confirmation, the step that converts inquiry to order.",
+  n:"Contract lanes price instantly from the rate card; spot demand goes to the loadboard where verified carriers bid. The shipper sees a transparent bid board with every bid mirrored for procurement audit, and TruKKer auto-declares the winner on the lowest vendor rate. The client confirmation that converts inquiry to order still runs through TruKKer ops, which is why that write stays open.",
   steps:[
    {t:"Instant price on contract lanes",a:"System",su:"Request detail",b:"Rate-card lookup with price and validity shown at submission.",apis:[{l:"GAP-02 quote read",s:"gap",g:"GAP-02"},{l:"GAP-22 rate cards",s:"gap",g:"GAP-22"}]},
    {t:"Loadboard publication for spot",a:"System",su:"Background",b:"The inquiry is visible to eligible verified carriers. Eligibility is registry status plus capability match.",apis:[{l:"TruKKer loadboard",s:"live"},{l:"Registry filter",s:"build"}]},
    {t:"Carrier bids",a:"Carrier",su:"/freight/carrier/loadboard",b:"Bid price, truck count and validity, with own-bid rank state.",apis:[{l:"GAP-21 bid submission",s:"gap",g:"GAP-21"}]},
    {t:"Transparent bid board",a:"Shipper and Ops",su:"Request detail, bids tab",b:"The live dashboard plus full history, mirrored for audit. Carrier identity stays anonymised until award under a policy toggle.",apis:[{l:"GetDashboardDetails",s:"live"},{l:"GetBidHistory",s:"live"}]},
    {t:"Price to client",a:"System",su:"Request detail and notification",b:"The final offer on spot or the card price on contract, with expiry. Savings against baseline show for procurement.",apis:[{l:"GAP-02 quote read",s:"gap",g:"GAP-02"}]},
-   {t:"Confirm or decline",a:"Shipper",su:"Request detail",b:"Confirm awards the load. Decline with reason closes the lead. A counter goes to ops-assisted renegotiation.",apis:[{l:"GAP-03 award write",s:"gap",g:"GAP-03"}]},
-   {t:"Award propagation",a:"System",su:"Background",b:"The winner is selected, losing bidders are notified, and confirmed shipments are generated.",apis:[{l:"GetDemandOrdersByInquiryId",s:"live"}]}
+   {t:"Confirm or decline",a:"Shipper",su:"Request detail",b:"Confirm books the load; decline with reason closes the lead. Until the self-serve write exists, TruKKer ops records the confirmation and ADEED mirrors it.",apis:[{l:"GAP-02 confirmation write",s:"gap",g:"GAP-02"},{l:"GetInquiryById, winner and quote",s:"live"}]},
+   {t:"Award propagation",a:"System",su:"Background",b:"TruKKer auto-declares the winner on the lowest submitted vendor rate, losing bidders are released, and confirmed shipments are generated.",apis:[{l:"GetDemandOrdersByInquiryId",s:"live"}]}
   ],
   kpi:"Every bid, every price shown and the confirming identity written to the procurement audit trail.",
   edge:"No bids within the SLA routes to ops manual sourcing on the same audit trail. Partial awards cover part of the truck count. Price expiry triggers a re-price loop."},
@@ -942,7 +964,7 @@ const J=[
   n:"Award converts to orders, one per truck movement where applicable. The carrier assigns truck and driver, and TruKKer's DRT compliance checks become registry-enforced gates. At confirmation the e-Bayan engine issues a waybill per movement, the federal instrument Phase 1 attaches to the operating-card regime.",
   steps:[
    {t:"Order creation",a:"System",su:"/freight/portal/shipments",b:"Confirmed orders are mirrored as shipments with ADEED references.",apis:[{l:"GetDemandOrdersByInquiryId",s:"live"},{l:"GetOrdersList",s:"live"}]},
-   {t:"Truck and driver assignment",a:"Carrier",su:"/freight/carrier/trips",b:"Pick from the verified fleet only. The registry blocks expired or suspended assets and drivers, and replacement re-runs the checks.",apis:[{l:"GetTripInfoById",s:"live"},{l:"GAP-16 assignment contract",s:"gap",g:"GAP-16"}]},
+   {t:"Truck and driver assignment",a:"Carrier",su:"/freight/carrier/trips",b:"Pick from the verified fleet only. The registry blocks expired or suspended assets and drivers, and replacement re-runs the checks.",apis:[{l:"GetTripInfoById",s:"live"},{l:"Assignment event, open under GAP-16",s:"gap",g:"GAP-16"}]},
    {t:"ETA and reporting times",a:"Carrier",su:"Trip detail",b:"Pickup reporting time and ETA are declared.",apis:[{l:"GAP-06 ETA",s:"gap",g:"GAP-06"}]},
    {t:"e-Bayan issuance",a:"System, ADEED authority",su:"Waybill on the shipment",b:"The waybill issues from movement data: shipper, consignee, cargo, route, carrier, driver, truck. QR-verifiable, attached to the TruKKer order, queryable by the regulator.",apis:[{l:"e-Bayan engine",s:"build"},{l:"GAP-19 waybill hooks",s:"gap",g:"GAP-19"}]},
    {t:"GPS activation",a:"Carrier and TruKKer ops",su:"Background",b:"GPS deployment or tagging plus geofencing, with managed devices where phone GPS is not enough.",apis:[{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"}]},
@@ -953,19 +975,19 @@ const J=[
  {id:"J6",t:"In-transit tracking and exceptions",ph:"Phase 0",pp:["P1","P4","P6"],
   n:"A live timeline for the shipper and an exception queue for ops. Until webhooks and telemetry land the gateway polls and the timeline is milestone-grade, which is exactly why the tracking ask is P0: the pilot KPI is 100% track and trace.",
   steps:[
-   {t:"Live timeline",a:"Shipper",su:"/freight/portal/shipments/[ref]",b:"Milestones from geofence events: at pickup, loaded, departed, border, arrived, delivered, planned against actual.",apis:[{l:"GetOrderDetailsById, 5 min poll",s:"live"},{l:"GAP-06 milestones",s:"gap",g:"GAP-06"},{l:"GAP-07 status dictionary",s:"gap",g:"GAP-07"}]},
+   {t:"Live timeline",a:"Shipper",su:"/freight/portal/shipments/[ref]",b:"Milestones from geofence events: at pickup, loaded, departed, border, arrived, delivered, planned against actual.",apis:[{l:"GetOrderDetailsById, 5 min poll",s:"live"},{l:"GAP-06 milestones",s:"gap",g:"GAP-06"},{l:"Annex A status dictionary",s:"live"}]},
    {t:"Live map",a:"Shipper and Ops",su:"Shipment detail and the ops board",b:"The truck position stream on the corridor map, feeding ADEED Radar.",apis:[{l:"GAP-06 positions",s:"gap",g:"GAP-06"}]},
    {t:"Status notifications",a:"System",su:"Email, WhatsApp, portal",b:"A notification per milestone, with a consignee link for the delivery window.",apis:[{l:"Notification engine",s:"build"},{l:"GAP-05 webhooks",s:"gap",g:"GAP-05"}]},
    {t:"Exceptions",a:"Ops",su:"/admin/freight SLA board",b:"Delay, breakdown, rejection or route deviation opens an incident within the hour, informs the client and triggers replacement per J5.",apis:[{l:"GAP-08 incident feed",s:"gap",g:"GAP-08"}]},
    {t:"Border events",a:"System",su:"Shipment timeline",b:"Customs and border milestones for cross-border lanes, with the Hafeet corridor later.",apis:[{l:"GAP-06",s:"gap",g:"GAP-06"},{l:"Gov integrations, Phase 2",s:"build"}]},
-   {t:"Cancel or change",a:"Shipper",su:"Shipment detail",b:"Cancel a confirmed shipment or change windows before pickup, under cutoff rules.",apis:[{l:"GAP-09 order amend",s:"gap",g:"GAP-09"}]}
+   {t:"Cancel or change",a:"Shipper",su:"Shipment detail",b:"Cancel a confirmed shipment or change windows before pickup, under cutoff rules.",apis:[{l:"CancelOrder",s:"live"},{l:"GAP-09 order amend",s:"gap",g:"GAP-09"}]}
   ],
   kpi:"Live track and trace at 100%. Incident reporting within the hour.",
   edge:"Poll cadence until events land: RFQs every 1-2 minutes, in-transit every 5, finance nightly."},
  {id:"J7",t:"Delivery, ePOD and the document vault",ph:"Phase 0",pp:["P4","P5","P1","P3"],
   n:"Proof of delivery within six hours, and every movement document, from POD to waybill to customs set to line items, in one vault, with binaries copied into UAE-resident storage the moment they are retrieved.",
   steps:[
-   {t:"Delivery confirmation",a:"Driver and carrier",su:"Driver app, trip detail",b:"Geofenced arrival at the drop-off sets delivered status.",apis:[{l:"GAP-06/07",s:"gap",g:"GAP-06"}]},
+   {t:"Delivery confirmation",a:"Driver and carrier",su:"Driver app, trip detail",b:"Geofenced arrival at the drop-off sets delivered status.",apis:[{l:"GAP-06 milestones",s:"gap",g:"GAP-06"}]},
    {t:"ePOD capture",a:"Driver and carrier",su:"Trip detail upload",b:"A signed POD photo per truck, with validated file types.",apis:[{l:"SaveTripDocs",s:"live"}]},
    {t:"POD retrieval and mirror",a:"System",su:"Background",b:"The gateway pulls the POD and copies the binary to UAE-resident storage on receipt, keeping the UAE-resident audit trail complete.",apis:[{l:"GetTripDocs",s:"live"},{l:"Docs-mirror pipeline",s:"build"}]},
    {t:"POD verification",a:"ADEED Ops",su:"/admin/freight",b:"Legibility and completeness checks, with hard-copy collection tracked through the calling team and courier module.",apis:[{l:"ADEED workflow",s:"build"}]},
@@ -980,7 +1002,7 @@ const J=[
    {t:"Uninvoiced queue",a:"System and Ops",su:"/admin/freight finance view",b:"Delivered, POD-verified orders awaiting billing, with ageing.",apis:[{l:"unBilledAgeingReport",s:"live"}]},
    {t:"Line-item review",a:"Shipper finance",su:"/freight/portal/billing",b:"Charges per order: freight, waiting, detention, tolls. Approve or exclude per line.",apis:[{l:"findRevenueLineItems",s:"live"}]},
    {t:"Invoice generation",a:"System",su:"Background",b:"One invoice across selected orders, honouring line inclusion and exclusion.",apis:[{l:"saveInvoiceGenerationData",s:"live"}]},
-   {t:"Invoice delivery",a:"System",su:"Billing and the vault",b:"PDF and line detail in the portal, with UAE e-invoicing artifacts once mandated in January 2027.",apis:[{l:"GAP-11 invoice retrieval",s:"gap",g:"GAP-11"}]},
+   {t:"Invoice delivery",a:"System",su:"Billing and the vault",b:"PDF and line detail in the portal, with UAE e-invoicing artifacts once mandated in January 2027.",apis:[{l:"getInvoicesDetailsByOrderNumber",s:"live"}]},
    {t:"Acceptance or dispute",a:"Shipper finance",su:"Billing",b:"Accept produces the acknowledgement document. Dispute opens the CN and DN flow with reasons.",apis:[{l:"getInvoiceACKTemplate",s:"live"},{l:"GAP-12 accept/dispute",s:"gap",g:"GAP-12"}]},
    {t:"Payment",a:"Shipper finance",su:"FINTX and FAB rails",b:"Payment executes on 7X financial rails and the allocation is recorded against invoices.",apis:[{l:"AllocatePayment",s:"live"},{l:"GAP-13 receipts read",s:"gap",g:"GAP-13"}]},
    {t:"SOA and ageing",a:"Both finance teams",su:"Billing and carrier payments",b:"Statement of account, DSO, AR ageing, credit analysis.",apis:[{l:"GetInvoiceList",s:"live"},{l:"PrevStatementOfAccAsync",s:"live"}]},
@@ -1015,7 +1037,7 @@ const J=[
 const STAGES=["Onboard","Demand","Price & bid","Book & waybill","Execute & track","Deliver & PoD","Settle"];
 const FLOWCELLS={
  adeed:[
-  [{id:"a0",l:"Client onboarding",ph:"Phase 0",d:"Shipper KYB, billing entities and team roles. Joint provisioning creates the TruKKer client behind the gateway.",j:"J1",refs:[{l:"Client accounts & KYB",s:"contract"},{l:"GAP-14",s:"gap",g:"GAP-14"}]}],
+  [{id:"a0",l:"Client onboarding",ph:"Phase 0",d:"Shipper KYB, billing entities and team roles. Joint provisioning creates the TruKKer client behind the gateway.",j:"J1",refs:[{l:"Shipper/BasicInformation",s:"live"},{l:"SaveKYCDetails",s:"live"}]}],
   [{id:"a1",l:"Demand posting",ph:"Phase 0",d:"Portal wizard, Copilot, ERP through the Partner API, assisted WhatsApp and email. Every channel lands as the same governed RFQ.",j:"J3",refs:[{l:"SaveInquiry",s:"live"},{l:"Partner API",s:"build"}]},
    {id:"a1b",l:"Completeness checks",ph:"Phase 0",d:"Required-field validation per move type, with missing-info prompts back to the client.",j:"J3",refs:[{l:"ADEED validation",s:"build"}]}],
   [{id:"a2",l:"Transparent bid board",ph:"Phase 0",d:"Every bid mirrored into the ADEED procurement audit trail, the transparency government clients require.",j:"J4",refs:[{l:"GetDashboardDetails",s:"live"},{l:"GetBidHistory",s:"live"}]},
@@ -1023,12 +1045,12 @@ const FLOWCELLS={
   [{id:"a3",l:"Shipment mirror",ph:"Phase 0",d:"Confirmed orders land as ADEED shipments with their own references, ready for tracking and documents.",j:"J5",refs:[{l:"GetDemandOrdersByInquiryId",s:"live"},{l:"GetOrdersList",s:"live"}]}],
   [{id:"a4",l:"Shipment timeline",ph:"Phase 0",d:"Milestones, the live map, truck and driver, waybill and documents. The shipper's single view of the movement.",j:"J6",refs:[{l:"GetOrderDetailsById",s:"live"},{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"}]}],
   [{id:"a5",l:"Document vault",ph:"Phase 0",d:"POD, waybill, customs set and line items, with binaries copied on receipt into UAE-resident storage.",j:"J7",refs:[{l:"GetTripDocs",s:"live"},{l:"Docs mirror",s:"build"}]}],
-  [{id:"a6",l:"Billing & SOA",ph:"Phase 0 reads",d:"Line-item review, invoice acceptance, disputes and the statement of account. Payment on FINTX and FAB rails.",j:"J8",refs:[{l:"GetInvoiceList",s:"live"},{l:"GAP-11 invoice PDF",s:"gap",g:"GAP-11"}]},
+  [{id:"a6",l:"Billing & SOA",ph:"Phase 0 reads",d:"Line-item review, invoice acceptance, disputes and the statement of account. Payment on FINTX and FAB rails.",j:"J8",refs:[{l:"GetInvoiceList",s:"live"},{l:"Invoice for order",s:"live"}]},
    {id:"a6b",l:"Control tower & Radar",ph:"Phase 0",d:"The SLA board, exceptions, integration health and the pilot KPIs read by the GCEO office.",j:"J10",refs:[{l:"ADEED reporting",s:"build"},{l:"GAP-24",s:"gap",g:"GAP-24"}]}]
  ],
  fed:[
   [{id:"f0",l:"UAE Pass · KYC/KYB",ph:"Phase 1",d:"Verified digital identity for every carrier, driver and client, federated with commercial licensing and vehicle registers.",j:"J1",refs:[{l:"Identity lane, 7X scope",s:"build"}]},
-   {id:"f0b",l:"National Registry",ph:"Phase 0 pilot, Phase 1 scale",d:"KYB of every carrier and KYC of every driver, with a portable credential and a quality score that follows the operator.",j:"J2",refs:[{l:"Registry service",s:"build"},{l:"GAP-15/16 contracts",s:"gap",g:"GAP-15"}]}],
+   {id:"f0b",l:"National Registry",ph:"Phase 0 pilot, Phase 1 scale",d:"KYB of every carrier and KYC of every driver, with a portable credential and a quality score that follows the operator.",j:"J2",refs:[{l:"Registry service",s:"build"},{l:"Supplier and driver writes",s:"live"}]}],
   [],
   [],
   [{id:"f3",l:"e-Waybill engine",ph:"v0 in Phase 0, engine in Phase 1",d:"A federal e-Bayan per movement: shipper, consignee, cargo, route, carrier, driver, truck. QR-verifiable.",j:"J5",refs:[{l:"e-Bayan engine",s:"build"},{l:"GAP-19 hooks",s:"gap",g:"GAP-19"}]}],
@@ -1037,16 +1059,16 @@ const FLOWCELLS={
   []
  ],
  tk:[
-  [{id:"t0",l:"Carrier onboarding stack",ph:"Phase 0",d:"TruKKer's production onboarding: carrier and vendor registration, driver KYC, asset compliance. Evidence flows into the ADEED registry.",j:"J2",refs:[{l:"Carrier & vendor onboarding",s:"contract"},{l:"Drivers & assets",s:"contract"}]}],
+  [{id:"t0",l:"Carrier onboarding stack",ph:"Phase 0",d:"TruKKer's production onboarding: carrier and vendor registration, driver KYC, asset compliance. Evidence flows into the ADEED registry.",j:"J2",refs:[{l:"Supplier onboarding",s:"live"},{l:"Driver and truck onboarding",s:"live"}]}],
   [{id:"t1",l:"Inquiry creation",ph:"Phase 0",d:"The RFQ lands in the engine from ADEED through the gateway, or as drafts from EVA demand automation.",j:"J3",refs:[{l:"SaveInquiry",s:"live"},{l:"GAP-23 drafts",s:"gap",g:"GAP-23"}]}],
-  [{id:"t2",l:"Sourcing & bidding",ph:"Phase 0",d:"The price matrix, manual sourcing and the partner loadboard. FATIMA negotiates with carriers on WhatsApp.",j:"J4",refs:[{l:"Loadboard",s:"live"},{l:"GAP-21 bid API",s:"gap",g:"GAP-21"}]},
+  [{id:"t2",l:"Sourcing & bidding",ph:"Phase 0",d:"The price matrix, manual sourcing and the partner loadboard. FATIMA negotiates with carriers on WhatsApp.",j:"J4",refs:[{l:"Loadboard",s:"live"}]},
    {id:"t2b",l:"Winner selection",ph:"Phase 0",d:"Best bid or buying-price target met, and losing bidders are released.",j:"J4",refs:[{l:"GetBidHistory",s:"live"}]}],
   [{id:"t3",l:"Order booking",ph:"Phase 0",d:"The confirmed inquiry becomes orders, one per truck movement where applicable.",j:"J5",refs:[{l:"GetDemandOrdersByInquiryId",s:"live"}]},
-   {id:"t3b",l:"DRT approval",ph:"Phase 0",d:"Document verification, expiry checks, passport and visa checks before dispatch. Registry-enforced in ADEED Freight.",j:"J5",refs:[{l:"GAP-16 compliance data",s:"gap",g:"GAP-16"}]},
+   {id:"t3b",l:"DRT approval",ph:"Phase 0",d:"Document verification, expiry checks, passport and visa checks before dispatch. Registry-enforced in ADEED Freight.",j:"J5",refs:[{l:"Driver and truck KYC data",s:"live"}]},
    {id:"t3c",l:"Truck & driver assignment",ph:"Phase 0",d:"Assignment with replacement loops on rejection. ETA and reporting times are added.",j:"J5",refs:[{l:"GetTripInfoById",s:"live"},{l:"GAP-06 ETA",s:"gap",g:"GAP-06"}]}],
-  [{id:"t4",l:"GPS & geofencing",ph:"Phase 0",d:"GPS deployment, geofenced milestones and status updates through the trip.",j:"J6",refs:[{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"},{l:"GAP-07 statuses",s:"gap",g:"GAP-07"}]}],
+  [{id:"t4",l:"GPS & geofencing",ph:"Phase 0",d:"GPS deployment, geofenced milestones and status updates through the trip.",j:"J6",refs:[{l:"GAP-06 telemetry",s:"gap",g:"GAP-06"},{l:"Annex A statuses",s:"live"}]}],
   [{id:"t5",l:"Delivery & PoD",ph:"Phase 0",d:"ePOD per truck. The calling team schedules collection; out-station hard copies route through the courier module.",j:"J7",refs:[{l:"SaveTripDocs",s:"live"},{l:"GetTripDocs",s:"live"}]}],
-  [{id:"t6",l:"Line items & invoicing",ph:"Phase 0 reads",d:"SARA runs the loop: line-item approval, invoice generation, PDF and acceptance.",j:"J8",refs:[{l:"unBilledAgeingReport",s:"live"},{l:"saveInvoiceGenerationData",s:"live"},{l:"GAP-11 PDF",s:"gap",g:"GAP-11"}]},
+  [{id:"t6",l:"Line items & invoicing",ph:"Phase 0 reads",d:"SARA runs the loop: line-item approval, invoice generation, PDF and acceptance.",j:"J8",refs:[{l:"unBilledAgeingReport",s:"live"},{l:"saveInvoiceGenerationData",s:"live"},{l:"getInvoicesDetailsByOrderNumber",s:"live"}]},
    {id:"t6b",l:"Collections & NetSuite",ph:"Writes after the DAs",d:"DSO management, AR ageing, credit analysis, SOA and demand letters, audited in NetSuite.",j:"J8",refs:[{l:"GetInvoiceList",s:"live"},{l:"AllocatePayment",s:"live"}]}]
  ]
 };
@@ -1355,17 +1377,20 @@ document.querySelectorAll("#view-apis .seg").forEach(b=>b.addEventListener("clic
 renderApis();
 
 /* gaps: featured blockers + collapsed groups */
+const RS={delivered:["Delivered","ok"],partial:["Partly delivered","part"],agreed:["Committed","wait"],open:["Open","no"],deferred:["After the DAs","wait"],declined:["Declined","no"]};
 function gapItem(g){
   return `<details class="gitem" id="row-${g.id}">
-    <summary><span class="gid">${g.id}</span><h4>${esc(g.t)}</h4>${g.pr!=="P0"?`<span class="prio ${g.pr}">${g.pr}</span>`:""}<span class="chev" aria-hidden="true">›</span></summary>
+    <summary><span class="gid">${g.id}</span><h4>${esc(g.t)}</h4>${g.pr!=="P0"?`<span class="prio ${g.pr}">${g.pr}</span>`:""}<span class="rpill ${RS[g.r][1]}">${RS[g.r][0]}</span><span class="chev" aria-hidden="true">›</span></summary>
     <div class="g-b">
       <p><b>Why:</b> ${esc(g.w)}</p>
       <p class="shape"><b>Suggested shape:</b> <code>${esc(g.s)}</code></p>
+      <p class="rt"><b>TruKKer, 3 Sep:</b> ${esc(g.rt)}</p>${g.rn?`<p class="rn">${esc(g.rn)}</p>`:""}
       <div class="jrow">${g.j.map(x=>`<button class="jref" data-goto-j="${x}">${x} journey →</button>`).join("")}</div>
     </div>
   </details>`;
 }
 (function renderGaps(){
+  $("#rsum").innerHTML=["delivered","partial","agreed","open","deferred","declined"].map(k=>{const n=GAPS.filter(g=>g.r===k).length;return n?`<span class="rs ${RS[k][1]}"><i></i>${RS[k][0]} <b class="num">${n}</b></span>`:""}).join("");
   $("#p0grid").innerHTML=GAPS.filter(g=>g.pr==="P0").map(gapItem).join("");
   const p1=GAPS.filter(g=>g.pr==="P1"),p2=GAPS.filter(g=>g.pr==="P2");
   $("#gapgroups").innerHTML=`
